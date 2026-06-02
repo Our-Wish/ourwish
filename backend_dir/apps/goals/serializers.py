@@ -3,10 +3,12 @@ from .models import Goal
 
 
 class GoalSerializer(serializers.ModelSerializer):
+    goal_id = serializers.IntegerField(source="id", read_only=True)
+
     class Meta:
         model = Goal
         fields = ["goal_id", "term_months", "monthly_cap", "created_at"]
-        read_only_fields = ["goal_id", "created_at"]
+        read_only_fields = ["created_at"]
 
     def validate_term_months(self, value):
         if value not in [3, 6, 12, 24, 36]:
