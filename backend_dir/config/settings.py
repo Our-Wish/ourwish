@@ -160,3 +160,4 @@ CORS_ALLOWED_ORIGINS = [
 
 # 외부 서비스
 FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://localhost:8001")
+FSS_API_KEY = os.environ.get("FSS_API_KEY")
