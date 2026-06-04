@@ -61,7 +61,7 @@ class Command(BaseCommand):
                                 "join_member": item.get("join_member") or "",
                                 "join_way": item.get("join_way") or "",
                                 "max_limit": item.get("max_limit"),
-                                "maturity_interest": item.get("mrtr_int") or "",
+                                "maturity_interest": item.get("mtrt_int") or "",
                                 "etc_note": item.get("etc_note") or "",
                                 "special_condition_raw": item.get("spcl_cnd") or "",
                                 "dcls_strt_day": item.get("dcls_strt_day") or "",
@@ -85,7 +85,7 @@ class Command(BaseCommand):
                             rsrv_type=opt["rsrv_type"],
                             defaults={
                                 "base_rate": opt["intr_rate"],
-                                "max_rate": opt.get("intr_rate"),
+                                "max_rate": opt.get("intr_rate2"),
                             },
                         )
                         total_options += 1
