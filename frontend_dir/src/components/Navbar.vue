@@ -1,5 +1,5 @@
 <template>
-  <nav class="border-b bg-white px-6 py-4 shadow-sm">
+  <nav class="bg-white px-6 py-4">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <RouterLink to="/" class="font-semibold text-slate-900">Our Wish</RouterLink>

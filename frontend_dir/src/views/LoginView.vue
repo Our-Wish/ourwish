@@ -1,38 +1,67 @@
 <template>
-  <div class="mx-auto max-w-md rounded-lg border bg-white p-8 shadow-sm">
-    <h1 class="mb-6 text-2xl font-semibold text-slate-900">Login</h1>
-
-    <form @submit.prevent="onSubmit" class="space-y-4">
-      <label class="block">
-        <span class="mb-2 block text-sm font-medium text-slate-700">Email</span>
-        <input
-          v-model="email"
-          type="email"
-          class="w-full rounded border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none"
-          required
-        />
-      </label>
-
-      <label class="block">
-        <span class="mb-2 block text-sm font-medium text-slate-700">Password</span>
-        <input
-          v-model="password"
-          type="password"
-          class="w-full rounded border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none"
-          required
-        />
-      </label>
-
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
+    <div
+      class="relative w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl shadow-slate-950/20"
+    >
       <button
-        type="submit"
-        class="w-full rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-        :disabled="loading"
+        @click="close"
+        class="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+        aria-label="Close login modal"
       >
-        {{ loading ? 'Logging in...' : 'Login' }}
+        ×
       </button>
 
-      <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
-    </form>
+      <div class="space-y-3">
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
+          만나서 반가워요 👋🏻
+        </p>
+        <h1 class="text-3xl font-semibold text-slate-950">아이디와 비밀번호를 입력해주세요</h1>
+      </div>
+
+      <form @submit.prevent="onSubmit" class="mt-8 space-y-5">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">아이디</label>
+          <input
+            v-model="email"
+            type="email"
+            placeholder="아이디"
+            class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">비밀번호</label>
+          <div class="relative">
+            <input
+              v-model="password"
+              type="password"
+              placeholder="비밀번호"
+              class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              required
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full rounded-3xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          :disabled="loading"
+        >
+          {{ loading ? '로그인 중...' : '로그인' }}
+        </button>
+
+        <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
+      </form>
+
+      <div class="mt-6 flex items-center justify-center gap-3 text-sm text-slate-500">
+        <button class="transition hover:text-slate-900">아이디 찾기</button>
+        <span>·</span>
+        <button class="transition hover:text-slate-900">비밀번호 찾기</button>
+        <span>·</span>
+        <button class="transition hover:text-slate-900">회원가입</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -48,6 +77,10 @@ const errorMessage = ref('')
 const authStore = useAuthStore()
 const router = useRouter()
 
+const close = () => {
+  router.push({ name: 'home' })
+}
+
 const onSubmit = async () => {
   loading.value = true
   errorMessage.value = ''
@@ -56,7 +89,7 @@ const onSubmit = async () => {
     await authStore.login(email.value, password.value)
     router.push({ name: 'home' })
   } catch (error) {
-    errorMessage.value = 'Login failed. Please check your credentials.'
+    errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'
   } finally {
     loading.value = false
   }
