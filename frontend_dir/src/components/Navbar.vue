@@ -1,11 +1,11 @@
 <template>
-  <nav class="bg-white px-6 py-4">
+  <nav class="px-6 py-6">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        <RouterLink to="/" class="font-semibold text-slate-900">Our Wish</RouterLink>
+        <RouterLink to="/" class="text-lg font-semibold text-slate-900">Our Wish</RouterLink>
       </div>
 
-      <div class="flex items-center gap-3 text-sm text-slate-700">
+      <div class="flex items-center gap-3 text-lg text-slate-700">
         <RouterLink v-if="!isAuthenticated" to="/login" class="hover:text-slate-900"
           >로그인</RouterLink
         >
