@@ -12,6 +12,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem(STORAGE_KEY) as string | null,
     user: null as AuthUser | null,
+    showLoginModal: false,
   }),
   getters: {
     isAuthenticated: (state) => Boolean(state.token),
@@ -33,6 +34,12 @@ export const useAuthStore = defineStore('auth', {
     },
     setUser(user: AuthUser | null) {
       this.user = user
+    },
+    openLoginModal() {
+      this.showLoginModal = true
+    },
+    closeLoginModal() {
+      this.showLoginModal = false
     },
     logout() {
       this.setToken(null)

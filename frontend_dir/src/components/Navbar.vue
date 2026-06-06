@@ -6,9 +6,13 @@
       </div>
 
       <div class="flex items-center gap-3 text-lg text-slate-700">
-        <RouterLink v-if="!isAuthenticated" to="/login" class="hover:text-slate-900"
-          >로그인</RouterLink
+        <button
+          v-if="!isAuthenticated"
+          class="hover:text-slate-900"
+          @click="authStore.openLoginModal()"
         >
+          로그인
+        </button>
         <button
           v-if="isAuthenticated"
           class="rounded border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-50"
@@ -23,15 +27,12 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
-const router = useRouter()
 
 const logout = () => {
   authStore.logout()
-  router.push({ name: 'home' })
 }
 </script>
