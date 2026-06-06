@@ -1,10 +1,11 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
+    <div class="absolute inset-0 bg-slate-950/40" @click="emit('close')" />
     <div
-      class="relative w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl shadow-slate-950/20"
+      class="relative w-full max-w-xl rounded-[2rem] bg-white p-10 shadow-2xl shadow-slate-950/20"
     >
       <button
-        @click="close"
+        @click="emit('close')"
         class="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
         aria-label="Close login modal"
       >
@@ -21,12 +22,12 @@
       <form @submit.prevent="onSubmit" class="mt-8 space-y-5">
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">아이디</label>
+          <!-- TODO: 백엔드 연동 시 type="email" required 로 복구 -->
           <input
             v-model="email"
-            type="email"
+            type="text"
             placeholder="아이디"
             class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            required
           />
         </div>
 
@@ -38,7 +39,6 @@
               type="password"
               placeholder="비밀번호"
               class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
             />
           </div>
         </div>
@@ -54,11 +54,7 @@
         <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
       </form>
 
-      <div class="mt-6 flex items-center justify-center gap-3 text-sm text-slate-500">
-        <button class="transition hover:text-slate-900">아이디 찾기</button>
-        <span>·</span>
-        <button class="transition hover:text-slate-900">비밀번호 찾기</button>
-        <span>·</span>
+      <div class="mt-6 flex items-center justify-center gap-3 text-m text-slate-500">
         <button class="transition hover:text-slate-900">회원가입</button>
       </div>
     </div>
@@ -70,6 +66,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const emit = defineEmits<{ close: [] }>()
+
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -77,18 +75,15 @@ const errorMessage = ref('')
 const authStore = useAuthStore()
 const router = useRouter()
 
-const close = () => {
-  router.push({ name: 'home' })
-}
-
 const onSubmit = async () => {
   loading.value = true
   errorMessage.value = ''
 
   try {
     await authStore.login(email.value, password.value)
-    router.push({ name: 'home' })
-  } catch (error) {
+    alert('로그인되었습니다!')
+    emit('close')
+  } catch {
     errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'
   } finally {
     loading.value = false

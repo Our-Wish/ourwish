@@ -15,12 +15,12 @@
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <RouterLink
-            to="/login"
+          <button
+            @click="onStart"
             class="flex w-full items-center justify-center rounded-full bg-blue-600 px-30 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500 sm:w-auto"
           >
             시작하기
-          </RouterLink>
+          </button>
         </div>
       </div>
 
@@ -39,5 +39,19 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+
+const authStore = useAuthStore()
+const router = useRouter()
+const { isAuthenticated } = storeToRefs(authStore)
+
+const onStart = () => {
+  if (isAuthenticated.value) {
+    router.push({ name: 'goalsetup' })
+  } else {
+    authStore.openLoginModal()
+  }
+}
 </script>
