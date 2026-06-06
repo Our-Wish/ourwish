@@ -22,12 +22,12 @@
       <form @submit.prevent="onSubmit" class="mt-8 space-y-5">
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">아이디</label>
+          <!-- TODO: 백엔드 연동 시 type="email" required 로 복구 -->
           <input
             v-model="email"
-            type="email"
+            type="text"
             placeholder="아이디"
             class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            required
           />
         </div>
 
@@ -39,7 +39,6 @@
               type="password"
               placeholder="비밀번호"
               class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
             />
           </div>
         </div>
@@ -64,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: [] }>()
@@ -73,6 +73,7 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const authStore = useAuthStore()
+const router = useRouter()
 
 const onSubmit = async () => {
   loading.value = true
@@ -81,6 +82,7 @@ const onSubmit = async () => {
   try {
     await authStore.login(email.value, password.value)
     emit('close')
+    router.push({ name: 'goalsetup' })
   } catch {
     errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'
   } finally {

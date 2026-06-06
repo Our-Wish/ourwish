@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api, { setAuthToken } from '@/api'
+import { setAuthToken } from '@/api'
 
 const STORAGE_KEY = 'auth_token'
 
@@ -45,14 +45,10 @@ export const useAuthStore = defineStore('auth', {
       this.setToken(null)
       this.user = null
     },
-    async login(email: string, password: string) {
-      const response = await api.post('/auth/login/', { email, password })
-      const token = response.data.access || response.data.token || response.data.access_token
-      if (token) {
-        this.setToken(token)
-        this.user = response.data.user ?? { email }
-      }
-      return response
+    async login(email: string, _password: string) {
+      // TODO: 백엔드 연동 시 아래 mock 제거
+      this.setToken('mock-token')
+      this.user = { email }
     },
   },
 })
