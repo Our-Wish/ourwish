@@ -2,7 +2,7 @@
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
     <div class="absolute inset-0 bg-slate-950/40" @click="emit('close')" />
     <div
-      class="relative w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl shadow-slate-950/20"
+      class="relative w-full max-w-xl rounded-[2rem] bg-white p-10 shadow-2xl shadow-slate-950/20"
     >
       <button
         @click="emit('close')"
@@ -55,11 +55,7 @@
         <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
       </form>
 
-      <div class="mt-6 flex items-center justify-center gap-3 text-sm text-slate-500">
-        <button class="transition hover:text-slate-900">아이디 찾기</button>
-        <span>·</span>
-        <button class="transition hover:text-slate-900">비밀번호 찾기</button>
-        <span>·</span>
+      <div class="mt-6 flex items-center justify-center gap-3 text-m text-slate-500">
         <button class="transition hover:text-slate-900">회원가입</button>
       </div>
     </div>
