@@ -1,33 +1,38 @@
 <template>
-  <section class="border-t border-slate-200">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="max-w-2xl">
-        <p class="text-sm uppercase tracking-[0.35em] text-blue-600">How it works</p>
-        <h2 class="mt-4 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
-          3분이면 나에게 맞는 적금이<br />
-          자동으로 나와요
+  <section class="px-6 py-20">
+    <div class="mx-auto max-w-6xl">
+      <div class="mb-16 space-y-4 max-w-2xl">
+        <span
+          class="inline-block rounded-full bg-blue-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-blue-700"
+        >
+          3단계
+        </span>
+        <h2 class="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
+          간단하고 빠르게
         </h2>
-        <p class="mt-6 text-lg leading-8 text-slate-600">
-          기간, 금액, 매달 낼 수 있는 한도만 입력하면, 모아가 가장 쉬운 적금 경로를 찾아드립니다.
+        <p class="text-lg leading-relaxed text-slate-600">
+          당신의 조건을 입력하면 맞춤형 상품을 자동으로 제시합니다.
         </p>
       </div>
 
-      <div class="mt-10 space-y-4">
+      <div class="grid gap-6 md:grid-cols-3">
         <div
           v-for="step in steps"
           :key="step.id"
-          class="flex items-center justify-between rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm"
+          class="group relative rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 p-8 transition hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100"
         >
-          <div>
-            <div
-              class="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600"
-            >
-              {{ step.id }}
-            </div>
-            <p class="text-lg font-semibold text-slate-950">{{ step.title }}</p>
-            <p class="mt-2 text-sm text-slate-600">{{ step.description }}</p>
+          <div
+            class="absolute -left-3 -top-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white shadow-lg"
+          >
+            {{ step.id }}
           </div>
-          <span class="text-2xl text-slate-300">→</span>
+          <div class="mt-6 space-y-3">
+            <h3 class="text-xl font-bold text-slate-950">{{ step.title }}</h3>
+            <p class="text-sm leading-relaxed text-slate-600">{{ step.description }}</p>
+          </div>
+          <div
+            class="mt-6 h-1 w-12 rounded-full bg-gradient-to-r from-blue-600 to-transparent transition group-hover:w-full"
+          ></div>
         </div>
       </div>
     </div>
