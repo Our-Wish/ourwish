@@ -1,19 +1,20 @@
 <template>
-  <nav class="border-b bg-white px-6 py-4 shadow-sm">
+  <nav class="bg-white px-6 py-4">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        <RouterLink to="/" class="font-semibold text-slate-900">OurWish</RouterLink>
+        <RouterLink to="/" class="font-semibold text-slate-900">Our Wish</RouterLink>
       </div>
 
       <div class="flex items-center gap-3 text-sm text-slate-700">
-        <RouterLink to="/" class="hover:text-slate-900">Home</RouterLink>
-        <RouterLink v-if="!isAuthenticated" to="/login" class="hover:text-slate-900">Login</RouterLink>
+        <RouterLink v-if="!isAuthenticated" to="/login" class="hover:text-slate-900"
+          >로그인</RouterLink
+        >
         <button
           v-if="isAuthenticated"
           class="rounded border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-50"
           @click="logout"
         >
-          Logout
+          로그아웃
         </button>
       </div>
     </div>
