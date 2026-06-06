@@ -13,11 +13,7 @@
         >
           로그인
         </button>
-        <button
-          v-if="isAuthenticated"
-          class="rounded border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-50"
-          @click="logout"
-        >
+        <button v-if="isAuthenticated" class="hover:text-slate-900" @click="logout">
           로그아웃
         </button>
       </div>
