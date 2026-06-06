@@ -40,3 +40,18 @@ class LoginSerializer(serializers.Serializer):
 
         data["member"] = member
         return data
+    
+
+class MemberGoalAmountSerializer(serializers.ModelSerializer):
+    member_id = serializers.IntegerField(source="id", read_only=True)
+    total_goal_amount = serializers.IntegerField()
+
+    class Meta:
+        model = Member
+        fields = ["member_id", "nickname", "total_goal_amount", "updated_at"]
+        read_only_fields = ["nickname", "updated_at"]
+
+    def validate_total_goal_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("total_goal_amount는 0보다 커야 합니다.")
+        return value

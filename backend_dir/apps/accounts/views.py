@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
 
 from .models import Member
-from .serializers import SignupSerializer, LoginSerializer
+from .serializers import SignupSerializer, LoginSerializer, MemberGoalAmountSerializer
 
 
 # Create your views here.
@@ -92,3 +92,14 @@ class TokenRefreshView(APIView):
             return Response({"access": str(refresh.access_token)})
         except TokenError as e:
             raise InvalidToken(e.args[0])
+
+
+class MemberGoalAmountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        serializer = MemberGoalAmountSerializer(request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
