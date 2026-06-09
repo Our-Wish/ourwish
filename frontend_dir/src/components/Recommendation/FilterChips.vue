@@ -15,8 +15,8 @@
         {{ filter.label }}
       </button>
     </div>
-    <p v-if="modelValue !== 'BASE'" class="mt-2 text-xs text-slate-400">
-      ⓘ {{ modelValue }} 레벨이 뭔지 다시 보기
+    <p v-if="modelValue !== 'BASE'" class="mt-2 ml-4 text-s text-slate-400">
+      ⓘ {{ modelValue }} 레벨 알아보기
     </p>
   </div>
 </template>
