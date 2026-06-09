@@ -18,17 +18,17 @@
     <p
       v-if="modelValue !== 'BASE'"
       @click="showLevelModal = true"
-      class="mt-2 ml-3 cursor-pointer text-xs text-slate-400 hover:text-slate-600"
+      class="mt-3 ml-3 cursor-pointer text-s hover:text-slate-600"
     >
       ⓘ {{ modelValue }} 레벨 알아보기
     </p>
 
     <LevelInfoModal
-      v-if="showLevelModal"
+      v-if="showLevelModal && modelValue !== 'BASE'"
       :level="modelValue"
-      title="그냥 하면 됨"
-      description="대부분 사람이 무리 없이 채울 수 있는 조건이에요"
-      :conditions="['급여이체 (건당 50만원 이상)', '자사 앱 가입/로그인', '자동이체 1건 이상 등록']"
+      :title="levelInfo[modelValue].title"
+      :description="levelInfo[modelValue].description"
+      :conditions="levelInfo[modelValue].conditions"
       @close="showLevelModal = false"
     />
   </div>
@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import LevelInfoModal from './LevelInfoModal.vue'
+import { levelInfo } from '@/constants/levelInfo'
 
 type FilterKey = 'BASE' | 'LOW' | 'MID' | 'HIGH'
 
