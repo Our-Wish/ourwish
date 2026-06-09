@@ -1,7 +1,7 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-end justify-center">
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
     <div class="absolute inset-0 bg-slate-950/40" @click="emit('close')" />
-    <div class="relative w-full max-w-lg rounded-t-3xl bg-white px-6 pb-8 pt-6">
+    <div class="relative w-full max-w-lg rounded-3xl bg-white px-6 pb-8 pt-6">
       <button
         @click="emit('close')"
         class="absolute right-5 top-5 text-slate-400 hover:text-slate-700"
