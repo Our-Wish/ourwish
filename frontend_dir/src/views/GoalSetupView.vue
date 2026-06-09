@@ -159,11 +159,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useGoalStore } from '@/stores/goal'
 
 const router = useRouter()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const monthlyAmount = ref(50)
+const goalStore = useGoalStore()
 
 const periodOptions = [
   { value: 3, label: '3개월', desc: '빠르게 모으기' },
@@ -178,7 +180,8 @@ const amountChips = [10, 30, 50, 100]
 // 적금 이자 계산 (연 4.5%, 세후 15.4% 공제)
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
 const afterTaxInterest = computed(() => {
-  const interest = monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1) / 2 * (0.045 / 12)
+  const interest =
+    ((monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) * (0.045 / 12)
   return Math.round(interest * (1 - 0.154))
 })
 const totalAmount = computed(() => principal.value + afterTaxInterest.value)
@@ -190,6 +193,9 @@ const onBack = () => {
 
 const onNext = () => {
   if (step.value === 1) step.value++
-  else router.push({ name: 'recommendation' }) // 다음 페이지 연결 시 변경
+  else {
+    goalStore.setGoal(selectedPeriod.value, monthlyAmount.value)
+    router.push({ name: 'recommendation' })
+  }
 }
 </script>
