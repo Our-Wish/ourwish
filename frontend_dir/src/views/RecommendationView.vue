@@ -43,6 +43,10 @@
           </div>
         </div>
       </div>
+
+      <div class="mt-6">
+        <FilterChips v-model="selectedFilter" />
+      </div>
     </div>
   </div>
 </template>
@@ -51,10 +55,12 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
+import FilterChips from '@/components/Recommendation/FilterChips.vue'
 
 const router = useRouter()
 const goalStore = useGoalStore()
 const showDetail = ref(false)
+const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
 
 const totalAmount = computed(() => {
   const { period, monthlyAmount } = goalStore
