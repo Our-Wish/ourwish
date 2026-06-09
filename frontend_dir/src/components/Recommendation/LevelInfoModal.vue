@@ -9,7 +9,7 @@
         ✕
       </button>
 
-      <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+      <span :class="colorMap[level]" class="rounded-full px-3 py-1 text-sm font-semibold">
         {{ level }}
       </span>
 
@@ -48,7 +48,13 @@ defineProps<{
   title: string
   description: string
   conditions: string[]
+  color: string
 }>()
 
 const emit = defineEmits<{ close: [] }>()
+const colorMap: Record<'LOW' | 'MID' | 'HIGH', string> = {
+  LOW: 'bg-green-100 text-green-700',
+  MID: 'bg-yellow-100 text-yellow-700',
+  HIGH: 'bg-red-100 text-red-700',
+}
 </script>

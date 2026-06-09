@@ -29,6 +29,7 @@
       :title="levelInfo[modelValue].title"
       :description="levelInfo[modelValue].description"
       :conditions="levelInfo[modelValue].conditions"
+      :color="levelInfo[modelValue].color"
       @close="showLevelModal = false"
     />
   </div>

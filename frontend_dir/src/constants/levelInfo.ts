@@ -1,10 +1,13 @@
 export type FilterKey = 'BASE' | 'LOW' | 'MID' | 'HIGH'
 
-export const levelInfo: Record<Exclude<FilterKey, 'BASE'>, {
-  title: string
-  description: string
-  conditions: string[]
-}> = {
+export const levelInfo: Record<
+  Exclude<FilterKey, 'BASE'>,
+  {
+    title: string
+    description: string
+    conditions: string[]
+  }
+> = {
   LOW: {
     title: '그냥 하면 됨',
     description: '대부분 사람이 무리 없이 채울 수 있는 조건이에요',
