@@ -35,3 +35,16 @@ def calculate_after_tax_payout(monthly_amount, term_months, annual_rate, intr_ra
 
     after_tax_interest = pre_tax_interest * (1 - TAX_RATE)     # 이자에만 과세
     return int(principal + after_tax_interest)                # 원 미만 절사
+
+
+def calculate_applied_rate(base_rate, max_rate, condition_rates):
+    """적용금리(%) = 기본금리 + 체크한 우대조건 rate들의 합. max_rate가 있으면 그 이하로 cap.
+
+    base_rate:       ProductOption.base_rate (Decimal, %)
+    max_rate:        ProductOption.max_rate (Decimal 또는 None, %)
+    condition_rates: 사용자가 체크한 PreferentialCondition.rate들의 리스트(Decimal)
+    """
+    applied = base_rate + sum(condition_rates, Decimal("0"))   # 기본금리 + 우대 가산분
+    if max_rate is not None:                                   # 최고금리 상한이 있으면
+        applied = min(applied, max_rate)                       # 그 위로는 못 올라간다
+    return applied
