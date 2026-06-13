@@ -55,3 +55,51 @@ class MemberGoalAmountSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("total_goal_amount는 0보다 커야 합니다.")
         return value
+
+
+# ---- #13 마이페이지: 응답 문서화용 직렬화기 ----
+# 뷰는 계산 결과를 dict로 직접 만들어 반환하고, 이 직렬화기들은
+# drf-spectacular(Swagger)가 응답 모양을 그려주도록 형태만 선언한다.
+class MypageMemberSerializer(serializers.Serializer):
+    nickname = serializers.CharField()
+    total_goal_amount = serializers.IntegerField(allow_null=True)
+
+
+class MypageSummarySerializer(serializers.Serializer):
+    overall_gauge = serializers.FloatField(allow_null=True)
+    total_saved_payout = serializers.IntegerField()
+    enrollment_count = serializers.IntegerField()
+    monthly_transfer_total = serializers.IntegerField()
+    nearest_maturity_dday = serializers.IntegerField(allow_null=True)
+
+
+class MypagePaymentSerializer(serializers.Serializer):
+    record_id = serializers.IntegerField()
+    scheduled_date = serializers.DateField()
+    amount = serializers.IntegerField()
+    status = serializers.CharField()
+    is_modified = serializers.BooleanField()
+
+
+class MypageEnrollmentSerializer(serializers.Serializer):
+    enrollment_id = serializers.IntegerField()
+    product_id = serializers.IntegerField()
+    product_name = serializers.CharField()
+    bank_name = serializers.CharField()
+    monthly_amount = serializers.IntegerField()
+    term_months = serializers.IntegerField()
+    transfer_day = serializers.IntegerField()
+    enrolled_at = serializers.DateField()
+    maturity_date = serializers.DateField()
+    dday = serializers.IntegerField()
+    expected_payout_at_maturity = serializers.IntegerField()
+    individual_gauge = serializers.FloatField()
+    current_payout_estimate = serializers.IntegerField()
+    paid_amount_total = serializers.IntegerField()
+    recent_payments = MypagePaymentSerializer(many=True)
+
+
+class MypageResponseSerializer(serializers.Serializer):
+    member = MypageMemberSerializer()
+    summary = MypageSummarySerializer()
+    enrollments = MypageEnrollmentSerializer(many=True)

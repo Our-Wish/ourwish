@@ -1,0 +1,1076 @@
+openapi: 3.0.3
+info:
+  title: 모아(Moa) API
+  version: 1.0.0
+  description: 사회초년생을 위한 적금 추천·관리 서비스 백엔드 API
+paths:
+  /api/v1/accounts/check-id/:
+    get:
+      operationId: accounts_check_id_retrieve
+      summary: 아이디 중복 확인 (#4)
+      parameters:
+      - in: query
+        name: login_id
+        schema:
+          type: string
+        description: 중복 확인할 아이디
+        required: true
+      tags:
+      - accounts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckIdResponse'
+          description: ''
+  /api/v1/accounts/login/:
+    post:
+      operationId: accounts_login_create
+      summary: 로그인 (#2)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+          description: ''
+  /api/v1/accounts/me/:
+    patch:
+      operationId: accounts_me_partial_update
+      summary: 최종 목표 금액 수정 (#14)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberGoalAmount'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberGoalAmount'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMemberGoalAmount'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberGoalAmount'
+          description: ''
+  /api/v1/accounts/signup/:
+    post:
+      operationId: accounts_signup_create
+      summary: 회원가입 + 자동 로그인 (#1)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Signup'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Signup'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+          description: ''
+  /api/v1/accounts/token/refresh/:
+    post:
+      operationId: accounts_token_refresh_create
+      summary: 토큰 갱신 (#3)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+          description: ''
+  /api/v1/enrollments/:
+    get:
+      operationId: enrollments_list
+      summary: 내 가입 상품 목록 조회 (#10)
+      tags:
+      - enrollments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnrollmentList'
+          description: ''
+    post:
+      operationId: enrollments_create
+      summary: 적금 가입 (#9)
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentResponse'
+          description: ''
+  /api/v1/enrollments/{enrollment_id}/:
+    delete:
+      operationId: enrollments_destroy
+      summary: 가입 상품 삭제 (#11)
+      parameters:
+      - in: path
+        name: enrollment_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - enrollments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/enrollments/{enrollment_id}/payments/{record_id}/:
+    patch:
+      operationId: enrollments_payments_partial_update
+      summary: 납입 정정 (#12)
+      parameters:
+      - in: path
+        name: enrollment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: record_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRecordUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRecordUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRecordUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordResponse'
+          description: ''
+  /api/v1/goals/:
+    post:
+      operationId: goals_create
+      summary: 목표 저장 (#5)
+      tags:
+      - goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Goal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Goal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Goal'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+          description: ''
+  /api/v1/goals/latest/:
+    get:
+      operationId: goals_latest_retrieve
+      summary: 현재 목표 조회 (#6) — 없으면 null
+      tags:
+      - goals
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+          description: ''
+  /api/v1/mypage/:
+    get:
+      operationId: mypage_retrieve
+      description: '#13 GET /mypage/ — 마이페이지 전체 데이터(게이지·납입현황 종합).'
+      tags:
+      - mypage
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MypageResponse'
+          description: ''
+  /api/v1/products/{product_id}/:
+    get:
+      operationId: products_retrieve
+      summary: 상품 상세 (#8)
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /api/v1/products/recommend/:
+    get:
+      operationId: products_recommend_list
+      summary: 추천 상품 목록 (#7) — 세후 수령액 내림차순, 페이지네이션
+      parameters:
+      - in: query
+        name: filter
+        schema:
+          enum:
+          - base
+          - low
+          - mid
+          - high
+          type: string
+          default: base
+          minLength: 1
+        description: |-
+          * `base` - base
+          * `low` - low
+          * `mid` - mid
+          * `high` - high
+      - in: query
+        name: monthly_cap
+        schema:
+          type: integer
+          minimum: 1
+        required: true
+      - in: query
+        name: term
+        schema:
+          enum:
+          - 3
+          - 6
+          - 12
+          - 24
+          - 36
+          type: integer
+        description: |-
+          * `3` - 3
+          * `6` - 6
+          * `12` - 12
+          * `24` - 24
+          * `36` - 36
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecommendItem'
+          description: ''
+components:
+  schemas:
+    AuthMember:
+      type: object
+      properties:
+        id:
+          type: integer
+        login_id:
+          type: string
+        nickname:
+          type: string
+      required:
+      - id
+      - login_id
+      - nickname
+    AuthTokenResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+        member:
+          $ref: '#/components/schemas/AuthMember'
+      required:
+      - access
+      - member
+      - refresh
+    BlankEnum:
+      enum:
+      - ''
+    CheckIdResponse:
+      type: object
+      properties:
+        available:
+          type: boolean
+      required:
+      - available
+    DifficultyEnum:
+      enum:
+      - LOW
+      - MID
+      - HIGH
+      type: string
+      description: |-
+        * `LOW` - 쉬움
+        * `MID` - 보통
+        * `HIGH` - 어려움
+    EnrollmentCreate:
+      type: object
+      description: |-
+        가입 요청 바디의 '형식·범위'만 검증한다.
+
+        상품/옵션 존재 여부, 한도 초과, 중복 가입 같은 '비즈니스 규칙'은
+        DB를 봐야 알 수 있으므로 View에서 처리한다.
+        여기서는 "각 필드가 올바른 모양인가?"만 본다.
+      properties:
+        product_id:
+          type: integer
+          minimum: 1
+        monthly_amount:
+          type: integer
+          minimum: 1
+        term_months:
+          type: integer
+          minimum: 1
+        intr_rate_type:
+          $ref: '#/components/schemas/IntrRateTypeEnum'
+        rsrv_type:
+          $ref: '#/components/schemas/RsrvTypeEnum'
+        transfer_day:
+          type: integer
+          maximum: 31
+          minimum: 1
+        enrolled_at:
+          type: string
+          format: date
+        checked_condition_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+      required:
+      - enrolled_at
+      - intr_rate_type
+      - monthly_amount
+      - product_id
+      - rsrv_type
+      - term_months
+      - transfer_day
+    EnrollmentList:
+      type: object
+      description: |-
+        #10 내 가입 목록 한 줄의 모양. 응답(201)과 달리 maturity_date(만기일)를 넣고
+        calculated_at은 빼는 등 목록 화면에 맞춰 필드를 구성한다.
+      properties:
+        enrollment_id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: integer
+          readOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        bank_name:
+          type: string
+          readOnly: true
+        monthly_amount:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        term_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        transfer_day:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        enrolled_at:
+          type: string
+          format: date
+        maturity_date:
+          type: string
+          format: date
+          readOnly: true
+        expected_payout_at_maturity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+      required:
+      - bank_name
+      - enrolled_at
+      - enrollment_id
+      - expected_payout_at_maturity
+      - maturity_date
+      - monthly_amount
+      - product_id
+      - product_name
+      - term_months
+      - transfer_day
+    EnrollmentResponse:
+      type: object
+      description: 가입 성공(201) 응답 모양. 저장된 Enrollment 한 건을 JSON으로 변환한다.
+      properties:
+        enrollment_id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: integer
+          readOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        bank_name:
+          type: string
+          readOnly: true
+        monthly_amount:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        term_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        transfer_day:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        enrolled_at:
+          type: string
+          format: date
+        expected_payout_at_maturity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        calculated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - bank_name
+      - calculated_at
+      - enrolled_at
+      - enrollment_id
+      - expected_payout_at_maturity
+      - monthly_amount
+      - product_id
+      - product_name
+      - term_months
+      - transfer_day
+    Goal:
+      type: object
+      properties:
+        goal_id:
+          type: integer
+          readOnly: true
+        term_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        monthly_cap:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - goal_id
+      - monthly_cap
+      - term_months
+    IntrRateTypeEnum:
+      enum:
+      - S
+      - M
+      type: string
+      description: |-
+        * `S` - 단리
+        * `M` - 복리
+    JobStatusEnum:
+      enum:
+      - STUDENT
+      - EMPLOYED
+      - OTHER
+      type: string
+      description: |-
+        * `STUDENT` - 학생
+        * `EMPLOYED` - 직장인
+        * `OTHER` - 기타
+    Login:
+      type: object
+      properties:
+        login_id:
+          type: string
+          maxLength: 50
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+      required:
+      - login_id
+      - password
+    MaritalStatusEnum:
+      enum:
+      - SINGLE
+      - MARRIED
+      type: string
+      description: |-
+        * `SINGLE` - 미혼
+        * `MARRIED` - 기혼
+    MemberGoalAmount:
+      type: object
+      properties:
+        member_id:
+          type: integer
+          readOnly: true
+        nickname:
+          type: string
+          readOnly: true
+        total_goal_amount:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - member_id
+      - nickname
+      - total_goal_amount
+      - updated_at
+    MypageEnrollment:
+      type: object
+      properties:
+        enrollment_id:
+          type: integer
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        bank_name:
+          type: string
+        monthly_amount:
+          type: integer
+        term_months:
+          type: integer
+        transfer_day:
+          type: integer
+        enrolled_at:
+          type: string
+          format: date
+        maturity_date:
+          type: string
+          format: date
+        dday:
+          type: integer
+        expected_payout_at_maturity:
+          type: integer
+        individual_gauge:
+          type: number
+          format: double
+        current_payout_estimate:
+          type: integer
+        paid_amount_total:
+          type: integer
+        recent_payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MypagePayment'
+      required:
+      - bank_name
+      - current_payout_estimate
+      - dday
+      - enrolled_at
+      - enrollment_id
+      - expected_payout_at_maturity
+      - individual_gauge
+      - maturity_date
+      - monthly_amount
+      - paid_amount_total
+      - product_id
+      - product_name
+      - recent_payments
+      - term_months
+      - transfer_day
+    MypageMember:
+      type: object
+      properties:
+        nickname:
+          type: string
+        total_goal_amount:
+          type: integer
+          nullable: true
+      required:
+      - nickname
+      - total_goal_amount
+    MypagePayment:
+      type: object
+      properties:
+        record_id:
+          type: integer
+        scheduled_date:
+          type: string
+          format: date
+        amount:
+          type: integer
+        status:
+          type: string
+        is_modified:
+          type: boolean
+      required:
+      - amount
+      - is_modified
+      - record_id
+      - scheduled_date
+      - status
+    MypageResponse:
+      type: object
+      properties:
+        member:
+          $ref: '#/components/schemas/MypageMember'
+        summary:
+          $ref: '#/components/schemas/MypageSummary'
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MypageEnrollment'
+      required:
+      - enrollments
+      - member
+      - summary
+    MypageSummary:
+      type: object
+      properties:
+        overall_gauge:
+          type: number
+          format: double
+          nullable: true
+        total_saved_payout:
+          type: integer
+        enrollment_count:
+          type: integer
+        monthly_transfer_total:
+          type: integer
+        nearest_maturity_dday:
+          type: integer
+          nullable: true
+      required:
+      - enrollment_count
+      - monthly_transfer_total
+      - nearest_maturity_dday
+      - overall_gauge
+      - total_saved_payout
+    NullEnum:
+      enum:
+      - null
+    PatchedMemberGoalAmount:
+      type: object
+      properties:
+        member_id:
+          type: integer
+          readOnly: true
+        nickname:
+          type: string
+          readOnly: true
+        total_goal_amount:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedPaymentRecordUpdate:
+      type: object
+      description: '#12 납입 정정 요청. status에 따라 amount 규칙이 다르므로 validate에서 교차검증.'
+      properties:
+        amount:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+    PaymentRecordResponse:
+      type: object
+      description: '#12 성공(200) 응답 모양.'
+      properties:
+        record_id:
+          type: integer
+          readOnly: true
+        enrollment_id:
+          type: integer
+          readOnly: true
+        scheduled_date:
+          type: string
+          format: date
+        amount:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        is_modified:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - enrollment_id
+      - record_id
+      - scheduled_date
+      - status
+      - updated_at
+    PreferentialCondition:
+      type: object
+      properties:
+        condition_id:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          maxLength: 500
+        friendly_label:
+          type: string
+          nullable: true
+          maxLength: 500
+        difficulty:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DifficultyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        rate:
+          type: number
+          format: double
+          maximum: 1000
+          minimum: -1000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - condition_id
+      - label
+      - rate
+    ProductDetail:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          readOnly: true
+        bank_name:
+          type: string
+          readOnly: true
+        bank_type:
+          type: string
+          readOnly: true
+        product_name:
+          type: string
+          maxLength: 200
+        join_way:
+          type: string
+          maxLength: 200
+        has_bonus:
+          type: boolean
+        base_rate:
+          type: number
+          format: double
+          readOnly: true
+        max_rate:
+          type: number
+          format: double
+          readOnly: true
+        join_member:
+          type: string
+          maxLength: 500
+        max_limit:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        maturity_interest:
+          type: string
+        etc_note:
+          type: string
+        join_summary:
+          type: string
+          nullable: true
+        maturity_summary:
+          type: string
+          nullable: true
+        etc_summary:
+          type: string
+          nullable: true
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductOption'
+          readOnly: true
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PreferentialCondition'
+          readOnly: true
+      required:
+      - bank_name
+      - bank_type
+      - base_rate
+      - conditions
+      - max_rate
+      - options
+      - product_id
+      - product_name
+    ProductOption:
+      type: object
+      properties:
+        save_term:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        intr_rate_type:
+          $ref: '#/components/schemas/IntrRateTypeEnum'
+        rsrv_type:
+          $ref: '#/components/schemas/RsrvTypeEnum'
+        base_rate:
+          type: number
+          format: double
+          maximum: 1000
+          minimum: -1000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        max_rate:
+          type: number
+          format: double
+          maximum: 1000
+          minimum: -1000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+      required:
+      - base_rate
+      - intr_rate_type
+      - rsrv_type
+      - save_term
+    RecommendItem:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        bank_name:
+          type: string
+        bank_type:
+          type: string
+        product_name:
+          type: string
+        has_bonus:
+          type: boolean
+        base_rate:
+          type: number
+          format: double
+        max_rate:
+          type: number
+          format: double
+          nullable: true
+        save_term:
+          type: integer
+        rsrv_type:
+          type: string
+        expected_payout:
+          type: integer
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PreferentialCondition'
+      required:
+      - bank_name
+      - bank_type
+      - base_rate
+      - conditions
+      - expected_payout
+      - has_bonus
+      - max_rate
+      - product_id
+      - product_name
+      - rsrv_type
+      - save_term
+    RsrvTypeEnum:
+      enum:
+      - S
+      - F
+      type: string
+      description: |-
+        * `S` - 정액
+        * `F` - 자유
+    Signup:
+      type: object
+      properties:
+        login_id:
+          type: string
+          maxLength: 50
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+        nickname:
+          type: string
+          maxLength: 50
+        birth_date:
+          type: string
+          format: date
+        job_status:
+          $ref: '#/components/schemas/JobStatusEnum'
+        marital_status:
+          $ref: '#/components/schemas/MaritalStatusEnum'
+      required:
+      - birth_date
+      - job_status
+      - login_id
+      - marital_status
+      - nickname
+      - password
+    StatusEnum:
+      enum:
+      - PAID
+      - MISSED
+      - PARTIAL
+      type: string
+      description: |-
+        * `PAID` - 납입
+        * `MISSED` - 미납
+        * `PARTIAL` - 부분납입
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+      required:
+      - refresh
+    TokenRefreshResponse:
+      type: object
+      properties:
+        access:
+          type: string
+      required:
+      - access
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
