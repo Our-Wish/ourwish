@@ -55,6 +55,7 @@
           <ProductCard
             v-for="(product, index) in filteredProducts"
             :key="product.id"
+            :id="product.id"
             :rank="index + 1"
             :bank-name="product.bankName"
             :bank-color="product.bankColor"
