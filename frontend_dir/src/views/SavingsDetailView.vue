@@ -7,7 +7,8 @@
       </button>
     </header>
 
-    <div v-if="product" class="px-5">
+    <div v-if="product" class="px-5 pb-12">
+      <!-- 상단 카드 -->
       <div class="rounded-3xl p-6 text-white" :style="{ backgroundColor: product.bankColor }">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -45,6 +46,24 @@
           <span>↗</span>
         </a>
       </div>
+
+      <!-- 핵심 조건 -->
+      <div class="mt-8">
+        <p class="text-sm font-semibold text-blue-500">핵심 조건</p>
+        <p class="mt-1 text-lg font-bold text-slate-900">한눈에 보는 상세 내용</p>
+
+        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div
+            v-for="(item, index) in product.conditions"
+            :key="item.label"
+            class="flex items-start gap-6 px-5 py-4"
+            :class="{ 'border-t border-slate-100': index > 0 }"
+          >
+            <span class="w-24 shrink-0 text-sm text-slate-400">{{ item.label }}</span>
+            <span class="text-sm font-semibold text-slate-900">{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +77,8 @@ const route = useRoute()
 
 const productId = computed(() => Number(route.params.id))
 
+type Condition = { label: string; value: string }
+
 type ProductDetail = {
   id: number
   bankName: string
@@ -66,55 +87,24 @@ type ProductDetail = {
   baseRate: number
   maxRate: number
   bankUrl: string
+  conditions: Condition[]
 }
+
+const DEFAULT_CONDITIONS: Condition[] = [
+  { label: '가입 대상', value: '' },
+  { label: '가입 방법', value: '' },
+  { label: '월 납입 한도', value: '' },
+  { label: '만기후 이자율', value: '' },
+  { label: '기타 유의사항', value: '' },
+]
 
 const mockProductDetails: Record<number, ProductDetail> = {
-  1: {
-    id: 1,
-    bankName: '하나은행',
-    bankColor: '#3D8B7A',
-    productName: '청년도약 적금',
-    baseRate: 3.5,
-    maxRate: 5.0,
-    bankUrl: 'https://www.hanabank.com',
-  },
-  2: {
-    id: 2,
-    bankName: '신한은행',
-    bankColor: '#0046FF',
-    productName: '신한 첫 월급 적금',
-    baseRate: 3.2,
-    maxRate: 4.5,
-    bankUrl: 'https://www.shinhan.com',
-  },
-  3: {
-    id: 3,
-    bankName: '국민은행',
-    bankColor: '#FFCD00',
-    productName: 'KB 청춘적금',
-    baseRate: 3.0,
-    maxRate: 4.0,
-    bankUrl: 'https://www.kbstar.com',
-  },
-  4: {
-    id: 4,
-    bankName: '우리은행',
-    bankColor: '#0F6EBF',
-    productName: '우리 첫 거래 적금',
-    baseRate: 3.2,
-    maxRate: 3.8,
-    bankUrl: 'https://www.wooribank.com',
-  },
-  5: {
-    id: 5,
-    bankName: '농협은행',
-    bankColor: '#00A650',
-    productName: 'NH 디딤돌 정기적금',
-    baseRate: 3.6,
-    maxRate: 3.6,
-    bankUrl: 'https://www.nonghyup.com',
-  },
+  1: { id: 1, bankName: '하나은행', bankColor: '#3D8B7A', productName: '청년도약 적금', baseRate: 3.5, maxRate: 5.0, bankUrl: 'https://www.hanabank.com', conditions: DEFAULT_CONDITIONS },
+  2: { id: 2, bankName: '신한은행', bankColor: '#0046FF', productName: '신한 첫 월급 적금', baseRate: 3.2, maxRate: 4.5, bankUrl: 'https://www.shinhan.com', conditions: DEFAULT_CONDITIONS },
+  3: { id: 3, bankName: '국민은행', bankColor: '#FFCD00', productName: 'KB 청춘적금', baseRate: 3.0, maxRate: 4.0, bankUrl: 'https://www.kbstar.com', conditions: DEFAULT_CONDITIONS },
+  4: { id: 4, bankName: '우리은행', bankColor: '#0F6EBF', productName: '우리 첫 거래 적금', baseRate: 3.2, maxRate: 3.8, bankUrl: 'https://www.wooribank.com', conditions: DEFAULT_CONDITIONS },
+  5: { id: 5, bankName: '농협은행', bankColor: '#00A650', productName: 'NH 디딤돌 정기적금', baseRate: 3.6, maxRate: 3.6, bankUrl: 'https://www.nonghyup.com', conditions: DEFAULT_CONDITIONS },
 }
 
-const product = computed(() => mockProductDetails[productId.value])
+const product = computed(() => mockProductDetails[productId.value] ?? null)
 </script>
