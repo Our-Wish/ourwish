@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-slate-50 pb-24">
     <header class="flex items-center px-5 py-4">
       <button @click="router.go(-1)" class="flex items-center gap-1 text-sm text-slate-600">
         <span>‹</span>
@@ -79,7 +79,9 @@
       <div class="mt-8">
         <p class="text-sm font-semibold text-blue-500">나의 금리 알아보기</p>
         <p class="mt-1 text-lg font-bold text-slate-900">달성할 수 있는 조건을 체크해보세요</p>
-        <p class="mt-0.5 text-xs text-slate-400">체크한 조건에 따라 예상 금리·세후수령액이 바뀌어요</p>
+        <p class="mt-0.5 text-xs text-slate-400">
+          체크한 조건에 따라 예상 금리·세후수령액이 바뀌어요
+        </p>
 
         <!-- 체크박스 목록 -->
         <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -95,11 +97,19 @@
               :class="checked[index] ? 'border-blue-500 bg-blue-500' : 'border-slate-300 bg-white'"
             >
               <svg v-if="checked[index]" class="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M2 6l3 3 5-5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             </div>
             <span class="flex-1 text-sm text-slate-800">{{ cond.label }}</span>
-            <span class="text-sm font-semibold text-slate-400">+{{ cond.bonusRate.toFixed(1) }}%p</span>
+            <span class="text-sm font-semibold text-slate-400"
+              >+{{ cond.bonusRate.toFixed(1) }}%p</span
+            >
           </div>
         </div>
 
@@ -119,6 +129,13 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 하단 고정 버튼 -->
+    <div class="mx-auto max-w-6xl px-9">
+      <button class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white">
+        이 상품 선택하기
+      </button>
     </div>
   </div>
 </template>
@@ -173,33 +190,68 @@ const DEFAULT_CONDITIONS: Condition[] = [
 
 const mockProductDetails: Record<number, ProductDetail> = {
   1: {
-    id: 1, bankName: '하나은행', bankColor: '#3D8B7A', productName: '청년도약 적금',
-    baseRate: 3.5, maxRate: 5.0, bankUrl: 'https://www.hanabank.com',
-    conditions: DEFAULT_CONDITIONS, aiHeadline: '', aiDescription: '',
+    id: 1,
+    bankName: '하나은행',
+    bankColor: '#3D8B7A',
+    productName: '청년도약 적금',
+    baseRate: 3.5,
+    maxRate: 5.0,
+    bankUrl: 'https://www.hanabank.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
     bonusConditions: DEFAULT_BONUS_CONDITIONS,
   },
   2: {
-    id: 2, bankName: '신한은행', bankColor: '#0046FF', productName: '신한 첫 월급 적금',
-    baseRate: 3.2, maxRate: 4.5, bankUrl: 'https://www.shinhan.com',
-    conditions: DEFAULT_CONDITIONS, aiHeadline: '', aiDescription: '',
+    id: 2,
+    bankName: '신한은행',
+    bankColor: '#0046FF',
+    productName: '신한 첫 월급 적금',
+    baseRate: 3.2,
+    maxRate: 4.5,
+    bankUrl: 'https://www.shinhan.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
     bonusConditions: DEFAULT_BONUS_CONDITIONS,
   },
   3: {
-    id: 3, bankName: '국민은행', bankColor: '#FFCD00', productName: 'KB 청춘적금',
-    baseRate: 3.0, maxRate: 4.0, bankUrl: 'https://www.kbstar.com',
-    conditions: DEFAULT_CONDITIONS, aiHeadline: '', aiDescription: '',
+    id: 3,
+    bankName: '국민은행',
+    bankColor: '#FFCD00',
+    productName: 'KB 청춘적금',
+    baseRate: 3.0,
+    maxRate: 4.0,
+    bankUrl: 'https://www.kbstar.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
     bonusConditions: DEFAULT_BONUS_CONDITIONS,
   },
   4: {
-    id: 4, bankName: '우리은행', bankColor: '#0F6EBF', productName: '우리 첫 거래 적금',
-    baseRate: 3.2, maxRate: 3.8, bankUrl: 'https://www.wooribank.com',
-    conditions: DEFAULT_CONDITIONS, aiHeadline: '', aiDescription: '',
+    id: 4,
+    bankName: '우리은행',
+    bankColor: '#0F6EBF',
+    productName: '우리 첫 거래 적금',
+    baseRate: 3.2,
+    maxRate: 3.8,
+    bankUrl: 'https://www.wooribank.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
     bonusConditions: DEFAULT_BONUS_CONDITIONS,
   },
   5: {
-    id: 5, bankName: '농협은행', bankColor: '#00A650', productName: 'NH 디딤돌 정기적금',
-    baseRate: 3.6, maxRate: 3.6, bankUrl: 'https://www.nonghyup.com',
-    conditions: DEFAULT_CONDITIONS, aiHeadline: '', aiDescription: '',
+    id: 5,
+    bankName: '농협은행',
+    bankColor: '#00A650',
+    productName: 'NH 디딤돌 정기적금',
+    baseRate: 3.6,
+    maxRate: 3.6,
+    bankUrl: 'https://www.nonghyup.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
     bonusConditions: DEFAULT_BONUS_CONDITIONS,
   },
 }
