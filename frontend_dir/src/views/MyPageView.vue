@@ -125,6 +125,31 @@
           <p class="mt-1 text-lg font-bold text-slate-900">D-{{ nearestMaturity }}</p>
         </div>
       </div>
+
+      <!-- 진행 중인 적금 -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900">진행 중인 적금</h2>
+          <button class="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
+            + 추가
+          </button>
+        </div>
+
+        <!-- 적금 카드 -->
+        <SavingsCard
+          class="mt-3"
+          bankInitial="카"
+          bankColor="#F9E000"
+          bankName="카카오뱅크"
+          productName="카뱅 26주적금"
+          :dDay="124"
+          :currentAmount="28"
+          :maturityAmount="30"
+          :progress="93"
+          nextPaymentDate="12월 25일"
+          :monthlyAmount="5"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -134,6 +159,7 @@ import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useGoalStore } from '@/stores/goal'
+import SavingsCard from '@/components/MyPage/SavingsCard.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
