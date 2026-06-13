@@ -38,9 +38,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import LevelInfoModal from './LevelInfoModal.vue'
-import { levelInfo } from '@/constants/levelInfo'
-
-type FilterKey = 'BASE' | 'LOW' | 'MID' | 'HIGH'
+import { levelInfo, type FilterKey } from '@/constants/levelInfo'
 
 defineProps<{ modelValue: FilterKey }>()
 const emit = defineEmits<{ 'update:modelValue': [value: FilterKey] }>()
