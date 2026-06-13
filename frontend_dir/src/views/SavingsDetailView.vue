@@ -64,6 +64,15 @@
           </div>
         </div>
       </div>
+      <!-- AI 쉽게 풀어쓴 설명 -->
+      <div class="mt-6 rounded-2xl bg-slate-100 p-5">
+        <div class="flex items-center gap-2">
+          <span class="rounded-lg bg-indigo-500 px-2 py-0.5 text-xs font-bold text-white">AI</span>
+          <span class="text-sm font-semibold text-indigo-500">쉽게 풀어쓴 설명</span>
+        </div>
+        <p class="mt-3 font-bold text-slate-900">{{ product.aiHeadline }}</p>
+        <p class="mt-1 text-sm text-slate-500">{{ product.aiDescription }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -88,6 +97,8 @@ type ProductDetail = {
   maxRate: number
   bankUrl: string
   conditions: Condition[]
+  aiHeadline: string
+  aiDescription: string
 }
 
 const DEFAULT_CONDITIONS: Condition[] = [
@@ -99,11 +110,66 @@ const DEFAULT_CONDITIONS: Condition[] = [
 ]
 
 const mockProductDetails: Record<number, ProductDetail> = {
-  1: { id: 1, bankName: '하나은행', bankColor: '#3D8B7A', productName: '청년도약 적금', baseRate: 3.5, maxRate: 5.0, bankUrl: 'https://www.hanabank.com', conditions: DEFAULT_CONDITIONS },
-  2: { id: 2, bankName: '신한은행', bankColor: '#0046FF', productName: '신한 첫 월급 적금', baseRate: 3.2, maxRate: 4.5, bankUrl: 'https://www.shinhan.com', conditions: DEFAULT_CONDITIONS },
-  3: { id: 3, bankName: '국민은행', bankColor: '#FFCD00', productName: 'KB 청춘적금', baseRate: 3.0, maxRate: 4.0, bankUrl: 'https://www.kbstar.com', conditions: DEFAULT_CONDITIONS },
-  4: { id: 4, bankName: '우리은행', bankColor: '#0F6EBF', productName: '우리 첫 거래 적금', baseRate: 3.2, maxRate: 3.8, bankUrl: 'https://www.wooribank.com', conditions: DEFAULT_CONDITIONS },
-  5: { id: 5, bankName: '농협은행', bankColor: '#00A650', productName: 'NH 디딤돌 정기적금', baseRate: 3.6, maxRate: 3.6, bankUrl: 'https://www.nonghyup.com', conditions: DEFAULT_CONDITIONS },
+  1: {
+    id: 1,
+    bankName: '하나은행',
+    bankColor: '#3D8B7A',
+    productName: '청년도약 적금',
+    baseRate: 3.5,
+    maxRate: 5.0,
+    bankUrl: 'https://www.hanabank.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
+  },
+  2: {
+    id: 2,
+    bankName: '신한은행',
+    bankColor: '#0046FF',
+    productName: '신한 첫 월급 적금',
+    baseRate: 3.2,
+    maxRate: 4.5,
+    bankUrl: 'https://www.shinhan.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
+  },
+  3: {
+    id: 3,
+    bankName: '국민은행',
+    bankColor: '#FFCD00',
+    productName: 'KB 청춘적금',
+    baseRate: 3.0,
+    maxRate: 4.0,
+    bankUrl: 'https://www.kbstar.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
+  },
+  4: {
+    id: 4,
+    bankName: '우리은행',
+    bankColor: '#0F6EBF',
+    productName: '우리 첫 거래 적금',
+    baseRate: 3.2,
+    maxRate: 3.8,
+    bankUrl: 'https://www.wooribank.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
+  },
+  5: {
+    id: 5,
+    bankName: '농협은행',
+    bankColor: '#00A650',
+    productName: 'NH 디딤돌 정기적금',
+    baseRate: 3.6,
+    maxRate: 3.6,
+    bankUrl: 'https://www.nonghyup.com',
+    conditions: DEFAULT_CONDITIONS,
+    aiHeadline: '',
+    aiDescription: '',
+  },
 }
 
 const product = computed(() => mockProductDetails[productId.value] ?? null)
