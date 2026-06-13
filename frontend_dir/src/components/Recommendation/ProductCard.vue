@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white p-5">
+  <div class="cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md" @click="router.push({ name: 'savings-detail', params: { id: props.id } })">
     <div class="flex items-start justify-between">
       <div class="flex items-center gap-3">
         <span class="text-sm font-bold text-slate-400">{{ rank }}</span>
@@ -39,8 +39,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps<{
+  id: number
   rank: number
   bankName: string
   bankColor: string
