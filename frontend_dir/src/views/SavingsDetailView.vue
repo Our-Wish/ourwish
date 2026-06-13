@@ -133,7 +133,10 @@
 
     <!-- 하단 고정 버튼 -->
     <div class="mx-auto max-w-6xl px-9">
-      <button class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white">
+      <button
+        @click="router.push({ name: 'mypage' })"
+        class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white transition hover:bg-blue-400"
+      >
         이 상품 선택하기
       </button>
     </div>
