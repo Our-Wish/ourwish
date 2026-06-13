@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import GoalSetupView from '@/views/GoalSetupView.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import SavingsDetailView from '@/views/SavingsDetailView.vue'
+import MyPageView from '@/views/MyPageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/savings/:id',
       name: 'savings-detail',
       component: SavingsDetailView,
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: MyPageView,
     },
   ],
 })

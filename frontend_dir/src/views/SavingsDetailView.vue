@@ -133,7 +133,10 @@
 
     <!-- 하단 고정 버튼 -->
     <div class="mx-auto max-w-6xl px-9">
-      <button class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white">
+      <button
+        @click="selectProduct"
+        class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white transition hover:bg-blue-400"
+      >
         이 상품 선택하기
       </button>
     </div>
@@ -144,10 +147,12 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
+import { useSavingsStore } from '@/stores/savings'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
+const savingsStore = useSavingsStore()
 
 const productId = computed(() => Number(route.params.id))
 
@@ -273,4 +278,21 @@ const estimatedAmount = computed(() => {
   const interest = ((monthlyAmount * period * (period + 1)) / 2) * (rate / 12)
   return Math.round(period * monthlyAmount + interest * (1 - 0.154))
 })
+
+function selectProduct() {
+  if (!product.value) return
+  savingsStore.addProduct({
+    id: product.value.id,
+    bankName: product.value.bankName,
+    bankColor: product.value.bankColor,
+    productName: product.value.productName,
+    dDay: goalStore.period * 30,
+    currentAmount: 0,
+    maturityAmount: estimatedAmount.value,
+    progress: 0,
+    nextPaymentDate: '다음 달 25일',
+    monthlyAmount: goalStore.monthlyAmount,
+  })
+  router.push({ name: 'mypage' })
+}
 </script>
