@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "drf_spectacular",
     # apps
     "apps.accounts",
     "apps.products",
@@ -144,6 +145,16 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
     "COERCE_DECIMAL_TO_STRING": False,
+    # drf-spectacular가 OpenAPI 스키마를 생성하도록 스키마 클래스 지정
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# drf-spectacular (Swagger/OpenAPI 문서)
+SPECTACULAR_SETTINGS = {
+    "TITLE": "모아(Moa) API",
+    "DESCRIPTION": "사회초년생을 위한 적금 추천·관리 서비스 백엔드 API",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,  # /schema/ 응답에 메타 스키마 항목 숨김
 }
 
 # JWT

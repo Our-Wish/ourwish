@@ -1,18 +1,45 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.products.models import Product, ProductOption
 from apps.products.services import calculate_after_tax_payout, calculate_applied_rate
-from .models import Enrollment
-from .serializers import EnrollmentCreateSerializer, EnrollmentResponseSerializer
+from .models import Enrollment, PaymentRecord
+from .serializers import (
+    EnrollmentCreateSerializer,
+    EnrollmentListSerializer,
+    EnrollmentResponseSerializer,
+    PaymentRecordResponseSerializer,
+    PaymentRecordUpdateSerializer,
+)
 
 
-class EnrollmentCreateView(APIView):
+class EnrollmentListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses=EnrollmentListSerializer(many=True),
+        summary="내 가입 상품 목록 조회 (#10)",
+    )
+    def get(self, request):
+        # 내 가입 상품만 조회. select_related로 product·bank를 JOIN해 한 번에 가져온다
+        # (목록 직렬화 때 product_name·bank_name을 꺼내며 쿼리가 추가로 안 나가게).
+        enrollments = (
+            Enrollment.objects.filter(member=request.user)
+            .select_related("product", "product__bank")
+            .order_by("-enrolled_at")
+        )
+        serializer = EnrollmentListSerializer(enrollments, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        request=EnrollmentCreateSerializer,
+        responses={201: EnrollmentResponseSerializer},
+        summary="적금 가입 (#9)",
+    )
     def post(self, request):
         # 1) 입력 형식 검증 (실패 시 자동 400)
         serializer = EnrollmentCreateSerializer(data=request.data)
@@ -85,3 +112,60 @@ class EnrollmentCreateView(APIView):
             EnrollmentResponseSerializer(enrollment).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class EnrollmentDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={204: None}, summary="가입 상품 삭제 (#11)")
+    def delete(self, request, enrollment_id):
+        # 1) id로 먼저 조회. 없으면 404.
+        #    (member까지 같이 필터하면 '남의 것'과 '없는 것'을 구분 못 해 둘 다 404가 된다.
+        #     스펙은 본인 것 아니면 403을 요구하므로 id로만 찾고 소유자는 따로 확인한다.)
+        try:
+            enrollment = Enrollment.objects.get(id=enrollment_id)
+        except Enrollment.DoesNotExist:
+            raise NotFound("해당 가입 내역을 찾을 수 없습니다.")
+
+        # 2) 소유자 확인. 내 것이 아니면 403.
+        #    member_id는 FK의 실제 컬럼값이라 추가 쿼리 없이 비교할 수 있다.
+        if enrollment.member_id != request.user.id:
+            raise PermissionDenied("본인의 가입 내역만 삭제할 수 있습니다.")
+
+        # 3) 삭제. 연결된 PaymentRecord는 모델의 on_delete=CASCADE로 함께 지워진다.
+        enrollment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PaymentRecordUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=PaymentRecordUpdateSerializer,
+        responses={200: PaymentRecordResponseSerializer},
+        summary="납입 정정 (#12)",
+    )
+    def patch(self, request, enrollment_id, record_id):
+        # 1) URL의 enrollment_id + record_id로 납입 레코드 조회. 없으면 404.
+        try:
+            record = PaymentRecord.objects.select_related("enrollment").get(
+                id=record_id, enrollment_id=enrollment_id
+            )
+        except PaymentRecord.DoesNotExist:
+            raise NotFound("해당 납입 내역을 찾을 수 없습니다.")
+
+        # 2) 소유자 확인. 내 가입의 납입이 아니면 403.
+        if record.enrollment.member_id != request.user.id:
+            raise PermissionDenied("본인의 납입 내역만 수정할 수 있습니다.")
+
+        # 3) amount/status 교차검증 (월 납입액 기준값을 context로 넘김) → 저장.
+        serializer = PaymentRecordUpdateSerializer(
+            record,
+            data=request.data,
+            context={"monthly_amount": record.enrollment.monthly_amount},
+        )
+        serializer.is_valid(raise_exception=True)
+        # 사용자가 손댄 레코드임을 표시 (자동기록과 구분).
+        serializer.save(is_modified=True)
+
+        return Response(PaymentRecordResponseSerializer(record).data)

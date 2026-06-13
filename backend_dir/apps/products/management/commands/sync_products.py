@@ -1,9 +1,12 @@
+import re
+from decimal import Decimal
+
 import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from apps.products.models import Bank, Product, ProductOption
+from apps.products.models import Bank, PreferentialCondition, Product, ProductOption
 
 FSS_BASE_URL = "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json"
 # 020000=시중은행(1금융권), 030300=저축은행
@@ -12,10 +15,33 @@ GRP_TO_BANK_TYPE = {
     "020000": Bank.BankType.FIRST_TIER,
     "030300": Bank.BankType.SAVINGS,
 }
+# spcl_cnd 텍스트에서 "0.3%p", "연 0.5 %" 같은 우대금리를 뽑는 패턴.
+RATE_PATTERN = re.compile(r"(\d+(?:\.\d+)?)\s*%")
 
 
 class Command(BaseCommand):
-    help = "금감원 API에서 적금 상품을 받아 DB에 적재 (1차: LLM 없이 데이터만)"
+    help = "금감원 API에서 적금 상품을 받아 DB에 적재 (2차: spcl_cnd 파싱·우대조건/has_bonus 포함, LLM 없음)"
+
+    def _parse_conditions(self, raw):
+        """spcl_cnd 원문을 줄 단위로 쪼개 (label, rate) 목록으로 만든다.
+
+        LLM 없이 텍스트만 처리하는 2차 단계. friendly_label/difficulty는
+        나중에 LLM 배치가 채우므로 여기서는 건드리지 않는다(NULL 유지).
+        """
+        if not raw:
+            return []
+
+        results = []
+        seen = set()
+        for segment in re.split(r"[\n\r]+", raw):  # 줄바꿈으로 조건 분리
+            label = segment.strip()[:500]  # 모델 max_length=500
+            if not label or label in seen:
+                continue
+            seen.add(label)
+            match = RATE_PATTERN.search(label)
+            rate = Decimal(match.group(1)) if match else Decimal("0")
+            results.append((label, rate))
+        return results
 
     def _fetch(self, grp_no, page_no):
         res = requests.get(
@@ -32,6 +58,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         total_products = 0
         total_options = 0
+        total_conditions = 0
 
         with transaction.atomic():
             for grp_no in TOP_FIN_GRP_NOS:
@@ -71,6 +98,19 @@ class Command(BaseCommand):
                         product_map[(item["fin_co_no"], item["fin_prdt_cd"])] = product
                         total_products += 1
 
+                        # spcl_cnd 파싱 → PreferentialCondition 적재 (비LLM 2차)
+                        parsed = self._parse_conditions(item.get("spcl_cnd") or "")
+                        for label, rate in parsed:
+                            PreferentialCondition.objects.update_or_create(
+                                product=product,
+                                label=label,
+                                defaults={"rate": rate},
+                            )
+                        total_conditions += len(parsed)
+                        # has_bonus = 우대조건 존재 여부
+                        product.has_bonus = bool(parsed)
+                        product.save(update_fields=["has_bonus"])
+
                     # optionList -> ProductOption 적재
                     for opt in data.get("optionList", []):
                         product = product_map.get(
@@ -96,6 +136,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"완료: 상품 {total_products}개, 옵션 {total_options}개 적재"
+                f"완료: 상품 {total_products}개, 옵션 {total_options}개, "
+                f"우대조건 {total_conditions}개 적재"
             )
         )

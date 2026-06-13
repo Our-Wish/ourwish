@@ -2,6 +2,8 @@ from datetime import date
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -16,6 +18,26 @@ from .serializers import (
 from .services import calculate_after_tax_payout
 
 
+# 추천 응답 한 건의 모양(문서용). 실제 값은 _build_item이 dict로 만든다.
+RecommendItemSerializer = inline_serializer(
+    name="RecommendItem",
+    fields={
+        "product_id": serializers.IntegerField(),
+        "bank_name": serializers.CharField(),
+        "bank_type": serializers.CharField(),
+        "product_name": serializers.CharField(),
+        "has_bonus": serializers.BooleanField(),
+        "base_rate": serializers.FloatField(),
+        "max_rate": serializers.FloatField(allow_null=True),
+        "save_term": serializers.IntegerField(),
+        "rsrv_type": serializers.CharField(),
+        "expected_payout": serializers.IntegerField(),
+        "conditions": PreferentialConditionSerializer(many=True),
+    },
+    many=True,
+)
+
+
 # 난이도 비교용 순위: 숫자가 클수록 어렵다. difficulty가 None이면 가장 어려운 것으로 취급(3).
 DIFFICULTY_RANK = {
     PreferentialCondition.Difficulty.LOW: 1,
@@ -28,6 +50,10 @@ DIFFICULTY_RANK = {
 class ProductDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={200: ProductDetailSerializer},
+        summary="상품 상세 (#8)",
+    )
     def get(self, request, product_id):
         product = get_object_or_404(
             Product.objects.select_related("bank").prefetch_related(
@@ -42,6 +68,11 @@ class ProductDetailView(APIView):
 class ProductRecommendView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        parameters=[RecommendQuerySerializer],
+        responses={200: RecommendItemSerializer},
+        summary="추천 상품 목록 (#7) — 세후 수령액 내림차순, 페이지네이션",
+    )
     def get(self, request):
         # 1) 쿼리 파라미터 검증 (term·monthly_cap 필수 / filter 기본 base)
         query = RecommendQuerySerializer(data=request.query_params)
