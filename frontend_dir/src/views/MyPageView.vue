@@ -138,20 +138,25 @@
           </button>
         </div>
 
-        <!-- 적금 카드 -->
+        <!-- 적금 카드 목록 -->
         <SavingsCard
+          v-for="product in savingsStore.myProducts"
+          :key="product.id"
           class="mt-3"
-          bankInitial="카"
-          bankColor="#F9E000"
-          bankName="카카오뱅크"
-          productName="카뱅 26주적금"
-          :dDay="124"
-          :currentAmount="28"
-          :maturityAmount="30"
-          :progress="93"
-          nextPaymentDate="12월 25일"
-          :monthlyAmount="5"
+          :bankInitial="product.bankName[0] ?? ''"
+          :bankColor="product.bankColor"
+          :bankName="product.bankName"
+          :productName="product.productName"
+          :dDay="product.dDay"
+          :currentAmount="product.currentAmount"
+          :maturityAmount="product.maturityAmount"
+          :progress="product.progress"
+          :nextPaymentDate="product.nextPaymentDate"
+          :monthlyAmount="product.monthlyAmount"
         />
+        <p v-if="savingsStore.myProducts.length === 0" class="mt-3 text-sm text-slate-400">
+          아직 가입한 적금이 없어요
+        </p>
       </div>
     </div>
   </div>
@@ -163,10 +168,12 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useGoalStore } from '@/stores/goal'
 import SavingsCard from '@/components/MyPage/SavingsCard.vue'
+import { useSavingsStore } from '@/stores/savings'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const goalStore = useGoalStore()
+const savingsStore = useSavingsStore()
 
 const isEditing = ref(false)
 const inputAmount = ref<number | null>(null)
