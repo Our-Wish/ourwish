@@ -130,7 +130,10 @@
       <div class="mt-8">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-bold text-slate-900">진행 중인 적금</h2>
-          <button class="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
+          <button
+            @click="router.push({ name: 'recommendation' })"
+            class="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition"
+          >
             + 추가
           </button>
         </div>
