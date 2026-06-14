@@ -72,7 +72,7 @@
       <div v-if="showLevelGuide" class="fixed inset-0 z-50 flex items-center justify-center p-10">
         <div class="absolute inset-0 bg-slate-950/40" @click="showLevelGuide = false" />
         <div
-          class="relative w-full max-w-lg rounded-4xl bg-white p-12 shadow-2xl shadow-slate-950/20 max-h-[85vh] overflow-y-auto"
+          class="relative w-full max-w-lg rounded-4xl bg-white pt-12 px-10 shadow-2xl shadow-slate-950/20 max-h-[85vh] overflow-y-auto"
         >
           <button
             @click="showLevelGuide = false"
@@ -90,28 +90,34 @@
               :key="level"
               @click="activeLevelTab = level"
               class="rounded-full px-5 py-2 text-base font-semibold transition"
-              :class="
-                activeLevelTab === level
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-400 hover:bg-slate-100'
-              "
+              :class="activeLevelTab === level ? levelMeta[level].activeClass : 'text-slate-400 hover:bg-slate-100'"
             >
               {{ level }}
             </button>
           </div>
 
-          <div class="mt-7">
-            <h3 class="text-xl font-bold text-slate-900">{{ levelInfo[activeLevelTab].title }}</h3>
-            <p class="mt-2 text-base text-slate-500">{{ levelInfo[activeLevelTab].description }}</p>
-            <p class="mt-6 text-base font-semibold text-slate-400">대표적인 우대조건 예시</p>
-            <div class="mt-3 space-y-2">
-              <div
-                v-for="condition in levelInfo[activeLevelTab].conditions"
-                :key="condition"
-                class="rounded-xl bg-slate-50 px-5 py-3.5 text-base text-slate-700"
-              >
-                • {{ condition }}
+          <div class="mt-5 rounded-2xl p-5" :class="levelMeta[activeLevelTab].bgClass">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl">{{ levelMeta[activeLevelTab].icon }}</span>
+              <div>
+                <span class="rounded-full px-3 py-1 text-sm font-bold" :class="levelMeta[activeLevelTab].badgeClass">
+                  {{ levelInfo[activeLevelTab].label }}
+                </span>
+                <h3 class="mt-1.5 text-xl font-bold text-slate-900">{{ levelInfo[activeLevelTab].title }}</h3>
               </div>
+            </div>
+            <p class="mt-3 text-base text-slate-600">{{ levelInfo[activeLevelTab].description }}</p>
+          </div>
+
+          <p class="mt-6 text-base font-semibold text-slate-400">대표적인 우대조건 예시</p>
+          <div class="mt-3 space-y-2 pb-10">
+            <div
+              v-for="condition in levelInfo[activeLevelTab].conditions"
+              :key="condition"
+              class="flex items-center gap-3 rounded-xl bg-slate-50 px-5 py-3.5 text-base text-slate-700"
+            >
+              <span class="text-xs" :class="levelMeta[activeLevelTab].dotClass">●</span>
+              {{ condition }}
             </div>
           </div>
         </div>
@@ -157,6 +163,30 @@ type LevelKey = 'LOW' | 'MID' | 'HIGH'
 const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
 const activeLevelTab = ref<LevelKey>('LOW')
 const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
+
+const levelMeta: Record<LevelKey, { icon: string; bgClass: string; badgeClass: string; activeClass: string; dotClass: string }> = {
+  LOW: {
+    icon: '🌿',
+    bgClass: 'bg-emerald-50',
+    badgeClass: 'bg-emerald-100 text-emerald-700',
+    activeClass: 'bg-emerald-500 text-white',
+    dotClass: 'text-emerald-400',
+  },
+  MID: {
+    icon: '⚡',
+    bgClass: 'bg-amber-50',
+    badgeClass: 'bg-amber-100 text-amber-700',
+    activeClass: 'bg-amber-500 text-white',
+    dotClass: 'text-amber-400',
+  },
+  HIGH: {
+    icon: '🔥',
+    bgClass: 'bg-red-50',
+    badgeClass: 'bg-red-100 text-red-700',
+    activeClass: 'bg-red-500 text-white',
+    dotClass: 'text-red-400',
+  },
+}
 
 const totalAmount = computed(() => {
   const { period, monthlyAmount } = goalStore
