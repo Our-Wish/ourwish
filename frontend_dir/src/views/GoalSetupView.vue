@@ -19,8 +19,10 @@
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
-      <span class="text-xl font-semibold text-slate-900 pb-8">목표 설정</span>
-      <span class="text-base font-medium text-slate-400">{{ step }}단계 · {{ step === 1 ? '기간 선택' : '월 저축 금액 선택' }}</span>
+      <span class="text-2xl font-semibold text-slate-900 pb-8">목표 설정</span>
+      <span class="text-base font-medium text-slate-400"
+        >{{ step }}단계 · {{ step === 1 ? '기간 선택' : '월 저축 금액 선택' }}</span
+      >
     </header>
 
     <!-- 프로그레스 바 -->
