@@ -1,17 +1,16 @@
 <template>
   <div class="min-h-screen bg-slate-50 pb-10">
     <header class="flex items-center px-5 py-4">
-      <button @click="router.go(-1)" class="flex items-center gap-1 text-sm text-slate-600">
+      <button @click="router.go(-1)" class="flex items-center gap-1 text-base text-slate-600">
         <span>‹</span>
         <span>뒤로</span>
       </button>
     </header>
 
     <div class="px-5 pt-2">
-      <!-- 인사말 -->
       <h1 class="mt-1 text-3xl font-extrabold text-slate-900">
         <template v-if="goalStore.targetAmount">
-          지금까지 벌써 <span class="text-blue-500">{{ progressPercent }}%</span> 모았어요!
+          목표를 향해 <span class="text-blue-500">{{ progressPercent }}%</span> 진행중이에요!
         </template>
         <template v-else>목표를 설정해봐요!</template>
       </h1>
@@ -22,28 +21,28 @@
       <!-- 통계 행 -->
       <div class="mt-4 grid grid-cols-3 gap-3">
         <div class="rounded-2xl border border-slate-200 bg-white px-3 py-4 text-center">
-          <p class="text-xs text-slate-400">가입 상품</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">{{ subscribedCount }}개</p>
+          <p class="text-sm text-slate-400">가입 상품</p>
+          <p class="mt-1 text-xl font-bold text-slate-900">{{ subscribedCount }}개</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white px-3 py-4 text-center">
-          <p class="text-xs text-slate-400">이번 달 납입</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">{{ monthlyPayment }}만원</p>
+          <p class="text-sm text-slate-400">이번 달 납입</p>
+          <p class="mt-1 text-xl font-bold text-slate-900">{{ monthlyPayment }}만원</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white px-3 py-4 text-center">
-          <p class="text-xs text-slate-400">빠른 만기</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">D-{{ nearestMaturity }}</p>
+          <p class="text-sm text-slate-400">빠른 만기</p>
+          <p class="mt-1 text-xl font-bold text-slate-900">D-{{ nearestMaturity }}</p>
         </div>
       </div>
 
       <!-- 진행 중인 적금 -->
-      <div class="mt-8">
+      <div class="mt-10">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-900">진행 중인 적금</h2>
+          <h2 class="text-2xl font-bold text-slate-900">진행 중인 적금</h2>
           <button
             @click="router.push({ name: 'recommendation' })"
-            class="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition"
+            class="rounded-full bg-slate-100 px-3 py-1.5 text-base font-medium text-slate-600 hover:bg-slate-200 transition"
           >
-            + 추가
+            + 적금 추가하기
           </button>
         </div>
 
@@ -63,8 +62,8 @@
           :nextPaymentDate="product.nextPaymentDate"
           :monthlyAmount="product.monthlyAmount"
         />
-        <p v-if="savingsStore.myProducts.length === 0" class="mt-3 text-sm text-slate-400">
-          아직 가입한 적금이 없어요
+        <p v-if="savingsStore.myProducts.length === 0" class="mt-2 text-base text-slate-400">
+          아직 가입한 적금이 없어요 :(
         </p>
       </div>
     </div>

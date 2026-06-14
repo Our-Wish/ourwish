@@ -1,2 +1,10 @@
 @import 'tailwindcss';
 @source "../**/*.ts";
+
+@theme {
+  --font-sans: 'Pretendard Variable', Pretendard, sans-serif;
+}
+
+* {
+  font-family: 'Pretendard Variable', Pretendard, sans-serif;
+}

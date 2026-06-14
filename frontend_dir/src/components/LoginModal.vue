@@ -12,40 +12,35 @@
         ×
       </button>
 
-      <div class="space-y-3">
-        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
-          만나서 반가워요 👋🏻
-        </p>
-        <h1 class="text-3xl font-semibold text-slate-950">아이디와 비밀번호를 입력해주세요</h1>
+      <div class="space-y-1">
+        <h1 class="text-4xl font-bold text-slate-950">로그인</h1>
       </div>
 
-      <form @submit.prevent="onSubmit" class="mt-8 space-y-5">
+      <p class="mt-3 text-base text-slate-500">나의 적금 플랜을 이어서 관리해보세요 ✨</p>
+
+      <form @submit.prevent="onSubmit" class="mt-8 space-y-4">
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">아이디</label>
           <!-- TODO: 백엔드 연동 시 type="email" required 로 복구 -->
           <input
             v-model="email"
             type="text"
             placeholder="아이디"
-            class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">비밀번호</label>
-          <div class="relative">
-            <input
-              v-model="password"
-              type="password"
-              placeholder="비밀번호"
-              class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
+          <input
+            v-model="password"
+            type="password"
+            placeholder="비밀번호"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
         </div>
 
         <button
           type="submit"
-          class="w-full rounded-3xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="loading"
         >
           {{ loading ? '로그인 중...' : '로그인' }}
@@ -54,8 +49,9 @@
         <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
       </form>
 
-      <div class="mt-6 flex items-center justify-center gap-3 text-m text-slate-500">
-        <button class="transition hover:text-slate-900">회원가입</button>
+      <div class="mt-6 flex items-center justify-center gap-1 text-sm text-slate-500">
+        <span>계정이 없으신가요?</span>
+        <button class="font-semibold text-blue-600 transition hover:text-blue-500">회원가입</button>
       </div>
     </div>
   </div>

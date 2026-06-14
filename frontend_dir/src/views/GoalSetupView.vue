@@ -19,8 +19,10 @@
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
-      <span class="text-xl font-semibold text-slate-900 pb-8">목표 설정</span>
-      <span class="text-sm font-medium text-slate-400">{{ step }}/2</span>
+      <span class="text-2xl font-semibold text-slate-900 pb-8">목표 설정</span>
+      <span class="text-base font-medium text-slate-400"
+        >{{ step }}단계 · {{ step === 1 ? '기간 선택' : '월 저축 금액 선택' }}</span
+      >
     </header>
 
     <!-- 프로그레스 바 -->
@@ -40,8 +42,8 @@
       <!-- Step 1: 기간 선택 -->
       <template v-if="step === 1">
         <div class="mb-8">
-          <h1 class="text-3xl font-extrabold text-slate-900">얼마나 모을까요?</h1>
-          <p class="mt-2 text-slate-500">기간을 정해주세요</p>
+          <h1 class="text-3xl font-extrabold text-slate-900">언제까지 모을까요?</h1>
+          <p class="mt-2 text-slate-500">모으고 싶은 기간을 선택해주세요</p>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -85,13 +87,13 @@
       <template v-if="step === 2">
         <div class="mb-8">
           <h1 class="text-3xl font-extrabold leading-tight text-slate-900">
-            매달 얼마까지<br />납입 가능해요?
+            매달 얼마를<br />저축할 수 있나요?
           </h1>
-          <p class="mt-2 text-slate-500">슬라이더를 움직이면 예상 금액이 보여요</p>
+          <p class="mt-2 text-slate-500">가능한 금액을 선택하면 예상 수령액을 확인할 수 있어요.</p>
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-6">
-          <p class="text-sm text-slate-400">매달 납입할 금액</p>
+          <p class="text-base text-slate-500">월 저축 금액</p>
           <p class="mt-1 text-4xl font-extrabold text-slate-900">{{ monthlyAmount }}만원</p>
 
           <div class="mt-6">
@@ -128,18 +130,20 @@
 
         <!-- 예상 금액 카드 -->
         <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6">
-          <p class="text-sm text-slate-400">{{ selectedPeriod }}개월 후 예상</p>
-          <p class="mt-1 text-4xl font-extrabold text-blue-600">약 {{ totalAmount }}만원</p>
-          <div class="mt-4 flex items-end justify-between">
-            <div>
-              <p class="text-xs text-slate-400">원금</p>
-              <p class="mt-0.5 font-semibold text-slate-900">{{ principal }}만원</p>
-            </div>
-            <div class="text-right">
-              <p class="text-xs text-slate-400">예상 이자(세후)</p>
-              <p class="mt-0.5 font-semibold text-blue-600">+{{ afterTaxInterest }}만원</p>
-            </div>
+          <p class="text-base text-slate-800 pb-1">{{ selectedPeriod }}개월 후 예상 수령액</p>
+          <p class="mt-1 text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
+          <div class="mt-4 flex items-center gap-2 text-base">
+            <span class="text-slate-500">원금</span>
+            <span class="font-bold text-slate-900">{{ principal }}만원</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-slate-500"
+              >예상 이자 <span class="text-sm text-slate-400">세후</span></span
+            >
+            <span class="font-bold text-blue-600">+{{ afterTaxInterest }}만원</span>
           </div>
+          <p class="mt-4 text-sm text-slate-400">
+            * 다음 단계에서 우대금리 적용 여부를 직접 확인할 수 있어요.
+          </p>
         </div>
       </template>
     </div>
@@ -150,7 +154,7 @@
         @click="onNext"
         class="w-full rounded-2xl bg-blue-600 py-4 text-lg font-semibold text-white transition hover:bg-blue-500"
       >
-        {{ step === 1 ? '다음' : '추천 받기' }}
+        {{ step === 1 ? '다음' : '추천 상품 보기' }}
       </button>
     </div>
   </div>
@@ -170,9 +174,9 @@ const goalStore = useGoalStore()
 const periodOptions = [
   { value: 3, label: '3개월', desc: '빠르게 모으기' },
   { value: 6, label: '6개월', desc: '단기 목표' },
-  { value: 12, label: '12개월', desc: '가장 인기✨' },
-  { value: 24, label: '24개월', desc: '여유롭게 모으기' },
-  { value: 36, label: '36개월', desc: '장기 목표' },
+  { value: 12, label: '12개월', desc: '균형 있게 모으기 (가장 인기🔥)' },
+  { value: 24, label: '24개월', desc: '여유 있게 모으기' },
+  { value: 36, label: '36개월', desc: '장기 플랜' },
 ]
 
 const amountChips = [10, 30, 50, 100]
