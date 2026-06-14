@@ -20,7 +20,7 @@
         </svg>
       </button>
       <span class="text-xl font-semibold text-slate-900 pb-8">목표 설정</span>
-      <span class="text-sm font-medium text-slate-400">{{ step }}/2</span>
+      <span class="text-sm font-medium text-slate-400">{{ step }}단계 · 기간 선택</span>
     </header>
 
     <!-- 프로그레스 바 -->
@@ -40,8 +40,8 @@
       <!-- Step 1: 기간 선택 -->
       <template v-if="step === 1">
         <div class="mb-8">
-          <h1 class="text-3xl font-extrabold text-slate-900">얼마나 모을까요?</h1>
-          <p class="mt-2 text-slate-500">기간을 정해주세요</p>
+          <h1 class="text-3xl font-extrabold text-slate-900">언제까지 모을까요?</h1>
+          <p class="mt-2 text-slate-500">모으고 싶은 기간을 선택해주세요</p>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -170,9 +170,9 @@ const goalStore = useGoalStore()
 const periodOptions = [
   { value: 3, label: '3개월', desc: '빠르게 모으기' },
   { value: 6, label: '6개월', desc: '단기 목표' },
-  { value: 12, label: '12개월', desc: '가장 인기✨' },
-  { value: 24, label: '24개월', desc: '여유롭게 모으기' },
-  { value: 36, label: '36개월', desc: '장기 목표' },
+  { value: 12, label: '12개월', desc: '균형 있게 모으기 (가장 인기🔥)' },
+  { value: 24, label: '24개월', desc: '여유 있게 모으기' },
+  { value: 36, label: '36개월', desc: '장기 플랜' },
 ]
 
 const amountChips = [10, 30, 50, 100]
