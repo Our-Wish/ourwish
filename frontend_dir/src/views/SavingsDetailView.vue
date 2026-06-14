@@ -135,7 +135,7 @@
     <div class="mx-auto max-w-6xl px-9">
       <button
         @click="selectProduct"
-        class="w-full rounded-2xl bg-blue-500 py-3 text-md font-semibold text-white transition hover:bg-blue-400"
+        class="w-full rounded-2xl bg-blue-500 py-3 text-lg font-semibold text-white transition hover:bg-blue-400"
       >
         이 상품 선택하기
       </button>
