@@ -66,6 +66,12 @@
 
       <div class="mt-6">
         <FilterChips v-model="selectedFilter" />
+        <p
+          @click="showLevelGuide = true"
+          class="mt-3 cursor-pointer text-base text-slate-400 hover:text-slate-600 transition"
+        >
+          ⓘ 조건 난이도가 궁금하다면 우대금리 안내를 확인해보세요.
+        </p>
       </div>
 
       <!-- 레벨 안내 모달 -->
@@ -81,7 +87,7 @@
             ✕
           </button>
 
-          <h2 class="text-2xl font-bold text-slate-900">우대금리 조건 안내</h2>
+          <h2 class="text-3xl font-bold text-slate-900">우대금리 조건 안내</h2>
           <p class="mt-2 text-base text-slate-500">조건을 얼마나 쉽게 채울 수 있는지 알려드려요.</p>
 
           <div class="mt-7 flex gap-2">
@@ -90,7 +96,11 @@
               :key="level"
               @click="activeLevelTab = level"
               class="rounded-full px-5 py-2 text-base font-semibold transition"
-              :class="activeLevelTab === level ? levelMeta[level].activeClass : 'text-slate-400 hover:bg-slate-100'"
+              :class="
+                activeLevelTab === level
+                  ? levelMeta[level].activeClass
+                  : 'text-slate-400 hover:bg-slate-100'
+              "
             >
               {{ level }}
             </button>
@@ -100,10 +110,15 @@
             <div class="flex items-center gap-4">
               <span class="text-4xl">{{ levelMeta[activeLevelTab].icon }}</span>
               <div>
-                <span class="rounded-full px-3 py-1 text-sm font-bold" :class="levelMeta[activeLevelTab].badgeClass">
+                <span
+                  class="rounded-full px-3 py-1 text-sm font-bold"
+                  :class="levelMeta[activeLevelTab].badgeClass"
+                >
                   {{ levelInfo[activeLevelTab].label }}
                 </span>
-                <h3 class="mt-1.5 text-xl font-bold text-slate-900">{{ levelInfo[activeLevelTab].title }}</h3>
+                <h3 class="mt-1.5 text-xl font-bold text-slate-900">
+                  {{ levelInfo[activeLevelTab].title }}
+                </h3>
               </div>
             </div>
             <p class="mt-3 text-base text-slate-600">{{ levelInfo[activeLevelTab].description }}</p>
@@ -164,7 +179,10 @@ const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
 const activeLevelTab = ref<LevelKey>('LOW')
 const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
 
-const levelMeta: Record<LevelKey, { icon: string; bgClass: string; badgeClass: string; activeClass: string; dotClass: string }> = {
+const levelMeta: Record<
+  LevelKey,
+  { icon: string; bgClass: string; badgeClass: string; activeClass: string; dotClass: string }
+> = {
   LOW: {
     icon: '🌿',
     bgClass: 'bg-emerald-50',

@@ -26,8 +26,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: FilterKey] }>()
 
 const filters = [
   { key: 'BASE' as FilterKey, label: '기본금리만' },
-  { key: 'LOW' as FilterKey, label: 'LOW 우대까지' },
-  { key: 'MID' as FilterKey, label: 'MID 우대까지' },
-  { key: 'HIGH' as FilterKey, label: 'HIGH 우대까지' },
+  { key: 'LOW' as FilterKey, label: '쉬운 조건까지' },
+  { key: 'MID' as FilterKey, label: '보통 조건까지' },
+  { key: 'HIGH' as FilterKey, label: '모든 조건까지' },
 ]
 </script>
