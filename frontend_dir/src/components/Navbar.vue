@@ -8,12 +8,12 @@
       <div class="flex items-center gap-3 text-lg text-slate-700">
         <button
           v-if="!isAuthenticated"
-          class="hover:text-slate-900"
+          class="font-semibold hover:text-slate-900"
           @click="authStore.openLoginModal()"
         >
           로그인
         </button>
-        <button v-if="isAuthenticated" class="hover:text-slate-900" @click="logout">
+        <button v-if="isAuthenticated" class="font-semibold hover:text-slate-900" @click="logout">
           로그아웃
         </button>
       </div>
