@@ -139,8 +139,10 @@
       </div>
 
       <!-- 상품 리스트 -->
-      <div class="mt-4">
-        <p class="mb-3 text-sm text-slate-400">{{ filteredProducts.length }}개 · 수령액 높은 순</p>
+      <div>
+        <p class="mb-3 text-sm text-slate-400 text-right">
+          {{ filteredProducts.length }}개 · 수령액 높은 순
+        </p>
         <div class="flex flex-col gap-3">
           <ProductCard
             v-for="(product, index) in filteredProducts"
