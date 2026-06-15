@@ -61,7 +61,7 @@ const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
 const userInitial = computed(() => {
-  return authStore.user?.email?.charAt(0).toUpperCase() ?? 'U'
+  return authStore.user?.nickname?.charAt(0).toUpperCase() ?? 'U'
 })
 
 const toggleDropdown = () => {

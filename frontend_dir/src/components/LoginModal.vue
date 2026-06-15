@@ -51,7 +51,10 @@
 
       <div class="mt-6 flex items-center justify-center gap-1 text-sm text-slate-500">
         <span>계정이 없으신가요?</span>
-        <button class="font-semibold text-blue-600 transition hover:text-blue-500">회원가입</button>
+        <button
+          @click="authStore.openSignupModal()"
+          class="font-semibold text-blue-600 transition hover:text-blue-500"
+        >회원가입</button>
       </div>
     </div>
   </div>
@@ -59,7 +62,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: [] }>()
@@ -69,7 +71,6 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const authStore = useAuthStore()
-const router = useRouter()
 
 const onSubmit = async () => {
   loading.value = true
@@ -77,7 +78,6 @@ const onSubmit = async () => {
 
   try {
     await authStore.login(email.value, password.value)
-    alert('로그인 성공!')
     emit('close')
   } catch {
     errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'
