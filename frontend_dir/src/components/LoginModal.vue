@@ -51,7 +51,10 @@
 
       <div class="mt-6 flex items-center justify-center gap-1 text-sm text-slate-500">
         <span>계정이 없으신가요?</span>
-        <button class="font-semibold text-blue-600 transition hover:text-blue-500">회원가입</button>
+        <button
+          @click="authStore.openSignupModal()"
+          class="font-semibold text-blue-600 transition hover:text-blue-500"
+        >회원가입</button>
       </div>
     </div>
   </div>
