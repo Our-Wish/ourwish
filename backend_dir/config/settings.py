@@ -171,5 +171,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # 외부 서비스
-FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://localhost:8001")
 FSS_API_KEY = os.environ.get("FSS_API_KEY")
+
+# GMS LLM (OpenAI 호환 프록시) — Django가 직접 호출
+GMS_API_KEY = os.environ.get("GMS_KEY")
+GMS_API_URL = os.environ.get(
+    "GMS_API_URL", "https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions"
+)
+GMS_MODEL = os.environ.get("GMS_MODEL", "gpt-5-mini")

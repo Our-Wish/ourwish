@@ -5,7 +5,9 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Q
 
+from apps.products.llm import generate_core_info, generate_friendly_label
 from apps.products.models import Bank, PreferentialCondition, Product, ProductOption
 
 FSS_BASE_URL = "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json"
@@ -20,7 +22,20 @@ RATE_PATTERN = re.compile(r"(\d+(?:\.\d+)?)\s*%")
 
 
 class Command(BaseCommand):
-    help = "금감원 API에서 적금 상품을 받아 DB에 적재 (2차: spcl_cnd 파싱·우대조건/has_bonus 포함, LLM 없음)"
+    help = "금감원 API에서 적금 상품을 받아 DB에 적재. --with-llm 시 GMS로 AI 필드 보강"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--with-llm",
+            action="store_true",
+            help="GMS로 friendly_label·difficulty·요약을 채운다(비용 발생)",
+        )
+        parser.add_argument(
+            "--llm-limit",
+            type=int,
+            default=0,
+            help="LLM 보강 대상 행 수 제한(테스트용, 0=제한 없음)",
+        )
 
     def _parse_conditions(self, raw):
         """spcl_cnd 원문을 줄 단위로 쪼개 (label, rate) 목록으로 만든다.
@@ -138,5 +153,57 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"완료: 상품 {total_products}개, 옵션 {total_options}개, "
                 f"우대조건 {total_conditions}개 적재"
+            )
+        )
+
+        if options["with_llm"]:
+            self._enrich_with_llm(options["llm_limit"])
+
+    def _enrich_with_llm(self, limit):
+        """NULL인 AI 필드를 GMS로 채운다. 실패 행은 NULL 유지 → 다음 실행 때 재시도."""
+        # 1) 우대조건: friendly_label 또는 difficulty가 비어있는 행
+        conditions = PreferentialCondition.objects.filter(
+            Q(friendly_label__isnull=True) | Q(difficulty__isnull=True)
+        )
+        if limit:
+            conditions = conditions[:limit]
+
+        cond_done = 0
+        for cond in conditions:
+            friendly, difficulty = generate_friendly_label(cond.label)
+            if friendly is None and difficulty is None:
+                continue  # 호출 실패 → NULL 유지
+            cond.friendly_label = friendly or cond.friendly_label
+            cond.difficulty = difficulty or cond.difficulty
+            cond.save(update_fields=["friendly_label", "difficulty"])
+            cond_done += 1
+
+        # 2) 상품: 요약 3개 중 하나라도 비어있는 행
+        products = Product.objects.filter(
+            Q(join_summary__isnull=True)
+            | Q(maturity_summary__isnull=True)
+            | Q(etc_summary__isnull=True)
+        )
+        if limit:
+            products = products[:limit]
+
+        prod_done = 0
+        for product in products:
+            info = generate_core_info(product)
+            if not info:
+                continue  # 호출 실패 → NULL 유지
+            product.join_summary = info.get("join_summary") or product.join_summary
+            product.maturity_summary = (
+                info.get("maturity_summary") or product.maturity_summary
+            )
+            product.etc_summary = info.get("etc_summary") or product.etc_summary
+            product.save(
+                update_fields=["join_summary", "maturity_summary", "etc_summary"]
+            )
+            prod_done += 1
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"LLM 보강: 우대조건 {cond_done}개, 상품 {prod_done}개 갱신"
             )
         )
