@@ -123,6 +123,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: []; openLogin: [] }>()
 
@@ -149,12 +150,14 @@ const form = reactive({
   marital_status: '',
 })
 
+const authStore = useAuthStore()
+
 const onSubmit = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
-    // TODO: API 연결
-    console.log('signup form:', form)
+    await authStore.signup(form)
+    emit('close')
   } catch {
     errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
   } finally {

@@ -62,7 +62,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: [] }>()
@@ -72,7 +71,6 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const authStore = useAuthStore()
-const router = useRouter()
 
 const onSubmit = async () => {
   loading.value = true
@@ -80,7 +78,6 @@ const onSubmit = async () => {
 
   try {
     await authStore.login(email.value, password.value)
-    alert('로그인 성공!')
     emit('close')
   } catch {
     errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'

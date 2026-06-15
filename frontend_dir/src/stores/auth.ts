@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
-import { setAuthToken } from '@/api'
+import api, { setAuthToken } from '@/api'
 
-const STORAGE_KEY = 'auth_token'
+const ACCESS_KEY = 'auth_token'
+const REFRESH_KEY = 'refresh_token'
 
 export type AuthUser = {
-  email: string
-  username?: string
+  id: number
+  login_id: string
+  nickname: string
 }
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem(STORAGE_KEY) as string | null,
+    token: localStorage.getItem(ACCESS_KEY) as string | null,
     user: null as AuthUser | null,
     showLoginModal: false,
     showSignupModal: false,
@@ -24,12 +26,17 @@ export const useAuthStore = defineStore('auth', {
         setAuthToken(this.token)
       }
     },
-    setToken(token: string | null) {
+    setToken(token: string | null, refresh: string | null = null) {
       this.token = token
       if (token) {
-        localStorage.setItem(STORAGE_KEY, token)
+        localStorage.setItem(ACCESS_KEY, token)
       } else {
-        localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(ACCESS_KEY)
+      }
+      if (refresh) {
+        localStorage.setItem(REFRESH_KEY, refresh)
+      } else {
+        localStorage.removeItem(REFRESH_KEY)
       }
       setAuthToken(token)
     },
@@ -50,13 +57,25 @@ export const useAuthStore = defineStore('auth', {
       this.showSignupModal = false
     },
     logout() {
-      this.setToken(null)
+      this.setToken(null, null)
       this.user = null
     },
-    async login(email: string, _password: string) {
-      // TODO: 백엔드 연동 시 아래 mock 제거
-      this.setToken('mock-token')
-      this.user = { email }
+    async login(login_id: string, password: string) {
+      const { data } = await api.post('/api/v1/accounts/login/', { login_id, password })
+      this.setToken(data.access, data.refresh)
+      this.user = data.member
+    },
+    async signup(payload: {
+      login_id: string
+      password: string
+      nickname: string
+      birth_date: string
+      job_status: string
+      marital_status: string
+    }) {
+      const { data } = await api.post('/api/v1/accounts/signup/', payload)
+      this.setToken(data.access, data.refresh)
+      this.user = data.member
     },
   },
 })
