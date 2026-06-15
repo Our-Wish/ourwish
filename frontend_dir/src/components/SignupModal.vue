@@ -16,9 +16,9 @@
         <h1 class="text-4xl font-bold text-slate-950">회원가입</h1>
       </div>
 
-      <p class="mt-3 text-base text-slate-500">나의 적금 플랜을 시작해보세요 ✨</p>
+      <p class="mt-3 text-base text-slate-500">회원가입하고 맞춤 적금 플랜을 추천받아보세요 :)</p>
 
-      <form @submit.prevent="onSubmit" class="mt-8 space-y-6">
+      <form @submit.prevent="onSubmit" class="mt-8 space-y-4">
         <div>
           <input
             v-model="form.login_id"
@@ -46,17 +46,19 @@
           />
         </div>
 
-        <div>
-          <label class="mb-1.5 block text-base font-medium text-slate-600">생년월일</label>
+        <div class="flex items-center gap-4">
+          <label class="ml-1.5 mb-2 block text-[17px] font-medium text-slate-600 whitespace-nowrap"
+            >생년월일</label
+          >
           <input
             v-model="form.birth_date"
             type="date"
-            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            class="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
-        <div>
-          <label class="mb-1.5 block text-base font-medium text-slate-600">직업</label>
+        <div class="flex items-center gap-4">
+          <label class="ml-1.5 shrink-0 text-[17px] font-medium text-slate-600">직업</label>
           <div class="flex gap-2">
             <button
               v-for="opt in jobOptions"
@@ -64,7 +66,7 @@
               type="button"
               @click="form.job_status = opt.value"
               :class="[
-                'rounded-full px-5 py-2.5 text-base font-medium transition',
+                'rounded-xl px-5 py-2.5 text-base font-medium transition',
                 form.job_status === opt.value
                   ? 'bg-slate-900 text-white'
                   : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-400',
@@ -75,8 +77,8 @@
           </div>
         </div>
 
-        <div>
-          <label class="mb-1.5 block text-base font-medium text-slate-600">결혼 여부</label>
+        <div class="flex items-center gap-4">
+          <label class="ml-1.5 shrink-0 text-[17px] font-medium text-slate-600">결혼 여부</label>
           <div class="flex gap-2">
             <button
               v-for="opt in maritalOptions"
@@ -84,7 +86,7 @@
               type="button"
               @click="form.marital_status = opt.value"
               :class="[
-                'rounded-full px-5 py-2.5 text-base font-medium transition',
+                'rounded-xl px-5 py-2.5 text-base font-medium transition',
                 form.marital_status === opt.value
                   ? 'bg-slate-900 text-white'
                   : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-400',
@@ -99,14 +101,14 @@
 
         <button
           type="submit"
-          class="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-4 w-full rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="loading"
         >
           {{ loading ? '가입 중...' : '가입하기' }}
         </button>
       </form>
 
-      <div class="mt-6 flex items-center justify-center gap-1 text-base text-slate-500">
+      <div class="mt-4 flex items-center justify-center gap-1 text-base text-slate-500">
         <span>이미 계정이 있으신가요?</span>
         <button
           @click="emit('openLogin')"
