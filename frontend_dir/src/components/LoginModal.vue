@@ -22,7 +22,7 @@
         <div>
           <!-- TODO: 백엔드 연동 시 type="email" required 로 복구 -->
           <input
-            v-model="email"
+            v-model="login_id"
             type="text"
             placeholder="아이디"
             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -54,7 +54,9 @@
         <button
           @click="authStore.openSignupModal()"
           class="font-semibold text-blue-600 transition hover:text-blue-500"
-        >회원가입</button>
+        >
+          회원가입
+        </button>
       </div>
     </div>
   </div>
@@ -66,7 +68,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: [] }>()
 
-const email = ref('')
+const login_id = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
@@ -77,7 +79,7 @@ const onSubmit = async () => {
   errorMessage.value = ''
 
   try {
-    await authStore.login(email.value, password.value)
+    await authStore.login(login_id.value, password.value)
     emit('close')
   } catch {
     errorMessage.value = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.'
