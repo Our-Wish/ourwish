@@ -172,6 +172,8 @@ import { useGoalStore } from '@/stores/goal'
 import { levelInfo } from '@/constants/levelInfo'
 import FilterChips from '@/components/Recommendation/FilterChips.vue'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
+import { difficultyMap } from '@/constants/difficultyMap'
+import { bankColorMap } from '@/constants/bankColors'
 
 const router = useRouter()
 const goalStore = useGoalStore()
@@ -217,76 +219,5 @@ const totalAmount = computed(() => {
   const principal = period * monthlyAmount
   const interest = ((monthlyAmount * period * (period + 1)) / 2) * (0.035 / 12)
   return Math.round(principal + interest * (1 - 0.154))
-})
-
-type FilterKey = 'BASE' | 'LOW' | 'MID' | 'HIGH'
-const filterOrder: FilterKey[] = ['BASE', 'LOW', 'MID', 'HIGH']
-
-const mockProducts = [
-  {
-    id: 1,
-    bankName: '하나은행',
-    bankColor: '#00903F',
-    productName: '청년도약 적금',
-    difficulty: '어려움' as const,
-    level: 'HIGH' as FilterKey,
-    amount: 614,
-    maxRate: 5.0,
-    baseRate: 3.5,
-    condition: '소득증빙 + 36개월 유지',
-  },
-  {
-    id: 2,
-    bankName: '신한은행',
-    bankColor: '#0046FF',
-    productName: '신한 첫 월급 적금',
-    difficulty: '어려움' as const,
-    level: 'HIGH' as FilterKey,
-    amount: 612,
-    maxRate: 4.5,
-    baseRate: 3.2,
-    condition: '급여이체 + 체크카드 월 30만원 이상',
-  },
-  {
-    id: 3,
-    bankName: '국민은행',
-    bankColor: '#FFCD00',
-    productName: 'KB 청춘적금',
-    difficulty: '보통' as const,
-    level: 'MID' as FilterKey,
-    amount: 608,
-    maxRate: 4.0,
-    baseRate: 3.0,
-    condition: '자동이체 + 앱 로그인',
-  },
-  {
-    id: 4,
-    bankName: '우리은행',
-    bankColor: '#0F6EBF',
-    productName: '우리 첫 거래 적금',
-    difficulty: '쉬움' as const,
-    level: 'LOW' as FilterKey,
-    amount: 605,
-    maxRate: 3.8,
-    baseRate: 3.2,
-    condition: '신규 고객 + 자동이체 1건',
-  },
-  {
-    id: 5,
-    bankName: '농협은행',
-    bankColor: '#00A650',
-    productName: 'NH 디딤돌 정기적금',
-    difficulty: '쉬움' as const,
-    level: 'BASE' as FilterKey,
-    amount: 602,
-    maxRate: 3.6,
-    baseRate: 3.6,
-    condition: '없음',
-  },
-]
-
-const filteredProducts = computed(() => {
-  const currentIndex = filterOrder.indexOf(selectedFilter.value)
-  return mockProducts.filter((p) => filterOrder.indexOf(p.level) <= currentIndex)
 })
 </script>
