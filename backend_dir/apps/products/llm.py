@@ -10,18 +10,144 @@ logger = logging.getLogger(__name__)
 
 _TIMEOUT = 30  # 초
 
-# 우대조건 난이도 분류 기준. 프롬프트에 그대로 주입한다.
-DIFFICULTY_GUIDE = """난이도(difficulty) 분류 기준:
-- LOW (그냥 하면 됨): 급여이체, 자사 앱 가입/로그인, 자사 체크/신용카드 발급,
-  자동이체 1건 이상, 인터넷/모바일뱅킹, 신규 고객, 마케팅 동의, 전자통장,
-  자사 입출금통장 보유.
-- MID (좀 챙겨야 함): 카드 실적 월 N만원 이상, 주택청약 보유, 공과금 자동이체 N건 이상,
-  펀드/ISA, 연금저축, 타행→자행 급여이체 변경, 적금/예금 N개 이상 동시 보유,
-  패밀리뱅킹, 비대면 가입.
-- HIGH (사회초년생에게 쉽지 않음): 신용카드 연 500만원 이상, 외환 거래, 대출 보유,
-  자산관리 N억 이상, VIP, IRP, 주담대 연계, 증권 연계, 카드론/리볼빙,
-  골프장/제휴, 탄소중립 인증, 지역화폐.
-판단이 애매하면 더 어려운 쪽으로 분류한다."""
+DIFFICULTY_GUIDE = """
+난이도(difficulty) 분류 기준:
+
+difficulty는 우대금리 조건을 사용자가 실제로 달성하기 쉬운 정도를 의미한다.
+금리 혜택의 크기가 아니라, 조건을 맞추기 위해 필요한 행동, 반복 관리, 생활 패턴 변경, 기존 금융거래 여부를 기준으로 판단한다.
+
+LOW — 가볍게 챙길 수 있는 조건.
+앱 가입, 자동이체 등록처럼 대부분의 사용자가 어렵지 않게 완료할 수 있는 조건이다.
+한 번 설정하거나 가입 과정에서 자연스럽게 충족되는 조건은 LOW로 분류한다.
+
+예:
+앱 가입/로그인, 자동이체 등록, 신규 고객, 마케팅 동의, 전자통장 발급,
+입출금 통장 보유, 인터넷/모바일뱅킹 가입.
+
+MID — 조금 신경 쓰면 가능한 조건.
+급여이체나 카드 사용처럼 사용자의 생활 패턴에 따라 달성 여부가 달라지는 조건이다.
+매월 반복 관리가 필요하거나, 특정 계좌/상품을 꾸준히 유지해야 하는 조건은 MID로 분류한다.
+
+예:
+급여이체, 카드 실적, 공과금 자동이체, 주택청약 보유, 비대면 가입,
+가족 계좌 연결, 적금/예금 동시 보유.
+
+HIGH — 조건 확인이 필요한 조건.
+기존 자산, 거래 실적, 대출, 투자/퇴직연금 상품, 프리미엄 등급처럼
+사용자가 단기간에 맞추기 어렵거나 부담이 큰 조건은 HIGH로 분류한다.
+
+예:
+높은 카드 사용 실적, 외환 거래 실적, 대출 보유, 자산관리 계좌 보유,
+프리미엄/VIP 등급, 퇴직연금 가입, 주택담보대출 연계, 증권 연계 계좌.
+
+판단 규칙:
+- 하나의 우대조건에 여러 요구사항이 있으면 가장 어려운 요구사항을 기준으로 분류한다.
+- 한 번 설정하면 끝나는 조건은 LOW로 본다.
+- 매월 반복해서 관리해야 하는 조건은 최소 MID로 본다.
+- 급여이체, 카드 실적, 공과금 자동이체처럼 생활 패턴에 영향을 받는 조건은 MID로 본다.
+- 대출, 고액 자산, VIP 등급, 외환/증권/퇴직연금처럼 기존 금융거래나 큰 부담이 필요한 조건은 HIGH로 본다.
+- 금액, 횟수, 기간 조건이 클수록 더 어렵게 본다.
+- 목록에 없는 조건은 위 기준에 따라 분류한다.
+- 애매하면 더 어려운 쪽으로 분류한다.
+"""
+
+_LABEL_DEVELOPER = f"""
+너는 적금 우대금리 조건을 쉽게 풀어쓰는 도우미야.
+
+이제 막 돈을 모으기 시작한 사용자도 이해할 수 있도록,
+은행 약관처럼 딱딱하거나 어려운 표현을 쉬운 말로 바꿔줘.
+
+해야 할 일:
+1. 우대금리 조건 원문을 읽어.
+2. 사용자가 실제로 무엇을 하면 되는지 한 문장으로 설명해.
+3. 조건을 충족하기 쉬운 정도를 LOW, MID, HIGH 중 하나로 분류해.
+
+friendly_label 작성 규칙:
+- 40자 이내로 작성해.
+- 해요체로 작성해. 예: ~하면 돼요, ~해야 해요
+- 금융 용어는 가능한 쉽게 풀어써.
+- 원문에 있는 금액, 횟수, 기간, 대상 조건은 빠뜨리지 마.
+- 원문에 없는 조건이나 혜택은 추가하지 마.
+- 너무 광고 문구처럼 쓰지 말고, 서비스 화면에 넣기 좋은 문장으로 써.
+
+difficulty 작성 규칙:
+- 반드시 LOW, MID, HIGH 중 하나만 사용해.
+- 조건을 맞추기 위한 노력, 반복 관리, 금액 부담, 기존 금융거래 여부를 기준으로 판단해.
+
+{DIFFICULTY_GUIDE}
+
+출력 규칙:
+- 반드시 JSON 객체 하나만 출력해.
+- 마크다운, 코드블록, 추가 설명은 출력하지 마.
+- 키는 friendly_label, difficulty 두 개만 사용해.
+
+퓨샷 예시:
+입력: "당행 급여이체"
+출력: {{"friendly_label": "이 은행으로 월급을 받으면 돼요", "difficulty": "MID"}}
+
+입력: "카드 월 실적 30만원 이상"
+출력: {{"friendly_label": "카드를 한 달에 30만원 이상 써야 해요", "difficulty": "MID"}}
+
+입력: "주택담보대출 연계"
+출력: {{"friendly_label": "주택담보대출이 있어야 해요", "difficulty": "HIGH"}}
+
+입력: "마케팅 수신 동의"
+출력: {{"friendly_label": "혜택 안내 알림에 동의하면 돼요", "difficulty": "LOW"}}
+
+입력: "자동이체 등록"
+출력: {{"friendly_label": "자동이체를 등록하면 돼요", "difficulty": "LOW"}}
+"""
+
+
+_CORE_INFO_DEVELOPER = """
+너는 적금 상품 안내문을 처음 저축을 시작한 사용자도 쉽게 이해할 수 있게 요약하는 도우미야.
+
+목표:
+- 어려운 은행 안내문을 서비스 화면에 넣기 좋은 짧은 문장으로 바꿔.
+- 사용자가 가입 전 꼭 알아야 할 내용만 남겨.
+- 원문에 없는 내용은 절대 추측하지 마.
+
+각 항목이 담아야 할 내용:
+- join_summary: 누가 가입할 수 있고, 어떤 방식으로 가입하는지
+- maturity_summary: 만기 후 이자가 어떻게 적용되는지
+- etc_summary: 가입 전 꼭 확인해야 할 제한, 조건, 유의사항
+
+작성 규칙:
+- 각 항목은 1문장으로 작성해.
+- 각 항목은 50자 이내로 작성해.
+- 해요체로 작성해. 예: ~할 수 있어요, ~적용돼요, ~확인해야 해요
+- 은행 약관처럼 딱딱한 표현은 쉬운 말로 바꿔.
+- 금액, 기간, 대상, 방식 등 중요한 조건은 빠뜨리지 마.
+- 원문에 없는 내용은 추가하지 마.
+- 해당 정보가 없거나 의미 있는 내용이 없으면 null을 반환해.
+- 반드시 JSON 객체 하나만 출력해.
+- 마크다운, 코드블록, 추가 설명은 출력하지 마.
+
+퓨샷 예시:
+입력:
+가입 방법/대상: 영업점, 인터넷, 스마트폰 / 만 17세 이상 실명의 개인
+만기 후 이자: 만기 후 1개월 이내 약정이율의 50%, 1개월 초과 보통예금이율
+기타 유의사항: 1인 1계좌 가입 가능
+
+출력:
+{
+  "join_summary": "만 17세 이상이면 영업점이나 앱에서 가입할 수 있어요.",
+  "maturity_summary": "만기 후 기간에 따라 낮은 이자가 적용돼요.",
+  "etc_summary": "1인 1계좌만 가입할 수 있어요."
+}
+
+입력:
+가입 방법/대상: 정보 없음 / 정보 없음
+만기 후 이자: 정보 없음
+기타 유의사항: 정보 없음
+
+출력:
+{
+  "join_summary": null,
+  "maturity_summary": null,
+  "etc_summary": null
+}
+"""
 
 
 def _chat(developer_prompt, user_prompt):
@@ -38,6 +164,7 @@ def _chat(developer_prompt, user_prompt):
             },
             json={
                 "model": settings.GMS_MODEL,
+                "temperature": 0,
                 "messages": [
                     {"role": "developer", "content": developer_prompt},
                     {"role": "user", "content": user_prompt},
@@ -71,18 +198,11 @@ def _parse_json(content):
 
 def generate_friendly_label(label):
     """우대조건 원문 → (friendly_label, difficulty). 실패 항목은 None."""
-    developer = (
-        "너는 은행 적금의 우대금리 조건을 사회초년생이 한눈에 이해하도록 다듬고, "
-        "그 조건을 충족하기 얼마나 쉬운지 난이도를 분류하는 도우미야. "
-        "반드시 JSON 객체 하나만 출력해.\n\n" + DIFFICULTY_GUIDE
-    )
     user = (
-        f'다음 적금 우대조건을 분석해줘.\n조건 원문: "{label}"\n\n'
-        "출력 형식(JSON):\n"
-        '{"friendly_label": "조건을 한 문장으로 쉽게 풀어쓴 설명", '
-        '"difficulty": "LOW 또는 MID 또는 HIGH"}'
+        f'조건 원문: "{label}"\n'
+        f'출력: {{"friendly_label": "...", "difficulty": "LOW|MID|HIGH"}}'
     )
-    data = _parse_json(_chat(developer, user))
+    data = _parse_json(_chat(_LABEL_DEVELOPER, user))
     if not data:
         return None, None
 
@@ -95,22 +215,15 @@ def generate_friendly_label(label):
 
 def generate_core_info(product):
     """상품 → {join_summary, maturity_summary, etc_summary}. 실패 시 빈 dict."""
-    developer = (
-        "너는 적금 상품의 안내문을 사회초년생이 한눈에 알 수 있게 짧게 요약하는 도우미야. "
-        "각 항목은 1~2문장으로, 군더더기 없이 핵심만. 반드시 JSON 객체 하나만 출력해."
-    )
     user = (
-        "다음 적금 상품 정보를 요약해줘.\n"
-        f"- 가입 방법: {product.join_way or '정보 없음'}\n"
-        f"- 가입 대상: {product.join_member or '정보 없음'}\n"
+        f"상품명: {product.product_name} ({product.bank.bank_name})\n"
+        f"다음 정보를 각각 1문장으로 요약해줘.\n"
+        f"- 가입 방법/대상: {product.join_way or '정보 없음'} / {product.join_member or '정보 없음'}\n"
         f"- 만기 후 이자: {product.maturity_interest or '정보 없음'}\n"
         f"- 기타 유의사항: {product.etc_note or '정보 없음'}\n\n"
-        "출력 형식(JSON):\n"
-        '{"join_summary": "가입 방법·대상 요약", '
-        '"maturity_summary": "만기/이자 관련 요약", '
-        '"etc_summary": "기타 유의사항 요약"}'
+        f'출력: {{"join_summary": "...", "maturity_summary": "...", "etc_summary": "..."}}'
     )
-    data = _parse_json(_chat(developer, user))
+    data = _parse_json(_chat(_CORE_INFO_DEVELOPER, user))
     if not data:
         return {}
     return {

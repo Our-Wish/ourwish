@@ -138,14 +138,16 @@
         </div>
       </div>
 
+      <div v-if="isLoading" class="mt-10 text-center text-slate-400">불러오는 중...</div>
+
       <!-- 상품 리스트 -->
       <div>
         <p class="mb-3 text-sm text-slate-400 text-right">
-          {{ filteredProducts.length }}개 · 수령액 높은 순
+          {{ products.length }}개 · 수령액 높은 순
         </p>
-        <div class="flex flex-col gap-3">
+        <div v-if="!isLoading" class="flex flex-col gap-3">
           <ProductCard
-            v-for="(product, index) in filteredProducts"
+            v-for="(product, index) in products"
             :key="product.id"
             :id="product.id"
             :rank="index + 1"
@@ -165,12 +167,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import api from '@/api/index'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { levelInfo } from '@/constants/levelInfo'
 import FilterChips from '@/components/Recommendation/FilterChips.vue'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
+import { difficultyMap } from '@/constants/difficultyMap'
+import { bankColorMap } from '@/constants/bankColors'
 
 const router = useRouter()
 const goalStore = useGoalStore()
@@ -180,6 +185,9 @@ type LevelKey = 'LOW' | 'MID' | 'HIGH'
 const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
 const activeLevelTab = ref<LevelKey>('LOW')
 const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
+
+const products = ref<any[]>([])
+const isLoading = ref(false)
 
 const levelMeta: Record<
   LevelKey,
@@ -215,74 +223,36 @@ const totalAmount = computed(() => {
   return Math.round(principal + interest * (1 - 0.154))
 })
 
-type FilterKey = 'BASE' | 'LOW' | 'MID' | 'HIGH'
-const filterOrder: FilterKey[] = ['BASE', 'LOW', 'MID', 'HIGH']
+const fetchProducts = async () => {
+  isLoading.value = true
+  try {
+    const { data } = await api.get('/api/v1/products/recommend/', {
+      params: {
+        term: goalStore.period,
+        monthly_cap: goalStore.monthlyAmount * 10000,
+        filter: selectedFilter.value.toLowerCase(),
+      },
+    })
+    products.value = data.results.map((item: any) => ({
+      id: item.product_id,
+      bankName: item.bank_name,
+      bankColor: bankColorMap[item.bank_name] ?? '#94a3b8',
+      productName: item.product_name,
+      baseRate: item.base_rate,
+      maxRate: item.max_rate,
+      amount: Math.round(item.expected_payout / 10000),
+      difficulty: !item.has_bonus
+        ? '없음'
+        : (difficultyMap[item.conditions[0]?.difficulty] ?? '쉬움'),
+      condition: item.conditions?.map((c: any) => c.friendly_label).filter(Boolean) ?? [],
+    }))
+  } catch {
+    alert('상품 목록을 불러오는 데 실패했어요.')
+  } finally {
+    isLoading.value = false
+  }
+}
 
-const mockProducts = [
-  {
-    id: 1,
-    bankName: '하나은행',
-    bankColor: '#00903F',
-    productName: '청년도약 적금',
-    difficulty: '어려움' as const,
-    level: 'HIGH' as FilterKey,
-    amount: 614,
-    maxRate: 5.0,
-    baseRate: 3.5,
-    condition: '소득증빙 + 36개월 유지',
-  },
-  {
-    id: 2,
-    bankName: '신한은행',
-    bankColor: '#0046FF',
-    productName: '신한 첫 월급 적금',
-    difficulty: '어려움' as const,
-    level: 'HIGH' as FilterKey,
-    amount: 612,
-    maxRate: 4.5,
-    baseRate: 3.2,
-    condition: '급여이체 + 체크카드 월 30만원 이상',
-  },
-  {
-    id: 3,
-    bankName: '국민은행',
-    bankColor: '#FFCD00',
-    productName: 'KB 청춘적금',
-    difficulty: '보통' as const,
-    level: 'MID' as FilterKey,
-    amount: 608,
-    maxRate: 4.0,
-    baseRate: 3.0,
-    condition: '자동이체 + 앱 로그인',
-  },
-  {
-    id: 4,
-    bankName: '우리은행',
-    bankColor: '#0F6EBF',
-    productName: '우리 첫 거래 적금',
-    difficulty: '쉬움' as const,
-    level: 'LOW' as FilterKey,
-    amount: 605,
-    maxRate: 3.8,
-    baseRate: 3.2,
-    condition: '신규 고객 + 자동이체 1건',
-  },
-  {
-    id: 5,
-    bankName: '농협은행',
-    bankColor: '#00A650',
-    productName: 'NH 디딤돌 정기적금',
-    difficulty: '쉬움' as const,
-    level: 'BASE' as FilterKey,
-    amount: 602,
-    maxRate: 3.6,
-    baseRate: 3.6,
-    condition: '없음',
-  },
-]
-
-const filteredProducts = computed(() => {
-  const currentIndex = filterOrder.indexOf(selectedFilter.value)
-  return mockProducts.filter((p) => filterOrder.indexOf(p.level) <= currentIndex)
-})
+onMounted(() => fetchProducts())
+watch(selectedFilter, () => fetchProducts())
 </script>
