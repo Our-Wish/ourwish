@@ -44,23 +44,23 @@
       </div>
     </div>
 
-    <!-- 하단: 우대조건 칩 -->
-    <div class="mt-4 border-t border-slate-100 pt-3">
-      <p class="mb-2 ml-1 text-sm font-semibold text-slate-500">필요 조건</p>
-
-      <div class="flex flex-wrap gap-2">
-        <span
+    <!-- 하단: 우대조건 -->
+    <div class="mt-4 border-t border-slate-100 pt-4">
+      <p class="mb-3 text-sm font-bold text-slate-400 tracking-wide">우대금리 안내</p>
+      <div class="space-y-2">
+        <div
           v-for="chip in conditionChips"
           :key="chip"
-          class="rounded-full bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-600 ring-1 ring-slate-100"
+          class="flex items-start gap-3 rounded-2xl bg-blue-50 px-4 py-3 ring-1 ring-blue-100"
         >
-          {{ chip }}
-        </span>
+          <span class="mt-0.5 shrink-0">💡</span>
+          <span class="text-sm font-semibold leading-relaxed text-blue-800">{{ chip }}</span>
+        </div>
       </div>
     </div>
 
     <!-- 클릭 안내 -->
-    <div class="flex items-center justify-end text-sm font-semibold text-slate-400">
+    <div class="flex items-center mt-3 justify-end text-sm font-semibold text-slate-400">
       <span class="transition group-hover:text-blue-600"> 자세히 보기 → </span>
     </div>
   </div>
