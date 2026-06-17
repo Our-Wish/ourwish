@@ -166,6 +166,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import api from '@/api/index'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { levelInfo } from '@/constants/levelInfo'
@@ -180,6 +181,9 @@ type LevelKey = 'LOW' | 'MID' | 'HIGH'
 const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
 const activeLevelTab = ref<LevelKey>('LOW')
 const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
+
+const products = ref<any[]>([])
+const isLoading = ref(false)
 
 const levelMeta: Record<
   LevelKey,
