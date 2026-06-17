@@ -78,14 +78,15 @@ const props = defineProps<{
   bankName: string
   bankColor: string
   productName: string
-  difficulty: '쉬움' | '보통' | '어려움'
+  difficulty: '없음' | '쉬움' | '보통' | '어려움'
   amount: number
   maxRate: number
   baseRate: number
   condition: string
 }>()
 
-const difficultyMap: Record<'쉬움' | '보통' | '어려움', string> = {
+const difficultyMap: Record<'없음' | '쉬움' | '보통' | '어려움', string> = {
+  없음: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200',
   쉬움: 'bg-green-50 text-green-700 ring-1 ring-green-100',
   보통: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100',
   어려움: 'bg-red-50 text-red-600 ring-1 ring-red-100',

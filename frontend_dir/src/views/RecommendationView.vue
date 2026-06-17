@@ -138,12 +138,14 @@
         </div>
       </div>
 
+      <div v-if="isLoading" class="mt-10 text-center text-slate-400">불러오는 중...</div>
+
       <!-- 상품 리스트 -->
       <div>
         <p class="mb-3 text-sm text-slate-400 text-right">
           {{ products.length }}개 · 수령액 높은 순
         </p>
-        <div class="flex flex-col gap-3">
+        <div v-if="!isLoading" class="flex flex-col gap-3">
           <ProductCard
             v-for="(product, index) in products"
             :key="product.id"
@@ -231,7 +233,7 @@ const fetchProducts = async () => {
         filter: selectedFilter.value.toLowerCase(),
       },
     })
-    products.value = data.map((item: any) => ({
+    products.value = data.results.map((item: any) => ({
       id: item.product_id,
       bankName: item.bank_name,
       bankColor: bankColorMap[item.bank_name] ?? '#94a3b8',
@@ -239,9 +241,9 @@ const fetchProducts = async () => {
       baseRate: item.base_rate,
       maxRate: item.max_rate,
       amount: Math.round(item.expected_payout / 10000),
-      difficulty: item.conditions?.length
-        ? (difficultyMap[item.conditions[0].difficulty] ?? '쉬움')
-        : '쉬움',
+      difficulty: !item.has_bonus
+        ? '없음'
+        : (difficultyMap[item.conditions[0]?.difficulty] ?? '쉬움'),
       condition: item.conditions?.length
         ? item.conditions.map((c: any) => c.friendly_label).join(' + ')
         : '없음',
