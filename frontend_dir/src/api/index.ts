@@ -57,9 +57,11 @@ api.interceptors.response.use(
           originalRequest.headers['Authorization'] = `Bearer ${data.access}`
           return api(originalRequest)
         } catch {
+          alert('다시 로그인이 필요합니다.')
           setAuthToken(null)
         }
       } else {
+        alert('다시 로그인이 필요합니다.')
         setAuthToken(null)
       }
     }
