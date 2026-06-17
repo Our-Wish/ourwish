@@ -141,11 +141,11 @@
       <!-- 상품 리스트 -->
       <div>
         <p class="mb-3 text-sm text-slate-400 text-right">
-          {{ filteredProducts.length }}개 · 수령액 높은 순
+          {{ products.length }}개 · 수령액 높은 순
         </p>
         <div class="flex flex-col gap-3">
           <ProductCard
-            v-for="(product, index) in filteredProducts"
+            v-for="(product, index) in products"
             :key="product.id"
             :id="product.id"
             :rank="index + 1"
@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import api from '@/api/index'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
@@ -220,4 +220,39 @@ const totalAmount = computed(() => {
   const interest = ((monthlyAmount * period * (period + 1)) / 2) * (0.035 / 12)
   return Math.round(principal + interest * (1 - 0.154))
 })
+
+const fetchProducts = async () => {
+  isLoading.value = true
+  try {
+    const { data } = await api.get('/api/v1/products/recommend/', {
+      params: {
+        term: goalStore.period,
+        monthly_cap: goalStore.monthlyAmount * 10000,
+        filter: selectedFilter.value.toLowerCase(),
+      },
+    })
+    products.value = data.map((item: any) => ({
+      id: item.product_id,
+      bankName: item.bank_name,
+      bankColor: bankColorMap[item.bank_name] ?? '#94a3b8',
+      productName: item.product_name,
+      baseRate: item.base_rate,
+      maxRate: item.max_rate,
+      amount: Math.round(item.expected_payout / 10000),
+      difficulty: item.conditions?.length
+        ? (difficultyMap[item.conditions[0].difficulty] ?? '쉬움')
+        : '쉬움',
+      condition: item.conditions?.length
+        ? item.conditions.map((c: any) => c.friendly_label).join(' + ')
+        : '없음',
+    }))
+  } catch {
+    alert('상품 목록을 불러오는 데 실패했어요.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => fetchProducts())
+watch(selectedFilter, () => fetchProducts())
 </script>
