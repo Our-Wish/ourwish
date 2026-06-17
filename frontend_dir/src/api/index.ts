@@ -41,10 +41,29 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
-    if (error?.response?.status === 401) {
-      setAuthToken(null)
+  async (error) => {
+    const originalRequest = error.config
+
+    if (error?.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true // 무한 루프 방지
+
+      const refreshToken = localStorage.getItem('refresh_token')
+      if (refreshToken) {
+        try {
+          const { data } = await api.post('/api/v1/accounts/token/refresh/', {
+            refresh: refreshToken,
+          })
+          setAuthToken(data.access)
+          originalRequest.headers['Authorization'] = `Bearer ${data.access}`
+          return api(originalRequest)
+        } catch {
+          setAuthToken(null)
+        }
+      } else {
+        setAuthToken(null)
+      }
     }
+
     return Promise.reject(error)
   },
 )
