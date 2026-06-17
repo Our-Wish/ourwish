@@ -10,7 +10,7 @@ const api: AxiosInstance = axios.create({
 
 function getToken(): string | null {
   try {
-    return localStorage.getItem('auth_token')
+    return sessionStorage.getItem('auth_token')
   } catch {
     return null
   }
@@ -23,10 +23,10 @@ if (initialToken) {
 
 export function setAuthToken(token: string | null) {
   if (token) {
-    localStorage.setItem('auth_token', token)
+    sessionStorage.setItem('auth_token', token)
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
   } else {
-    localStorage.removeItem('auth_token')
+    sessionStorage.removeItem('auth_token')
     delete api.defaults.headers.common['Authorization']
   }
 }
@@ -47,7 +47,7 @@ api.interceptors.response.use(
     if (error?.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true // 무한 루프 방지
 
-      const refreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = sessionStorage.getItem('refresh_token')
       if (refreshToken) {
         try {
           const { data } = await api.post('/api/v1/accounts/token/refresh/', {

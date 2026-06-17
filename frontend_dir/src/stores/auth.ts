@@ -12,7 +12,7 @@ export type AuthUser = {
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem(ACCESS_KEY) as string | null,
+    token: sessionStorage.getItem(ACCESS_KEY) as string | null,
     user: null as AuthUser | null,
     showLoginModal: false,
     showSignupModal: false,
@@ -29,14 +29,14 @@ export const useAuthStore = defineStore('auth', {
     setToken(token: string | null, refresh: string | null = null) {
       this.token = token
       if (token) {
-        localStorage.setItem(ACCESS_KEY, token)
+        sessionStorage.setItem(ACCESS_KEY, token)
       } else {
-        localStorage.removeItem(ACCESS_KEY)
+        sessionStorage.removeItem(ACCESS_KEY)
       }
       if (refresh) {
-        localStorage.setItem(REFRESH_KEY, refresh)
+        sessionStorage.setItem(REFRESH_KEY, refresh)
       } else {
-        localStorage.removeItem(REFRESH_KEY)
+        sessionStorage.removeItem(REFRESH_KEY)
       }
       setAuthToken(token)
     },
