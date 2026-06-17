@@ -54,7 +54,11 @@ class Command(BaseCommand):
                 continue
             seen.add(label)
             match = RATE_PATTERN.search(label)
-            rate = Decimal(match.group(1)) if match else Decimal("0")
+            if not match:
+                # 우대율(%)이 없는 줄은 진짜 우대조건이 아님("없음"·"해당없음"·머리말 등) → 제외.
+                # 이 필터가 없으면 placeholder까지 조건으로 잡혀 has_bonus가 전부 True로 잘못 찍힌다.
+                continue
+            rate = Decimal(match.group(1))
             results.append((label, rate))
         return results
 
