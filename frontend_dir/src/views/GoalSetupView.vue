@@ -152,9 +152,10 @@
     <div class="px-5 pb-8 pt-4">
       <button
         @click="onNext"
-        class="w-full rounded-2xl bg-blue-600 py-4 text-lg font-semibold text-white transition hover:bg-blue-500"
+        :disabled="isLoading"
+        class="w-full rounded-2xl bg-blue-600 py-4 text-lg font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
       >
-        {{ step === 1 ? '다음' : '추천 상품 보기' }}
+        {{ isLoading ? '저장 중...' : step === 1 ? '다음' : '추천 상품 보기' }}
       </button>
     </div>
   </div>
@@ -164,11 +165,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
+import api from '@/api/index'
 
 const router = useRouter()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const monthlyAmount = ref(50)
+const isLoading = ref(false)
 const goalStore = useGoalStore()
 
 const periodOptions = [
@@ -195,11 +198,23 @@ const onBack = () => {
   else step.value--
 }
 
-const onNext = () => {
-  if (step.value === 1) step.value++
-  else {
-    goalStore.setGoal(selectedPeriod.value, monthlyAmount.value)
-    router.push({ name: 'recommendation' })
+const onNext = async () => {
+  if (step.value === 1) {
+    step.value++
+  } else {
+    isLoading.value = true
+    try {
+      await api.post('/api/v1/goals/', {
+        term_months: selectedPeriod.value,
+        monthly_cap: monthlyAmount.value * 10000,
+      })
+      goalStore.setGoal(selectedPeriod.value, monthlyAmount.value)
+      router.push({ name: 'recommendation' })
+    } catch {
+      alert('목표 저장에 실패했어요. 다시 시도해주세요.')
+    } finally {
+      isLoading.value = false
+    }
   }
 }
 </script>
