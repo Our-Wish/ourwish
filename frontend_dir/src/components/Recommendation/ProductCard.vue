@@ -82,7 +82,7 @@ const props = defineProps<{
   amount: number
   maxRate: number
   baseRate: number
-  condition: string
+  condition: string[]
 }>()
 
 const difficultyMap: Record<'없음' | '쉬움' | '보통' | '어려움', string> = {
@@ -98,16 +98,7 @@ const bankInitial = computed(() => props.bankName.charAt(0))
 
 const formattedAmount = computed(() => props.amount.toLocaleString())
 
-const conditionChips = computed(() => {
-  const raw = props.condition?.trim()
-
-  if (!raw || raw === '없음') {
-    return ['우대조건 없음']
-  }
-
-  return raw
-    .split(/\s*[+·,]\s*/g)
-    .map((item) => item.trim())
-    .filter(Boolean)
-})
+const conditionChips = computed(() =>
+  props.condition?.length ? props.condition : ['우대조건 없음'],
+)
 </script>

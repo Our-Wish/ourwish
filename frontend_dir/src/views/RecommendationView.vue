@@ -244,9 +244,7 @@ const fetchProducts = async () => {
       difficulty: !item.has_bonus
         ? '없음'
         : (difficultyMap[item.conditions[0]?.difficulty] ?? '쉬움'),
-      condition: item.conditions?.length
-        ? item.conditions.map((c: any) => c.friendly_label).join(' + ')
-        : '없음',
+      condition: item.conditions?.map((c: any) => c.friendly_label).filter(Boolean) ?? [],
     }))
   } catch {
     alert('상품 목록을 불러오는 데 실패했어요.')
