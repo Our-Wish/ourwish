@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 _TIMEOUT = 30  # 초
 
-# 우대조건 난이도 분류 기준. 프롬프트에 그대로 주입한다.
 DIFFICULTY_GUIDE = """난이도(difficulty) 분류 기준:
 - LOW (그냥 하면 됨): 급여이체, 자사 앱 가입/로그인, 자사 체크/신용카드 발급,
   자동이체 1건 이상, 인터넷/모바일뱅킹, 신규 고객, 마케팅 동의, 전자통장,
@@ -22,6 +21,32 @@ DIFFICULTY_GUIDE = """난이도(difficulty) 분류 기준:
   자산관리 N억 이상, VIP, IRP, 주담대 연계, 증권 연계, 카드론/리볼빙,
   골프장/제휴, 탄소중립 인증, 지역화폐.
 판단이 애매하면 더 어려운 쪽으로 분류한다."""
+
+_LABEL_DEVELOPER = f"""너는 은행 적금의 우대금리 조건을 사회초년생이 쉽게 이해할 수 있도록
+한 줄로 요약하고, 충족 난이도를 분류하는 도우미야.
+
+규칙:
+- friendly_label: 40자 이내, 해요체(~해요/~돼요), 금융 용어 풀어쓰기
+- 반드시 JSON 객체 하나만 출력
+
+{DIFFICULTY_GUIDE}
+
+퓨샷 예시:
+입력: "당행 급여이체"
+출력: {{"friendly_label": "이 은행으로 월급을 받으면 돼요", "difficulty": "LOW"}}
+
+입력: "카드 월 실적 30만원 이상"
+출력: {{"friendly_label": "카드를 한 달에 30만원 이상 써야 해요", "difficulty": "MID"}}
+
+입력: "주택담보대출 연계"
+출력: {{"friendly_label": "주택담보대출이 있어야 해요", "difficulty": "HIGH"}}"""
+
+_CORE_INFO_DEVELOPER = """너는 적금 상품 안내문을 사회초년생이 한눈에 이해할 수 있게 요약하는 도우미야.
+
+규칙:
+- 각 항목은 1문장(50자 이내), 해요체(~해요/~돼요)
+- 해당 정보가 없으면 null 반환
+- 반드시 JSON 객체 하나만 출력"""
 
 
 def _chat(developer_prompt, user_prompt):
@@ -38,6 +63,7 @@ def _chat(developer_prompt, user_prompt):
             },
             json={
                 "model": settings.GMS_MODEL,
+                "temperature": 0,
                 "messages": [
                     {"role": "developer", "content": developer_prompt},
                     {"role": "user", "content": user_prompt},
@@ -71,18 +97,11 @@ def _parse_json(content):
 
 def generate_friendly_label(label):
     """우대조건 원문 → (friendly_label, difficulty). 실패 항목은 None."""
-    developer = (
-        "너는 은행 적금의 우대금리 조건을 사회초년생이 한눈에 이해하도록 다듬고, "
-        "그 조건을 충족하기 얼마나 쉬운지 난이도를 분류하는 도우미야. "
-        "반드시 JSON 객체 하나만 출력해.\n\n" + DIFFICULTY_GUIDE
-    )
     user = (
-        f'다음 적금 우대조건을 분석해줘.\n조건 원문: "{label}"\n\n'
-        "출력 형식(JSON):\n"
-        '{"friendly_label": "조건을 한 문장으로 쉽게 풀어쓴 설명", '
-        '"difficulty": "LOW 또는 MID 또는 HIGH"}'
+        f'조건 원문: "{label}"\n'
+        f'출력: {{"friendly_label": "...", "difficulty": "LOW|MID|HIGH"}}'
     )
-    data = _parse_json(_chat(developer, user))
+    data = _parse_json(_chat(_LABEL_DEVELOPER, user))
     if not data:
         return None, None
 
@@ -95,22 +114,15 @@ def generate_friendly_label(label):
 
 def generate_core_info(product):
     """상품 → {join_summary, maturity_summary, etc_summary}. 실패 시 빈 dict."""
-    developer = (
-        "너는 적금 상품의 안내문을 사회초년생이 한눈에 알 수 있게 짧게 요약하는 도우미야. "
-        "각 항목은 1~2문장으로, 군더더기 없이 핵심만. 반드시 JSON 객체 하나만 출력해."
-    )
     user = (
-        "다음 적금 상품 정보를 요약해줘.\n"
-        f"- 가입 방법: {product.join_way or '정보 없음'}\n"
-        f"- 가입 대상: {product.join_member or '정보 없음'}\n"
+        f"상품명: {product.product_name} ({product.bank.bank_name})\n"
+        f"다음 정보를 각각 1문장으로 요약해줘.\n"
+        f"- 가입 방법/대상: {product.join_way or '정보 없음'} / {product.join_member or '정보 없음'}\n"
         f"- 만기 후 이자: {product.maturity_interest or '정보 없음'}\n"
         f"- 기타 유의사항: {product.etc_note or '정보 없음'}\n\n"
-        "출력 형식(JSON):\n"
-        '{"join_summary": "가입 방법·대상 요약", '
-        '"maturity_summary": "만기/이자 관련 요약", '
-        '"etc_summary": "기타 유의사항 요약"}'
+        f'출력: {{"join_summary": "...", "maturity_summary": "...", "etc_summary": "..."}}'
     )
-    data = _parse_json(_chat(developer, user))
+    data = _parse_json(_chat(_CORE_INFO_DEVELOPER, user))
     if not data:
         return {}
     return {
