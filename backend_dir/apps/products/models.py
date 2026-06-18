@@ -29,6 +29,10 @@ class Product(models.Model):
     maturity_summary = models.TextField(null=True, blank=True)
     join_summary = models.TextField(null=True, blank=True)
     etc_summary = models.TextField(null=True, blank=True)
+    # 난이도별(LOW/MID/HIGH) 요약 문구 — rate_by_difficulty의 summary_label용 (LLM 생성).
+    summary_label_low = models.TextField(null=True, blank=True)
+    summary_label_mid = models.TextField(null=True, blank=True)
+    summary_label_high = models.TextField(null=True, blank=True)
     dcls_strt_day = models.CharField(max_length=8, blank=True)
     dcls_end_day = models.CharField(max_length=8, null=True, blank=True)
     synced_at = models.DateTimeField(auto_now=True)

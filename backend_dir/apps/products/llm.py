@@ -239,3 +239,64 @@ def generate_core_info(product):
         "maturity_summary": (data.get("maturity_summary") or "").strip() or None,
         "etc_summary": (data.get("etc_summary") or "").strip() or None,
     }
+
+
+_DIFFICULTY_SUMMARY_DEVELOPER = """
+너는 적금 우대조건을 난이도별로 묶어, "이 난이도까지 챙기면 어떤지"를 한 줄로 요약하는 도우미야.
+
+입력으로 난이도별(LOW/MID/HIGH) 우대조건 목록이 주어져.
+- LOW: 가볍게 챙길 수 있는 조건
+- MID: 조금 신경 쓰면 가능한 조건
+- HIGH: 충족이 까다로운 조건
+
+각 난이도마다 한 문장 요약을 만들어:
+- low_summary: LOW 조건만 챙겨도 우대금리를 받을 수 있다는 톤
+- mid_summary: MID 조건까지 챙기면 더 높은 금리를 받는다는 톤
+- high_summary: HIGH 조건까지 충족하면 최대 우대금리라는 톤
+
+작성 규칙:
+- 각 문장 50자 이내, 해요체.
+- 그 난이도의 조건 이름을 1~2개 자연스럽게 녹여서 써.
+- 구체적인 % 숫자는 쓰지 마(금리는 화면에서 따로 보여줌).
+- 해당 난이도에 조건이 없으면 그 항목은 null.
+- 원문에 없는 조건은 지어내지 마.
+- 반드시 JSON 객체 하나만 출력. 키: low_summary, mid_summary, high_summary.
+
+퓨샷 예시:
+입력:
+LOW: 앱에 가입하면 돼요 / 마케팅 동의하면 돼요
+MID: 급여이체하면 돼요 / 주택청약 보유하면 돼요
+HIGH: 자산을 보유해야 해요
+
+출력:
+{"low_summary": "앱 가입과 마케팅 동의만 챙겨도 우대금리를 받을 수 있어요.", "mid_summary": "급여이체와 주택청약까지 챙기면 더 높은 금리를 받을 수 있어요.", "high_summary": "자산 조건까지 충족하면 최대 우대금리를 받을 수 있어요."}
+"""
+
+# 난이도 묶음 키. difficulty가 NULL인 조건은 HIGH로 취급한다(추천 뷰의 DIFFICULTY_RANK와 동일 규칙).
+_DIFFICULTY_TIERS = ("LOW", "MID", "HIGH")
+
+
+def generate_difficulty_summaries(product):
+    """상품의 우대조건을 난이도별로 묶어 {low, mid, high} 요약 생성. 실패·조건없음 시 빈 dict."""
+    tiers = {tier: [] for tier in _DIFFICULTY_TIERS}
+    for cond in product.conditions.all():
+        tier = cond.difficulty if cond.difficulty in tiers else "HIGH"  # NULL→HIGH
+        tiers[tier].append(cond.friendly_label or cond.label)
+    if not any(tiers.values()):
+        return {}  # 우대조건 없는 상품 → 요약 불필요
+
+    user = (
+        "난이도별 우대조건:\n"
+        f"LOW: {' / '.join(tiers['LOW']) or '없음'}\n"
+        f"MID: {' / '.join(tiers['MID']) or '없음'}\n"
+        f"HIGH: {' / '.join(tiers['HIGH']) or '없음'}\n\n"
+        '출력: {"low_summary": "...", "mid_summary": "...", "high_summary": "..."}'
+    )
+    data = _parse_json(_chat(_DIFFICULTY_SUMMARY_DEVELOPER, user))
+    if not data:
+        return {}
+    return {
+        "low": (data.get("low_summary") or "").strip() or None,
+        "mid": (data.get("mid_summary") or "").strip() or None,
+        "high": (data.get("high_summary") or "").strip() or None,
+    }
