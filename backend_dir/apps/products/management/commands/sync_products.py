@@ -7,7 +7,11 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Q
 
-from apps.products.llm import generate_core_info, generate_friendly_label
+from apps.products.llm import (
+    generate_core_info,
+    generate_difficulty_summaries,
+    generate_friendly_label,
+)
 from apps.products.models import Bank, PreferentialCondition, Product, ProductOption
 
 FSS_BASE_URL = "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json"
@@ -212,8 +216,41 @@ class Command(BaseCommand):
             )
             prod_done += 1
 
+        # 3) 난이도별 요약(summary_label_*): 우대조건이 있고 아직 한 번도 생성 안 된 상품.
+        #    셋 다 NULL일 때만 대상 → 일부 난이도에 조건이 없어 NULL인 경우 재처리 방지(resumable).
+        summary_products = (
+            Product.objects.filter(
+                summary_label_low__isnull=True,
+                summary_label_mid__isnull=True,
+                summary_label_high__isnull=True,
+                conditions__isnull=False,
+            )
+            .distinct()
+            .prefetch_related("conditions")
+        )
+        if limit:
+            summary_products = summary_products[:limit]
+
+        summ_done = 0
+        for product in summary_products:
+            summaries = generate_difficulty_summaries(product)
+            if not summaries:
+                continue  # 호출 실패/조건 없음 → NULL 유지
+            product.summary_label_low = summaries.get("low")
+            product.summary_label_mid = summaries.get("mid")
+            product.summary_label_high = summaries.get("high")
+            product.save(
+                update_fields=[
+                    "summary_label_low",
+                    "summary_label_mid",
+                    "summary_label_high",
+                ]
+            )
+            summ_done += 1
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"LLM 보강: 우대조건 {cond_done}개, 상품 {prod_done}개 갱신"
+                f"LLM 보강: 우대조건 {cond_done}개, 상품 요약 {prod_done}개, "
+                f"난이도요약 {summ_done}개 갱신"
             )
         )
