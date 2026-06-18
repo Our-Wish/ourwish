@@ -10,13 +10,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Product
-from .serializers import ProductDetailSerializer, RecommendQuerySerializer
+from .serializers import (
+    ProductDetailSerializer,
+    RateByDifficultySerializer,
+    RecommendQuerySerializer,
+)
 from .services import calculate_rate_by_difficulty
 
 
 # 추천 응답 한 건의 모양(문서용). 실제 값은 _build_item이 dict로 만든다.
-# rate_by_difficulty = {BASE/LOW/MID/HIGH: {bonus_rate, expected_rate, expected_payout,
-#                       condition_ids, summary_label}} — DictField로 단순 문서화.
+# rate_by_difficulty는 RateByDifficultySerializer로 4단계 구조까지 Swagger에 명세한다.
 RecommendItemSerializer = inline_serializer(
     name="RecommendItem",
     fields={
@@ -29,7 +32,7 @@ RecommendItemSerializer = inline_serializer(
         "rsrv_type": serializers.CharField(),
         "base_rate": serializers.FloatField(),
         "max_rate": serializers.FloatField(allow_null=True),
-        "rate_by_difficulty": serializers.DictField(),
+        "rate_by_difficulty": RateByDifficultySerializer(),
     },
     many=True,
 )
