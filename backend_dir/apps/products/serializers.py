@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Product, ProductOption, PreferentialCondition
+from .services import calculate_rate_by_difficulty
 
 
 class ProductOptionSerializer(serializers.ModelSerializer):
@@ -23,7 +24,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     bank_type = serializers.CharField(source="bank.bank_type", read_only=True)
     base_rate = serializers.SerializerMethodField()
     max_rate = serializers.SerializerMethodField()
-    options = ProductOptionSerializer(many=True, read_only=True)
+    options = serializers.SerializerMethodField()
     conditions = PreferentialConditionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -62,6 +63,31 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         best = self._best_option(obj)
         return best.max_rate if best else None
 
+    def get_options(self, obj):
+        # 옵션마다 난이도별 누적 금리(rate_by_difficulty)를 함께 내려준다.
+        # 상세 화면은 납입액이 없어 expected_payout 없이(=금리만) 계산한다.
+        conditions = list(obj.conditions.all())
+        summary_labels = {
+            "LOW": obj.summary_label_low,
+            "MID": obj.summary_label_mid,
+            "HIGH": obj.summary_label_high,
+        }
+        return [
+            {
+                "save_term": option.save_term,
+                "intr_rate_type": option.intr_rate_type,
+                "rsrv_type": option.rsrv_type,
+                "base_rate": float(option.base_rate),
+                "max_rate": (
+                    float(option.max_rate) if option.max_rate is not None else None
+                ),
+                "rate_by_difficulty": calculate_rate_by_difficulty(
+                    option, conditions, summary_labels
+                ),
+            }
+            for option in obj.options.all()
+        ]
+
 
 class RecommendQuerySerializer(serializers.Serializer):
     """추천 API의 쿼리 파라미터(term, monthly_cap, filter) 검증용.
@@ -72,6 +98,8 @@ class RecommendQuerySerializer(serializers.Serializer):
 
     term = serializers.ChoiceField(choices=[3, 6, 12, 24, 36])
     monthly_cap = serializers.IntegerField(min_value=1)
-    filter = serializers.ChoiceField(
-        choices=["base", "low", "mid", "high"], default="base"
+    # 정렬 기준 난이도. 응답엔 BASE/LOW/MID/HIGH 모두 담고, 이 값의 세후수령액으로 정렬한다.
+    # BASE = 우대조건 하나도 안 챙긴 기본금리.
+    difficulty = serializers.ChoiceField(
+        choices=["BASE", "LOW", "MID", "HIGH"], default="BASE"
     )

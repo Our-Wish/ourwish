@@ -48,3 +48,46 @@ def calculate_applied_rate(base_rate, max_rate, condition_rates):
     if max_rate is not None:                                   # 최고금리 상한이 있으면
         applied = min(applied, max_rate)                       # 그 위로는 못 올라간다
     return applied
+
+
+# 조건 difficulty → 순위(클수록 어렵다). None이면 가장 어려운 HIGH(3)로 취급.
+DIFFICULTY_RANK = {"LOW": 1, "MID": 2, "HIGH": 3}
+# 응답 난이도 키 → 포함 임계. BASE(0) = 우대조건을 하나도 안 챙긴 '기본금리'.
+_LEVEL_THRESHOLDS = {"BASE": 0, "LOW": 1, "MID": 2, "HIGH": 3}
+
+
+def calculate_rate_by_difficulty(option, conditions, summary_labels, monthly_amount=None):
+    """옵션 1개 기준, 난이도별(BASE/LOW/MID/HIGH) 누적 우대금리·예상금리를 계산한다.
+
+    BASE = 우대조건을 하나도 적용하지 않은 기본금리. LOW/MID/HIGH는 누적이라,
+    난이도 d를 고른 사용자는 'd 이하' 조건을 모두 달성한다고 본다(MID = LOW+MID 전부).
+    difficulty가 None인 조건은 HIGH로 취급. max_rate가 있으면 그 이하로 상한(cap).
+    monthly_amount가 주어지면 expected_payout(세후수령액)까지 계산한다(목록 #7용).
+    상세 #8은 납입액이 없어 payout 없이 호출한다.
+
+    option:         ProductOption (base_rate·max_rate·save_term·intr_rate_type 사용)
+    conditions:     이 상품의 PreferentialCondition 목록
+    summary_labels: {"LOW": ..., "MID": ..., "HIGH": ...} 난이도별 요약 문구 (BASE는 None)
+    """
+    result = {}
+    for level, threshold in _LEVEL_THRESHOLDS.items():
+        included = [
+            c for c in conditions if DIFFICULTY_RANK.get(c.difficulty, 3) <= threshold
+        ]
+        bonus = sum((c.rate for c in included), Decimal("0"))
+        expected = option.base_rate + bonus
+        if option.max_rate is not None:
+            expected = min(expected, option.max_rate)
+
+        entry = {
+            "bonus_rate": float(bonus),
+            "expected_rate": float(expected),
+            "condition_ids": [c.id for c in included],
+            "summary_label": summary_labels.get(level),
+        }
+        if monthly_amount is not None:
+            entry["expected_payout"] = calculate_after_tax_payout(
+                monthly_amount, option.save_term, expected, option.intr_rate_type
+            )
+        result[level] = entry
+    return result
