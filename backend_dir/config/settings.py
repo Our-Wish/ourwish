@@ -165,9 +165,20 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-# CORS
+# CORS — 브라우저(프론트)에서 API를 부를 수 있는 출처 목록
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vue 개발 서버
+    "http://localhost:5173",      # Vue 개발 서버
+    "https://our-wish.site",      # 운영 프론트(Vercel)
+    "https://www.our-wish.site",
+]
+
+# nginx가 HTTPS를 종료하고 gunicorn엔 HTTP로 넘기므로, 프록시가 붙이는
+# X-Forwarded-Proto 헤더로 "원래 요청은 HTTPS였다"를 Django가 인식하게 한다.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# CSRF — HTTPS 도메인에서의 admin 로그인 등 폼 요청 신뢰 출처
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.our-wish.site",
 ]
 
 # 외부 서비스
