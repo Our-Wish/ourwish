@@ -236,7 +236,7 @@ const fetchProducts = async () => {
     products.value = data.results.map((item: any) => ({
       id: item.product_id,
       bankName: item.bank_name,
-      bankColor: bankColorMap[item.bank_name] ?? '#94a3b8',
+      bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
       productName: item.product_name,
       baseRate: item.base_rate,
       maxRate: item.max_rate,

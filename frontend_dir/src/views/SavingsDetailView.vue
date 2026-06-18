@@ -7,7 +7,11 @@
       </button>
     </header>
 
-    <div v-if="product" class="px-5 pb-12">
+    <div v-if="isLoading" class="flex items-center justify-center py-24 text-slate-400">
+      불러오는 중...
+    </div>
+
+    <div v-else-if="product" class="px-5 pb-12">
       <!-- 상단 카드 -->
       <div class="rounded-3xl p-6 text-white" :style="{ backgroundColor: product.bankColor }">
         <div class="flex items-center justify-between">
@@ -37,14 +41,11 @@
           </div>
         </div>
 
-        <a
-          :href="product.bankUrl"
-          target="_blank"
-          class="mt-4 flex w-full items-center justify-between rounded-2xl bg-white/15 px-4 py-3 text-sm font-medium transition hover:bg-white/25"
+        <div
+          class="mt-4 flex w-full items-center justify-between rounded-2xl bg-white/15 px-4 py-3 text-sm font-medium"
         >
-          <span>{{ product.bankName }}에서 상품 자세히보기</span>
-          <span>↗</span>
-        </a>
+          <span>{{ product.bankName }} · {{ product.productName }}</span>
+        </div>
       </div>
 
       <!-- 핵심 조건 -->
@@ -144,10 +145,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { useSavingsStore } from '@/stores/savings'
+import api from '@/api/index'
+import { bankColorMap } from '@/constants/bankColors'
 
 const router = useRouter()
 const route = useRoute()
@@ -157,6 +160,7 @@ const savingsStore = useSavingsStore()
 const productId = computed(() => Number(route.params.id))
 
 const checked = ref<boolean[]>([])
+const isLoading = ref(false)
 
 function toggleCondition(index: number) {
   checked.value[index] = !checked.value[index]
@@ -172,96 +176,63 @@ type ProductDetail = {
   productName: string
   baseRate: number
   maxRate: number
-  bankUrl: string
   conditions: Condition[]
   aiHeadline: string
   aiDescription: string
   bonusConditions: BonusCondition[]
 }
 
-const DEFAULT_BONUS_CONDITIONS: BonusCondition[] = [
-  { label: '소득 증빙 자료 제출', bonusRate: 0.5 },
-  { label: '만기까지 유지', bonusRate: 0.7 },
-  { label: '자동이체 등록', bonusRate: 0.3 },
-]
+const product = ref<ProductDetail | null>(null)
 
-const DEFAULT_CONDITIONS: Condition[] = [
-  { label: '가입 대상', value: '' },
-  { label: '가입 방법', value: '' },
-  { label: '월 납입 한도', value: '' },
-  { label: '만기후 이자율', value: '' },
-  { label: '기타 유의사항', value: '' },
-]
-
-const mockProductDetails: Record<number, ProductDetail> = {
-  1: {
-    id: 1,
-    bankName: '하나은행',
-    bankColor: '#3D8B7A',
-    productName: '청년도약 적금',
-    baseRate: 3.5,
-    maxRate: 5.0,
-    bankUrl: 'https://www.hanabank.com',
-    conditions: DEFAULT_CONDITIONS,
-    aiHeadline: '',
-    aiDescription: '',
-    bonusConditions: DEFAULT_BONUS_CONDITIONS,
-  },
-  2: {
-    id: 2,
-    bankName: '신한은행',
-    bankColor: '#0046FF',
-    productName: '신한 첫 월급 적금',
-    baseRate: 3.2,
-    maxRate: 4.5,
-    bankUrl: 'https://www.shinhan.com',
-    conditions: DEFAULT_CONDITIONS,
-    aiHeadline: '',
-    aiDescription: '',
-    bonusConditions: DEFAULT_BONUS_CONDITIONS,
-  },
-  3: {
-    id: 3,
-    bankName: '국민은행',
-    bankColor: '#FFCD00',
-    productName: 'KB 청춘적금',
-    baseRate: 3.0,
-    maxRate: 4.0,
-    bankUrl: 'https://www.kbstar.com',
-    conditions: DEFAULT_CONDITIONS,
-    aiHeadline: '',
-    aiDescription: '',
-    bonusConditions: DEFAULT_BONUS_CONDITIONS,
-  },
-  4: {
-    id: 4,
-    bankName: '우리은행',
-    bankColor: '#0F6EBF',
-    productName: '우리 첫 거래 적금',
-    baseRate: 3.2,
-    maxRate: 3.8,
-    bankUrl: 'https://www.wooribank.com',
-    conditions: DEFAULT_CONDITIONS,
-    aiHeadline: '',
-    aiDescription: '',
-    bonusConditions: DEFAULT_BONUS_CONDITIONS,
-  },
-  5: {
-    id: 5,
-    bankName: '농협은행',
-    bankColor: '#00A650',
-    productName: 'NH 디딤돌 정기적금',
-    baseRate: 3.6,
-    maxRate: 3.6,
-    bankUrl: 'https://www.nonghyup.com',
-    conditions: DEFAULT_CONDITIONS,
-    aiHeadline: '',
-    aiDescription: '',
-    bonusConditions: DEFAULT_BONUS_CONDITIONS,
-  },
+function formatLimit(value: number): string {
+  if (!value || value > 9e15) return '제한 없음'
+  return `${Math.round(value / 10000).toLocaleString()}만원`
 }
 
-const product = computed(() => mockProductDetails[productId.value] ?? null)
+function buildProduct(data: any): ProductDetail {
+  const baseRate = data.base_rate ?? 0
+  const maxRate = data.max_rate ?? 0
+  const bonusRate = Math.max(0, maxRate - baseRate)
+
+  // TODO: 우대금리 개별 조건 API 연동 필요
+  const bonusConditions: BonusCondition[] =
+    data.has_bonus && bonusRate > 0 ? [{ label: '우대금리 조건 달성', bonusRate }] : []
+
+  checked.value = bonusConditions.map(() => false)
+
+  const summaryParts = [data.join_summary, data.maturity_summary, data.etc_summary].filter(Boolean)
+
+  return {
+    id: data.product_id,
+    bankName: data.bank_name,
+    bankColor: bankColorMap[data.bank_name] ?? '#6366f1',
+    productName: data.product_name,
+    baseRate,
+    maxRate,
+    conditions: [
+      { label: '가입 대상', value: data.join_member ?? '-' },
+      { label: '가입 방법', value: data.join_way ?? '-' },
+      { label: '월 납입 한도', value: formatLimit(data.max_limit) },
+      { label: '만기후 이자율', value: data.maturity_interest ?? '-' },
+      { label: '기타 유의사항', value: data.etc_note ?? '-' },
+    ],
+    aiHeadline: summaryParts[0] ?? '',
+    aiDescription: summaryParts.slice(1).join(' ') ?? '',
+    bonusConditions,
+  }
+}
+
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    const { data } = await api.get(`/api/v1/products/${productId.value}/`)
+    product.value = buildProduct(data)
+  } catch {
+    alert('상품 정보를 불러오는 데 실패했어요.')
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const currentRate = computed(() => {
   if (!product.value) return 0
