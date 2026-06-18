@@ -230,10 +230,9 @@ const fetchProducts = async () => {
       params: {
         term: goalStore.period,
         monthly_cap: goalStore.monthlyAmount * 10000,
-        filter: selectedFilter.value.toLowerCase(),
       },
     })
-    products.value = data.results.map((item: any) => ({
+    products.value = data.map((item: any) => ({
       id: item.product_id,
       bankName: item.bank_name,
       bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
