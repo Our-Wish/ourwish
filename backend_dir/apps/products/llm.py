@@ -163,8 +163,9 @@ def _chat(developer_prompt, user_prompt):
                 "Authorization": f"Bearer {settings.GMS_API_KEY}",
             },
             json={
+                # temperature는 보내지 않는다 — gpt-5 계열은 기본값(1)만 허용,
+                # 0 등 커스텀 값을 보내면 400을 반환한다.
                 "model": settings.GMS_MODEL,
-                "temperature": 0,
                 "messages": [
                     {"role": "developer", "content": developer_prompt},
                     {"role": "user", "content": user_prompt},
@@ -175,6 +176,11 @@ def _chat(developer_prompt, user_prompt):
         )
         res.raise_for_status()
         return res.json()["choices"][0]["message"]["content"]
+    except requests.HTTPError as exc:
+        # 400 등은 응답 본문에 원인이 들어있으므로 같이 로깅(디버깅용).
+        body = exc.response.text[:300] if exc.response is not None else ""
+        logger.warning("GMS 호출 실패: %s | %s", exc, body)
+        return None
     except (requests.RequestException, KeyError, ValueError) as exc:
         logger.warning("GMS 호출 실패: %s", exc)
         return None
