@@ -205,7 +205,7 @@ function buildProduct(data: any): ProductDetail {
   return {
     id: data.product_id,
     bankName: data.bank_name,
-    bankColor: bankColorMap[data.bank_name] ?? '#94a3b8',
+    bankColor: bankColorMap[data.bank_name] ?? '#6366f1',
     productName: data.product_name,
     baseRate,
     maxRate,

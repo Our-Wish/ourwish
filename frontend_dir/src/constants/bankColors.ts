@@ -1,4 +1,5 @@
 export const bankColorMap: Record<string, string> = {
+  // 시중은행
   하나은행: '#00903F',
   신한은행: '#0046FF',
   국민은행: '#FFCD00',
@@ -7,4 +8,18 @@ export const bankColorMap: Record<string, string> = {
   기업은행: '#005BAC',
   카카오뱅크: '#FAE100',
   토스뱅크: '#4B7BEC',
+
+  // 저축은행
+  SBI저축은행: '#E60012',
+  OK저축은행: '#F15A24',
+  웰컴저축은행: '#00A0E9',
+  페퍼저축은행: '#D71920',
+  다올저축은행: '#1E4D8C',
+  상상인저축은행: '#7A3DB8',
+  JT저축은행: '#E6007E',
+  한국투자저축은행: '#003C7D',
+  BNK저축은행: '#E60012',
+  키움YES저축은행: '#6B2C91',
+  DB저축은행: '#0072CE',
+  스카이저축은행: '#00A5E5',
 }
