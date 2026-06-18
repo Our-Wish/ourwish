@@ -119,12 +119,18 @@ class Command(BaseCommand):
 
                         # spcl_cnd 파싱 → PreferentialCondition 적재 (비LLM 2차)
                         parsed = self._parse_conditions(item.get("spcl_cnd") or "")
+                        parsed_labels = set()
                         for label, rate in parsed:
                             PreferentialCondition.objects.update_or_create(
                                 product=product,
                                 label=label,
                                 defaults={"rate": rate},
                             )
+                            parsed_labels.add(label)
+                        # 이번에 다시 안 잡힌 기존 조건(과거 "없음" 등 stale)은 제거한다.
+                        # 전체삭제가 아니라 '안 잡힌 것만' 지워, 살아남는 조건의
+                        # LLM 필드(friendly_label·difficulty)는 update_or_create로 보존된다.
+                        product.conditions.exclude(label__in=parsed_labels).delete()
                         total_conditions += len(parsed)
                         # has_bonus = 우대조건 존재 여부
                         product.has_bonus = bool(parsed)
