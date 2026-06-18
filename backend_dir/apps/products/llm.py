@@ -8,7 +8,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-_TIMEOUT = 30  # 초
+_TIMEOUT = 60  # 초 (gpt-5-mini 추론 응답이 가끔 느려 여유를 둠)
 
 DIFFICULTY_GUIDE = """
 난이도(difficulty) 분류 기준:
@@ -166,6 +166,8 @@ def _chat(developer_prompt, user_prompt):
                 # temperature는 보내지 않는다 — gpt-5 계열은 기본값(1)만 허용,
                 # 0 등 커스텀 값을 보내면 400을 반환한다.
                 "model": settings.GMS_MODEL,
+                # 추론량을 낮춰 응답 속도·비용을 줄인다(단순 분류/요약 작업이라 low로 충분).
+                "reasoning_effort": "low",
                 "messages": [
                     {"role": "developer", "content": developer_prompt},
                     {"role": "user", "content": user_prompt},
