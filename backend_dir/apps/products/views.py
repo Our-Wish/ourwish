@@ -9,16 +9,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Product, PreferentialCondition
-from .serializers import (
-    ProductDetailSerializer,
-    PreferentialConditionSerializer,
-    RecommendQuerySerializer,
-)
-from .services import calculate_after_tax_payout
+from .models import Product
+from .serializers import ProductDetailSerializer, RecommendQuerySerializer
+from .services import calculate_rate_by_difficulty
 
 
 # 추천 응답 한 건의 모양(문서용). 실제 값은 _build_item이 dict로 만든다.
+# rate_by_difficulty = {BASE/LOW/MID/HIGH: {bonus_rate, expected_rate, expected_payout,
+#                       condition_ids, summary_label}} — DictField로 단순 문서화.
 RecommendItemSerializer = inline_serializer(
     name="RecommendItem",
     fields={
@@ -27,23 +25,14 @@ RecommendItemSerializer = inline_serializer(
         "bank_type": serializers.CharField(),
         "product_name": serializers.CharField(),
         "has_bonus": serializers.BooleanField(),
-        "base_rate": serializers.FloatField(),
-        "max_rate": serializers.FloatField(allow_null=True),
         "save_term": serializers.IntegerField(),
         "rsrv_type": serializers.CharField(),
-        "expected_payout": serializers.IntegerField(),
-        "conditions": PreferentialConditionSerializer(many=True),
+        "base_rate": serializers.FloatField(),
+        "max_rate": serializers.FloatField(allow_null=True),
+        "rate_by_difficulty": serializers.DictField(),
     },
     many=True,
 )
-
-
-# 난이도 비교용 순위: 숫자가 클수록 어렵다. difficulty가 None이면 가장 어려운 것으로 취급(3).
-DIFFICULTY_RANK = {
-    PreferentialCondition.Difficulty.LOW: 1,
-    PreferentialCondition.Difficulty.MID: 2,
-    PreferentialCondition.Difficulty.HIGH: 3,
-}
 
 
 # Create your views here.
@@ -74,12 +63,12 @@ class ProductRecommendView(APIView):
         summary="추천 상품 목록 (#7) — 세후 수령액 내림차순, 페이지네이션",
     )
     def get(self, request):
-        # 1) 쿼리 파라미터 검증 (term·monthly_cap 필수 / filter 기본 base)
+        # 1) 쿼리 파라미터 검증 (term·monthly_cap 필수 / difficulty 기본 LOW)
         query = RecommendQuerySerializer(data=request.query_params)
         query.is_valid(raise_exception=True)
         term = query.validated_data["term"]
         monthly_cap = query.validated_data["monthly_cap"]
-        filter_value = query.validated_data["filter"]
+        difficulty = query.validated_data["difficulty"]
 
         # 2) 공시 종료된 상품 제외 + 연관 데이터(은행/옵션/조건)까지 한 번에 조회
         today = date.today().strftime("%Y%m%d")
@@ -93,54 +82,47 @@ class ProductRecommendView(APIView):
             )
         )
 
-        # 3) 상품별로 (해당 기간의) 최선 옵션과 세후 수령액 계산 + 필터 통과분만 수집
+        # 3) 난이도로 거르지 않고 전부 포함. 상품마다 난이도별 금리를 계산하되,
+        #    같은 기간의 여러 옵션 중 '선택 난이도 세후수령액'이 최대인 옵션을 대표로 쓴다.
         results = []
         for product in products:
             options = [o for o in product.options.all() if o.save_term == term]
             if not options:
                 continue
-            if not self._passes_filter(product, filter_value):
-                continue
 
-            best_option, payout = max(
-                (
-                    (
-                        option,
-                        calculate_after_tax_payout(
-                            monthly_cap, term, option.base_rate, option.intr_rate_type
-                        ),
-                    )
-                    for option in options
-                ),
-                key=lambda pair: pair[1],
+            conditions = list(product.conditions.all())
+            summary_labels = {
+                "LOW": product.summary_label_low,
+                "MID": product.summary_label_mid,
+                "HIGH": product.summary_label_high,
+            }
+
+            best_item = None
+            best_payout = None
+            for option in options:
+                rbd = calculate_rate_by_difficulty(
+                    option, conditions, summary_labels, monthly_cap
+                )
+                payout = rbd[difficulty]["expected_payout"]
+                if best_payout is None or payout > best_payout:
+                    best_payout = payout
+                    best_item = self._build_item(product, option, rbd)
+            results.append(best_item)
+
+        # 4) 선택 난이도의 세후 수령액 내림차순, 동률이면 product_id 오름차순
+        results.sort(
+            key=lambda item: (
+                -item["rate_by_difficulty"][difficulty]["expected_payout"],
+                item["product_id"],
             )
-            results.append(self._build_item(product, best_option, payout))
-
-        # 4) 세후 수령액 내림차순, 동률이면 product_id 오름차순
-        results.sort(key=lambda item: (-item["expected_payout"], item["product_id"]))
+        )
 
         # 5) DRF 기본 페이지네이션으로 잘라서 응답
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(results, request)
         return paginator.get_paginated_response(page)
 
-    def _passes_filter(self, product, filter_value):
-        """filter 값에 따라 이 상품을 추천 목록에 포함할지 여부를 반환."""
-        if filter_value == "base":
-            return not product.has_bonus
-        if filter_value == "high":
-            return True
-        # low / mid: 기본금리 상품은 항상 포함 + 우대상품은 '최고 난이도'가 기준 이하일 때만
-        if not product.has_bonus:
-            return True
-        threshold = 1 if filter_value == "low" else 2  # low→LOW(1)까지, mid→MID(2)까지
-        max_rank = max(
-            (DIFFICULTY_RANK.get(c.difficulty, 3) for c in product.conditions.all()),
-            default=1,
-        )
-        return max_rank <= threshold
-
-    def _build_item(self, product, option, payout):
+    def _build_item(self, product, option, rate_by_difficulty):
         """응답 한 건(상품 1개)의 모양으로 조립."""
         return {
             "product_id": product.id,
@@ -148,12 +130,9 @@ class ProductRecommendView(APIView):
             "bank_type": product.bank.bank_type,
             "product_name": product.product_name,
             "has_bonus": product.has_bonus,
-            "base_rate": float(option.base_rate),
-            "max_rate": float(option.max_rate) if option.max_rate is not None else None,
             "save_term": option.save_term,
             "rsrv_type": option.rsrv_type,
-            "expected_payout": payout,
-            "conditions": PreferentialConditionSerializer(
-                product.conditions.all(), many=True
-            ).data,
+            "base_rate": float(option.base_rate),
+            "max_rate": float(option.max_rate) if option.max_rate is not None else None,
+            "rate_by_difficulty": rate_by_difficulty,
         }
