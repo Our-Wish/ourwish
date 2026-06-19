@@ -33,13 +33,13 @@
       <div class="mt-12 flex gap-4">
         <button
           @click="goToMyPage"
-          class="rounded-2xl bg-slate-800/70 px-12 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-slate-800 active:scale-95"
+          class="rounded-2xl bg-slate-800/85 px-12 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-slate-800 active:scale-95"
         >
           MY PAGE
         </button>
         <button
           @click="onStart"
-          class="rounded-2xl bg-slate-800/70 px-12 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-slate-800 active:scale-95"
+          class="rounded-2xl bg-slate-800/85 px-12 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-slate-800 active:scale-95"
         >
           적금 추천받으러 가기
         </button>
