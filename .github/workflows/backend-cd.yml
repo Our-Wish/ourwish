@@ -1,0 +1,70 @@
+name: Backend CD (manual)
+
+# 수동 배포 워크플로우. GitHub Actions 탭에서 "Run workflow" 버튼을 눌러야만 실행된다.
+# (자동 트리거 아님 — 발표 주에 예상치 못한 자동배포로 운영이 흔들리는 걸 막기 위함.
+#  발표 후 안정화되면 아래 on: 을 push: branches: [develop] 로 바꿔 풀자동으로 승급)
+on:
+  workflow_dispatch:
+
+# 동시에 두 번 배포되지 않도록 잠금(버튼 연타·중복 실행 방지)
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # EC2 서버에 직접 설치한 self-hosted 러너에서 실행 → SSH 없이 서버 로컬에서 배포.
+    runs-on: self-hosted
+    steps:
+      - name: 롤백 지점 기록 (현재 배포 커밋)
+        working-directory: /home/ubuntu/ourwish
+        run: |
+          echo "PREV_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "롤백 지점: $(git rev-parse --short HEAD)"
+
+      - name: 최신 develop 코드로 동기화
+        working-directory: /home/ubuntu/ourwish
+        # pull 대신 fetch+reset로 항상 origin/develop와 정확히 일치시킨다(머지 충돌 없이 결정적).
+        # .env는 .gitignore라 reset --hard로도 건드려지지 않음.
+        run: |
+          git fetch origin develop
+          git reset --hard origin/develop
+          echo "배포 커밋: $(git rev-parse --short HEAD)"
+
+      - name: 의존성 설치 (변경 시에만 실제 설치)
+        working-directory: /home/ubuntu/ourwish/backend_dir
+        run: .venv/bin/pip install -r requirements.txt
+
+      - name: DB 마이그레이션 적용
+        working-directory: /home/ubuntu/ourwish/backend_dir
+        run: .venv/bin/python manage.py migrate --noinput
+
+      - name: 서비스 재시작 (gunicorn)
+        run: sudo systemctl restart ourwish
+
+      - name: 헬스 체크 (운영 도메인 200 확인)
+        # 재시작 직후 잠깐 5xx가 날 수 있어 몇 번 재시도. 끝까지 200이 아니면 실패 처리.
+        run: |
+          for i in 1 2 3 4 5; do
+            sleep 3
+            code=$(curl -fsS -o /dev/null -w "%{http_code}" https://api.our-wish.site/api/v1/docs/ || echo "000")
+            echo "시도 $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "✅ 헬스 체크 통과"
+              exit 0
+            fi
+          done
+          echo "❌ 헬스 체크 실패"
+          exit 1
+
+      - name: 실패 시 롤백 (직전 커밋으로 되돌리고 재시작)
+        if: failure()
+        working-directory: /home/ubuntu/ourwish
+        run: |
+          echo "⚠️ 배포 실패 → 코드 롤백: $PREV_SHA"
+          git reset --hard "$PREV_SHA"
+          cd backend_dir
+          .venv/bin/pip install -r requirements.txt
+          sudo systemctl restart ourwish
+          echo "코드는 롤백·재시작됨. 단, 이미 적용된 DB 마이그레이션은 자동으로 되돌리지 않으니"
+          echo "마이그레이션 단계 이후 실패였다면 DB 상태를 수동 확인할 것."
