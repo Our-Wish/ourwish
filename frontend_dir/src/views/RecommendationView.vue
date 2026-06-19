@@ -167,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/api/index'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
@@ -187,8 +187,24 @@ const activeLevelTab = ref<LevelKey>('LOW')
 const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
 
 const rawProducts = ref<any[]>([])
-const products = ref<any[]>([])
 const isLoading = ref(false)
+
+const products = computed(() =>
+  rawProducts.value.map((item: any) => {
+    const levelData = item.rate_by_difficulty?.[selectedFilter.value]
+    return {
+      id: item.product_id,
+      bankName: item.bank_name,
+      bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
+      productName: item.product_name,
+      baseRate: item.base_rate,
+      maxRate: item.max_rate,
+      amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
+      difficulty: (selectedFilter.value === 'BASE' ? '없음' : (difficultyMap[selectedFilter.value] ?? '쉬움')) as '없음' | '쉬움' | '보통' | '어려움',
+      condition: levelData?.summary_label ? [levelData.summary_label] : [],
+    }
+  }),
+)
 
 const levelMeta: Record<
   LevelKey,
@@ -234,20 +250,6 @@ const fetchProducts = async () => {
       },
     })
     rawProducts.value = data
-    products.value = data.map((item: any) => {
-      const levelData = item.rate_by_difficulty?.[selectedFilter.value]
-      return {
-        id: item.product_id,
-        bankName: item.bank_name,
-        bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
-        productName: item.product_name,
-        baseRate: item.base_rate,
-        maxRate: item.max_rate,
-        amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
-        difficulty: selectedFilter.value === 'BASE' ? '없음' : (difficultyMap[selectedFilter.value] ?? '쉬움'),
-        condition: levelData?.summary_label ? [levelData.summary_label] : [],
-      }
-    })
   } catch {
     alert('상품 목록을 불러오는 데 실패했어요.')
   } finally {
@@ -256,5 +258,4 @@ const fetchProducts = async () => {
 }
 
 onMounted(() => fetchProducts())
-watch(selectedFilter, () => fetchProducts())
 </script>
