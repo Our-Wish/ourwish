@@ -1,53 +1,45 @@
 <template>
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <div class="space-y-8">
-        <div class="space-y-4">
-          <p class="text-sm font-semibold uppercase tracking-[0.35em] text-blue-600">OurWish</p>
-          <h1 class="text-5xl font-extrabold tracking-tight text-slate-950 sm:text-6xl">
-            목표만 알려주면
-            <br />
-            <span class="text-blue-600">내게 맞는 적금,</span><br />
-            한눈에 찾아드릴게요
-          </h1>
-          <p class="max-w-xl text-lg leading-8 text-slate-600">
-            기간과 월 납입 금액을 입력하면 예상 수령액과 추천 상품을 정리해드려요.
-          </p>
-        </div>
+  <section
+    class="relative -mt-16 flex min-h-180 w-full items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-[#e4eef8] to-[#cfe0f2]"
+  >
+    <!-- 배경 글로우 -->
+    <div
+      class="pointer-events-none absolute top-0 left-1/3 h-96 w-96 rounded-full bg-sky-300/25 blur-3xl"
+    />
+    <div
+      class="pointer-events-none absolute bottom-0 right-1/3 h-80 w-80 rounded-full bg-blue-300/20 blur-3xl"
+    />
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button
-            @click="onStart"
-            class="flex w-full items-center justify-center rounded-full bg-blue-600 px-30 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500 sm:w-auto"
-          >
-            내 적금 플랜 시작하기
-          </button>
-        </div>
-      </div>
+    <!-- 배경 장식 이미지 (2개) -->
+    <img
+      :src="mainImg"
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-16 -left-20 w-208 rotate-[-18deg] opacity-60 drop-shadow-2xl"
+    />
+    <img
+      :src="mainImg"
+      aria-hidden="true"
+      class="pointer-events-none absolute -bottom-16 -right-20 w-3xl rotate-15 opacity-55 drop-shadow-2xl"
+    />
 
-      <div class="flex flex-col gap-4">
-        <div
-          class="rounded-[2rem] bg-white px-7 py-6 shadow-xl shadow-slate-200/60 border border-slate-100"
+    <div class="relative z-10 flex flex-col items-center px-8 text-center">
+      <h1 class="hero-title text-[8rem] leading-none text-slate-950">OUR WISH</h1>
+
+      <p class="mt-6 text-4xl font-bold text-slate-800">쉽고, 간단하게, 나에게 맞는 적금을 찾다</p>
+
+      <div class="mt-12 flex gap-4">
+        <button
+          @click="goToMyPage"
+          class="rounded-2xl bg-slate-800 px-12 py-4 text-base font-semibold text-white transition hover:bg-slate-700 active:scale-95"
         >
-          <p class="text-sm font-semibold uppercase tracking-widest text-slate-400">입력</p>
-          <div class="mt-4 flex gap-8">
-            <div>
-              <p class="text-sm text-slate-400">월 납입액</p>
-              <p class="mt-1 text-3xl font-bold text-slate-950">20만원</p>
-            </div>
-            <div>
-              <p class="text-sm text-slate-400">기간</p>
-              <p class="mt-1 text-3xl font-bold text-slate-950">12개월</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-[2rem] bg-slate-950 px-7 py-6 text-white shadow-xl shadow-slate-950/20">
-          <p class="text-sm font-semibold uppercase tracking-widest text-slate-400">예상 수령액</p>
-          <p class="mt-3 text-4xl font-bold">약 246만원</p>
-          <p class="mt-1 text-sm text-slate-400">원금 240만원 + 이자 6만원</p>
-          <p class="mt-4 text-sm text-slate-500">평균 금리 연 3.5%</p>
-        </div>
+          MY PAGE
+        </button>
+        <button
+          @click="onStart"
+          class="rounded-2xl bg-slate-800 px-12 py-4 text-base font-semibold text-white transition hover:bg-slate-700 active:scale-95"
+        >
+          적금 추천받으러 가기
+        </button>
       </div>
     </div>
   </section>
@@ -55,6 +47,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
+import mainImg from '@/assets/mainImg.png'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
@@ -69,4 +62,20 @@ const onStart = () => {
     authStore.openLoginModal()
   }
 }
+
+const goToMyPage = () => {
+  if (isAuthenticated.value) {
+    router.push({ name: 'mypage' })
+  } else {
+    authStore.openLoginModal()
+  }
+}
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+.hero-title {
+  font-family: 'Pacifico', cursive;
+}
+</style>
