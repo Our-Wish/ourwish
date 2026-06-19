@@ -198,7 +198,7 @@ const products = computed(() =>
       bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
       productName: item.product_name,
       baseRate: item.base_rate,
-      maxRate: item.max_rate,
+      maxRate: levelData?.expected_rate ?? item.base_rate,
       amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
       difficulty: (selectedFilter.value === 'BASE' ? '없음' : (difficultyMap[selectedFilter.value] ?? '쉬움')) as '없음' | '쉬움' | '보통' | '어려움',
       condition: levelData?.summary_label ? [levelData.summary_label] : [],
@@ -249,7 +249,7 @@ const fetchProducts = async () => {
         monthly_cap: goalStore.monthlyAmount * 10000,
       },
     })
-    rawProducts.value = data
+    rawProducts.value = data.results
   } catch {
     alert('상품 목록을 불러오는 데 실패했어요.')
   } finally {
