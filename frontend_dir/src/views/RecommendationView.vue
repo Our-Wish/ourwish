@@ -142,7 +142,7 @@
 
       <!-- 상품 리스트 -->
       <div>
-        <p class="mb-3 text-sm text-slate-400 text-right">
+        <p v-if="!isLoading" class="mb-3 text-sm text-slate-400 text-right">
           {{ products.length }}개 · 수령액 높은 순
         </p>
         <div v-if="!isLoading" class="flex flex-col gap-3">
@@ -179,7 +179,6 @@ import { bankColorMap } from '@/constants/bankColors'
 
 const router = useRouter()
 const goalStore = useGoalStore()
-const showDetail = ref(false)
 const showLevelGuide = ref(false)
 type LevelKey = 'LOW' | 'MID' | 'HIGH'
 const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
