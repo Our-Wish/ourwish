@@ -167,7 +167,7 @@ function toggleCondition(index: number) {
 }
 
 type Condition = { label: string; value: string }
-type BonusCondition = { label: string; bonusRate: number }
+type BonusCondition = { condition_id: number; label: string; bonusRate: number; difficulty: string }
 
 type ProductDetail = {
   id: number
@@ -192,11 +192,13 @@ function formatLimit(value: number): string {
 function buildProduct(data: any): ProductDetail {
   const baseRate = data.base_rate ?? 0
   const maxRate = data.max_rate ?? 0
-  const bonusRate = Math.max(0, maxRate - baseRate)
 
-  // TODO: 우대금리 개별 조건 API 연동 필요
-  const bonusConditions: BonusCondition[] =
-    data.has_bonus && bonusRate > 0 ? [{ label: '우대금리 조건 달성', bonusRate }] : []
+  const bonusConditions: BonusCondition[] = (data.conditions ?? []).map((c: any) => ({
+    condition_id: c.condition_id,
+    label: c.friendly_label || c.label,
+    bonusRate: c.rate,
+    difficulty: c.difficulty,
+  }))
 
   checked.value = bonusConditions.map(() => false)
 
