@@ -107,8 +107,12 @@
                 />
               </svg>
             </div>
-            <span class="flex-1 text-sm text-slate-800">{{ cond.label }}</span>
-            <span class="text-sm font-semibold text-slate-400"
+            <span class="flex-1 text-base text-slate-800">{{ cond.label }}</span>
+            <span
+              class="shrink-0 rounded-full px-2.5 py-0.5 text-sm font-semibold"
+              :class="difficultyBadgeClass[cond.difficulty] ?? 'bg-slate-100 text-slate-500'"
+            >{{ difficultyLabel[cond.difficulty] ?? cond.difficulty }}</span>
+            <span class="shrink-0 text-base font-semibold text-slate-400"
               >+{{ cond.bonusRate.toFixed(1) }}%p</span
             >
           </div>
@@ -158,6 +162,18 @@ const goalStore = useGoalStore()
 const savingsStore = useSavingsStore()
 
 const productId = computed(() => Number(route.params.id))
+
+const difficultyBadgeClass: Record<string, string> = {
+  LOW: 'bg-green-50 text-green-700',
+  MID: 'bg-yellow-50 text-yellow-700',
+  HIGH: 'bg-red-50 text-red-600',
+}
+
+const difficultyLabel: Record<string, string> = {
+  LOW: '쉬움',
+  MID: '보통',
+  HIGH: '어려움',
+}
 
 const checked = ref<boolean[]>([])
 const isLoading = ref(false)
