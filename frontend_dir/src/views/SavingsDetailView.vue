@@ -152,14 +152,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
-import { useSavingsStore } from '@/stores/savings'
 import api from '@/api/index'
 import { bankColorMap } from '@/constants/bankColors'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
-const savingsStore = useSavingsStore()
 
 const productId = computed(() => Number(route.params.id))
 
@@ -192,6 +190,8 @@ type ProductDetail = {
   productName: string
   baseRate: number
   maxRate: number
+  intr_rate_type: string
+  rsrv_type: string
   conditions: Condition[]
   aiHeadline: string
   aiDescription: string
@@ -208,6 +208,9 @@ function formatLimit(value: number): string {
 function buildProduct(data: any): ProductDetail {
   const baseRate = data.base_rate ?? 0
   const maxRate = data.max_rate ?? 0
+
+  const matchedOption =
+    (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ?? data.options?.[0] ?? {}
 
   const bonusConditions: BonusCondition[] = (data.conditions ?? []).map((c: any) => ({
     condition_id: c.condition_id,
@@ -227,6 +230,8 @@ function buildProduct(data: any): ProductDetail {
     productName: data.product_name,
     baseRate,
     maxRate,
+    intr_rate_type: matchedOption.intr_rate_type ?? 'S',
+    rsrv_type: matchedOption.rsrv_type ?? 'S',
     conditions: [
       { label: '가입 대상', value: data.join_member ?? '-' },
       { label: '가입 방법', value: data.join_way ?? '-' },
@@ -268,20 +273,26 @@ const estimatedAmount = computed(() => {
   return Math.round(period * monthlyAmount + interest * (1 - 0.154))
 })
 
-function selectProduct() {
+async function selectProduct() {
   if (!product.value) return
-  savingsStore.addProduct({
-    id: product.value.id,
-    bankName: product.value.bankName,
-    bankColor: product.value.bankColor,
-    productName: product.value.productName,
-    dDay: goalStore.period * 30,
-    currentAmount: 0,
-    maturityAmount: estimatedAmount.value,
-    progress: 0,
-    nextPaymentDate: '다음 달 25일',
-    monthlyAmount: goalStore.monthlyAmount,
-  })
-  router.push({ name: 'mypage' })
+  const checkedConditionIds = product.value.bonusConditions
+    .filter((_, i) => checked.value[i])
+    .map((c) => c.condition_id)
+
+  try {
+    await api.post('/api/v1/enrollments/', {
+      product_id: product.value.id,
+      monthly_amount: goalStore.monthlyAmount * 10000,
+      term_months: goalStore.period,
+      intr_rate_type: product.value.intr_rate_type,
+      rsrv_type: product.value.rsrv_type,
+      transfer_day: 25,
+      enrolled_at: new Date().toISOString().split('T')[0],
+      checked_condition_ids: checkedConditionIds,
+    })
+    router.push({ name: 'mypage' })
+  } catch {
+    alert('상품 가입에 실패했어요. 다시 시도해주세요.')
+  }
 }
 </script>
