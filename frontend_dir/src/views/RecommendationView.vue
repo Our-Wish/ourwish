@@ -188,9 +188,29 @@ const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
 const rawProducts = ref<any[]>([])
 const isLoading = ref(false)
 
+function resolveMaxDiff(rbd: any, filter: string): string {
+  if (!rbd || filter === 'BASE') return ''
+  const lowCount = rbd.LOW?.condition_ids?.length ?? 0
+  const midCount = rbd.MID?.condition_ids?.length ?? 0
+  const highCount = rbd.HIGH?.condition_ids?.length ?? 0
+  if (filter === 'LOW') return lowCount > 0 ? 'LOW' : ''
+  if (filter === 'MID') {
+    if (midCount > lowCount) return 'MID'
+    return lowCount > 0 ? 'LOW' : ''
+  }
+  if (filter === 'HIGH') {
+    if (highCount > midCount) return 'HIGH'
+    if (midCount > lowCount) return 'MID'
+    return lowCount > 0 ? 'LOW' : ''
+  }
+  return ''
+}
+
 const products = computed(() =>
   rawProducts.value.map((item: any) => {
     const levelData = item.rate_by_difficulty?.[selectedFilter.value]
+    const maxDiff = resolveMaxDiff(item.rate_by_difficulty, selectedFilter.value)
+
     return {
       id: item.product_id,
       bankName: item.bank_name,
@@ -199,7 +219,7 @@ const products = computed(() =>
       baseRate: item.base_rate,
       maxRate: levelData?.expected_rate ?? item.base_rate,
       amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
-      difficulty: (selectedFilter.value === 'BASE' ? '없음' : (difficultyMap[selectedFilter.value] ?? '쉬움')) as '없음' | '쉬움' | '보통' | '어려움',
+      difficulty: (!maxDiff ? '없음' : (difficultyMap[maxDiff] ?? '쉬움')) as '없음' | '쉬움' | '보통' | '어려움',
       condition: levelData?.summary_label ? [levelData.summary_label] : [],
     }
   }),
