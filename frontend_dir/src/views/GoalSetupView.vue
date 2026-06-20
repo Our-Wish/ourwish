@@ -28,7 +28,7 @@
             </template>
           </p>
         </div>
-        <img :src="step === 1 ? hiWish : questionWish" class="mt-10 w-60 self-start" />
+        <img :src="step === 1 ? hiWish : fightingWish" class="mt-10 w-60 self-start" />
       </div>
       <div class="w-px bg-slate-200" />
 
@@ -182,7 +182,7 @@ import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
 import hiWish from '@/assets/img/wishes/hiWish.png'
-import questionWish from '@/assets/img/wishes/questionWish.png'
+import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
 const router = useRouter()
 const step = ref(1)
