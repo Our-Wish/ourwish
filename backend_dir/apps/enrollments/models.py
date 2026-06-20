@@ -1,44 +1,33 @@
 from django.db import models
+from django.utils import timezone
+
 from apps.accounts.models import Member
 from apps.products.models import Product
 
 
-# Create your models here.
 class Enrollment(models.Model):
+    """내가 등록한 적금. 2단계로 채워진다.
+
+    ① 등록: member·product만 채워진 상태(상세 4필드 NULL).
+    ② 정보입력: monthly_amount·rate·start_date·maturity_date를 유저가 직접 입력.
+    달성 게이지는 저장하지 않고 조회할 때 계산한다(금액 기반).
+    """
+
     member = models.ForeignKey(
         Member, on_delete=models.CASCADE, related_name="enrollments"
     )
     product = models.ForeignKey(
         Product, on_delete=models.RESTRICT, related_name="enrollments"
     )
-    monthly_amount = models.IntegerField()
-    term_months = models.IntegerField()
-    expected_payout_at_maturity = models.BigIntegerField()
-    calculated_at = models.DateTimeField(auto_now_add=True)
-    transfer_day = models.IntegerField()
-    enrolled_at = models.DateField()
+    # 정보입력(2단계) 전엔 비어있음 → nullable.
+    monthly_amount = models.IntegerField(null=True, blank=True)  # 월 납입액(원)
+    rate = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True
+    )  # 실제 계약 금리(%)
+    start_date = models.DateField(null=True, blank=True)  # 적금 시작일
+    maturity_date = models.DateField(null=True, blank=True)  # 만기일
+    created_at = models.DateTimeField(default=timezone.now)  # 우리 앱에 등록한 시각
 
     class Meta:
         db_table = "enrollment"
         unique_together = [("member", "product")]
-
-
-class PaymentRecord(models.Model):
-    class Status(models.TextChoices):
-        PAID = "PAID", "납입"
-        MISSED = "MISSED", "미납"
-        PARTIAL = "PARTIAL", "부분납입"
-
-    enrollment = models.ForeignKey(
-        Enrollment, on_delete=models.CASCADE, related_name="payment_records"
-    )
-    scheduled_date = models.DateField()
-    amount = models.IntegerField()
-    status = models.CharField(max_length=10, choices=Status.choices)
-    is_modified = models.BooleanField(default=False)
-    recorded_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "payment_record"
-        unique_together = [("enrollment", "scheduled_date")]

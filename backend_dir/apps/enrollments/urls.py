@@ -1,24 +1,14 @@
 from django.urls import path
 
-from .views import (
-    EnrollmentDeleteView,
-    EnrollmentListCreateView,
-    PaymentRecordUpdateView,
-)
+from .views import EnrollmentDetailView, EnrollmentListCreateView
 
 urlpatterns = [
-    # GET(목록) + POST(가입)
+    # GET(목록) + POST(상품 등록)
     path("", EnrollmentListCreateView.as_view(), name="enrollment_list_create"),
-    # DELETE(삭제)
+    # PATCH(정보 입력/수정) + DELETE(삭제)
     path(
         "<int:enrollment_id>/",
-        EnrollmentDeleteView.as_view(),
-        name="enrollment_delete",
-    ),
-    # PATCH(납입 정정)
-    path(
-        "<int:enrollment_id>/payments/<int:record_id>/",
-        PaymentRecordUpdateView.as_view(),
-        name="payment_update",
+        EnrollmentDetailView.as_view(),
+        name="enrollment_detail",
     ),
 ]
