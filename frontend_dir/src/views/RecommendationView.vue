@@ -1,216 +1,165 @@
 <template>
-  <div class="min-h-screen">
-    <header class="pb-8 text-center">
-      <span class="text-2xl font-semibold text-slate-900">상품 맞춤 추천</span>
-    </header>
+  <div class="flex px-32 pb-12 pt-8">
+    <aside class="w-1/4 mt-12 pr-8">
+      <img :src="memoWish" alt="위시" class="mx-auto w-32" />
+      <p class="mt-4 text-center text-base font-bold text-slate-700">
+        {{ authStore.user?.nickname ?? '사용자' }} 님 조건에 맞는 상품을 골라봤어요 !
+      </p>
 
-    <div class="mx-auto max-w-5xl px-5">
-      <div
-        class="relative overflow-hidden rounded-4xl bg-linear-to-br from-blue-600 via-blue-600 to-indigo-700 px-8 py-8 text-white shadow-2xl shadow-blue-200/70"
-      >
-        <div
-          class="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-white/15 blur-3xl"
-        ></div>
-        <div
-          class="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl"
-        ></div>
-
-        <div class="relative z-10 flex items-start justify-between gap-6">
-          <div>
-            <p class="text-base font-semibold text-blue-100">나의 적금 플랜</p>
+      <div class="mt-4 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+        <p class="text-xs font-semibold text-slate-400">저축 플랜</p>
+        <div class="mt-2 space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-sm text-slate-500">저축기간</span>
+            <span class="text-sm font-bold text-slate-800">{{ goalStore.period }}개월</span>
           </div>
-          <button
-            @click="router.go(-1)"
-            class="rounded-full bg-white/15 px-5 py-2.5 text-base font-semibold text-white backdrop-blur transition hover:bg-white/25"
-          >
-            목표 수정하기
-          </button>
-        </div>
-
-        <div class="relative z-10 mt-3 flex items-end justify-between gap-8">
-          <div>
-            <p class="text-base font-medium text-blue-100">예상 만기 수령액</p>
-            <p class="mt-2 text-6xl font-extrabold tracking-tight text-white">
-              약 {{ totalAmount }}만원
-            </p>
-            <p class="mt-3 text-base font-medium text-blue-100">평균 금리 3.5% 기준</p>
-          </div>
-          <div class="grid min-w-70 grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-white/10 px-5 py-4 backdrop-blur ring-1 ring-white/15">
-              <p class="text-base font-medium text-blue-100">기간</p>
-              <p class="mt-1 text-2xl font-extrabold text-white">{{ goalStore.period }}개월</p>
-            </div>
-            <div class="rounded-2xl bg-white/10 px-5 py-4 backdrop-blur ring-1 ring-white/15">
-              <p class="text-base font-medium text-blue-100">월 저축</p>
-              <p class="mt-1 text-2xl font-extrabold text-white">
-                {{ goalStore.monthlyAmount }}만원
-              </p>
-            </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-slate-500">월 저축 금액</span>
+            <span class="text-sm font-bold text-slate-800">{{ goalStore.monthlyAmount }}만원</span>
           </div>
         </div>
 
-        <div
-          class="relative z-10 mt-7 flex items-center justify-between rounded-2xl bg-white/10 px-5 py-4 backdrop-blur ring-1 ring-white/15"
-        >
-          <p class="text-base font-medium text-blue-50">
-            💡 우대금리 조건에 따라 실제 수령액은 달라질 수 있어요.
-          </p>
-          <button
-            @click="showLevelGuide = true"
-            class="flex items-center gap-1 rounded-full bg-white px-4 py-1.5 text-base font-bold text-blue-600 transition hover:bg-blue-50"
-          >
-            우대금리 난이도 알아보기
-          </button>
+        <div class="mt-3 border-t border-slate-200 pt-3">
+          <p class="text-xs font-semibold text-slate-400">우대금리 조건</p>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <span
+              v-for="chip in conditionChips"
+              :key="chip"
+              class="rounded-lg bg-white px-3 py-1 text-xs text-slate-600 ring-1 ring-slate-200"
+            >
+              {{ chip }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="mt-6">
-        <FilterChips v-model="selectedFilter" />
-        <p
-          @click="showLevelGuide = true"
-          class="mt-3 cursor-pointer text-base text-slate-400 hover:text-slate-600 transition"
-        >
-          ⓘ 조건 난이도가 궁금하다면 우대금리 안내를 확인해보세요.
-        </p>
-      </div>
+      <p class="mt-6 text-center text-xs font-thin text-slate-40 break-keep">
+        추천 결과는 참고용으로 제공되며, 실제 적용 금리와 우대조건은 가입 시점의 상품 정보와 개인별
+        조건에 따라 달라질 수 있어요.
+      </p>
+    </aside>
 
-      <!-- 레벨 안내 모달 -->
-      <div v-if="showLevelGuide" class="fixed inset-0 z-50 flex items-center justify-center p-10">
-        <div class="absolute inset-0 bg-slate-950/40" @click="showLevelGuide = false" />
-        <div
-          class="relative w-full max-w-lg rounded-4xl bg-white pt-12 px-10 shadow-2xl shadow-slate-950/20 max-h-[85vh] overflow-y-auto"
-        >
+    <div class="w-px bg-slate-200" />
+
+    <!-- 오른쪽 메인 -->
+    <main class="flex-1 px-16 pt-2">
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="text-4xl font-extrabold text-slate-900">추천 상품 목록</h1>
+          <p class="mt-2 text-base text-slate-400">상품은 세후 수령액 순으로 정렬됩니다</p>
+        </div>
+
+        <!-- 정렬 드롭다운 -->
+        <div class="relative mt-1">
           <button
-            @click="showLevelGuide = false"
-            class="absolute right-6 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
+            @click="showSortDropdown = !showSortDropdown"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-medium text-slate-700 transition hover:border-slate-300"
           >
-            ✕
+            {{ currentSortLabel }}
+            <span class="text-slate-400">▼</span>
           </button>
 
-          <h2 class="text-3xl font-bold text-slate-900">우대금리 조건 안내</h2>
-          <p class="mt-2 text-base text-slate-500">조건을 얼마나 쉽게 채울 수 있는지 알려드려요.</p>
-
-          <div class="mt-7 flex gap-2">
+          <div
+            v-if="showSortDropdown"
+            class="fixed inset-0 z-10"
+            @click="showSortDropdown = false"
+          />
+          <div
+            v-if="showSortDropdown"
+            class="absolute right-0 top-full z-20 mt-2 w-64 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-100"
+          >
             <button
-              v-for="level in levelKeys"
-              :key="level"
-              @click="activeLevelTab = level"
-              class="rounded-full px-5 py-2 text-base font-semibold transition"
+              v-for="opt in sortOptions"
+              :key="opt.filter"
+              @click="selectSort(opt)"
+              class="w-full px-5 py-3.5 text-left text-base font-medium transition"
               :class="
-                activeLevelTab === level
-                  ? levelMeta[level].activeClass
-                  : 'text-slate-400 hover:bg-slate-100'
+                currentSort === opt.filter
+                  ? 'bg-indigo-500 text-white'
+                  : 'text-slate-700 hover:bg-slate-50'
               "
             >
-              {{ level }}
+              {{ opt.label }}
             </button>
-          </div>
-
-          <div class="mt-5 rounded-2xl p-5" :class="levelMeta[activeLevelTab].bgClass">
-            <div class="flex items-center gap-4">
-              <span class="text-4xl">{{ levelMeta[activeLevelTab].icon }}</span>
-              <div>
-                <span
-                  class="rounded-full px-3 py-1 text-sm font-bold"
-                  :class="levelMeta[activeLevelTab].badgeClass"
-                >
-                  {{ levelInfo[activeLevelTab].label }}
-                </span>
-                <h3 class="mt-1.5 text-xl font-bold text-slate-900">
-                  {{ levelInfo[activeLevelTab].title }}
-                </h3>
-              </div>
-            </div>
-            <p class="mt-3 text-base text-slate-600">{{ levelInfo[activeLevelTab].description }}</p>
-          </div>
-
-          <p class="mt-6 text-base font-semibold text-slate-400">대표적인 우대조건 예시</p>
-          <div class="mt-3 space-y-2 pb-10">
-            <div
-              v-for="condition in levelInfo[activeLevelTab].conditions"
-              :key="condition"
-              class="flex items-center gap-3 rounded-xl bg-slate-50 px-5 py-3.5 text-base text-slate-700"
-            >
-              <span class="text-xs" :class="levelMeta[activeLevelTab].dotClass">●</span>
-              {{ condition }}
-            </div>
           </div>
         </div>
       </div>
 
-      <div v-if="isLoading" class="mt-10 text-center text-slate-400">불러오는 중...</div>
+      <div v-if="isLoading" class="mt-16 text-center text-base text-slate-400">불러오는 중...</div>
 
-      <!-- 상품 리스트 -->
-      <div>
-        <p v-if="!isLoading" class="mb-3 text-sm text-slate-400 text-right">
-          {{ products.length }}개 · 수령액 높은 순
-        </p>
-        <div v-if="!isLoading" class="flex flex-col gap-3">
+      <div v-else>
+        <div class="mt-6 grid grid-cols-2 gap-4">
           <ProductCard
-            v-for="(product, index) in products"
+            v-for="product in visibleProducts"
             :key="product.id"
             :id="product.id"
-            :rank="index + 1"
             :bank-name="product.bankName"
             :bank-color="product.bankColor"
             :product-name="product.productName"
-            :difficulty="product.difficulty"
             :amount="product.amount"
             :max-rate="product.maxRate"
             :base-rate="product.baseRate"
             :condition="product.condition"
           />
         </div>
+
+        <div v-if="visibleCount < products.length" class="mt-10 text-center">
+          <button
+            @click="visibleCount += 6"
+            class="rounded-full border border-slate-200 bg-white px-10 py-3 text-base font-medium text-slate-600 transition hover:bg-slate-100"
+          >
+            더 보기
+          </button>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import api from '@/api/index'
-import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
-import { levelInfo } from '@/constants/levelInfo'
-import FilterChips from '@/components/Recommendation/FilterChips.vue'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
-import { difficultyMap } from '@/constants/difficultyMap'
 import { bankColorMap } from '@/constants/bankColors'
+import type { FilterKey } from '@/constants/levelInfo'
+import { useAuthStore } from '@/stores/auth'
+import memoWish from '@/assets/img/wishes/memoWish.png'
 
-const router = useRouter()
 const goalStore = useGoalStore()
-const showLevelGuide = ref(false)
-type LevelKey = 'LOW' | 'MID' | 'HIGH'
-const levelKeys: LevelKey[] = ['LOW', 'MID', 'HIGH']
-const activeLevelTab = ref<LevelKey>('LOW')
-const selectedFilter = ref<'BASE' | 'LOW' | 'MID' | 'HIGH'>('LOW')
-
 const rawProducts = ref<any[]>([])
 const isLoading = ref(false)
+const showSortDropdown = ref(false)
+const visibleCount = ref(6)
+const currentSort = ref<FilterKey>('BASE')
+const authStore = useAuthStore()
 
-function resolveMaxDiff(rbd: any, filter: string): string {
-  if (!rbd || filter === 'BASE') return ''
-  const lowCount = rbd.LOW?.condition_ids?.length ?? 0
-  const midCount = rbd.MID?.condition_ids?.length ?? 0
-  const highCount = rbd.HIGH?.condition_ids?.length ?? 0
-  if (filter === 'LOW') return lowCount > 0 ? 'LOW' : ''
-  if (filter === 'MID') {
-    if (midCount > lowCount) return 'MID'
-    return lowCount > 0 ? 'LOW' : ''
-  }
-  if (filter === 'HIGH') {
-    if (highCount > midCount) return 'HIGH'
-    if (midCount > lowCount) return 'MID'
-    return lowCount > 0 ? 'LOW' : ''
-  }
-  return ''
+const conditionChips = ref<string[]>([])
+
+interface SortOption {
+  filter: FilterKey
+  label: string
+  shortLabel: string
+}
+
+const sortOptions: SortOption[] = [
+  { filter: 'BASE', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
+  { filter: 'HIGH', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
+  { filter: 'LOW', label: '우대금리 모두 만족한 적금', shortLabel: '우대 금리 순' },
+]
+
+const currentSortLabel = computed(
+  () => sortOptions.find((o) => o.filter === currentSort.value)?.shortLabel ?? '기본 금리 순',
+)
+
+function selectSort(opt: SortOption) {
+  currentSort.value = opt.filter
+  showSortDropdown.value = false
 }
 
 const products = computed(() =>
   rawProducts.value.map((item: any) => {
-    const levelData = item.rate_by_difficulty?.[selectedFilter.value]
-    const maxDiff = resolveMaxDiff(item.rate_by_difficulty, selectedFilter.value)
-
+    const levelData = item.rate_by_difficulty?.[currentSort.value]
     return {
       id: item.product_id,
       bankName: item.bank_name,
@@ -219,45 +168,35 @@ const products = computed(() =>
       baseRate: item.base_rate,
       maxRate: levelData?.expected_rate ?? item.base_rate,
       amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
-      difficulty: (!maxDiff ? '없음' : (difficultyMap[maxDiff] ?? '쉬움')) as '없음' | '쉬움' | '보통' | '어려움',
       condition: levelData?.summary_label ? [levelData.summary_label] : [],
     }
   }),
 )
 
-const levelMeta: Record<
-  LevelKey,
-  { icon: string; bgClass: string; badgeClass: string; activeClass: string; dotClass: string }
-> = {
-  LOW: {
-    icon: '🌿',
-    bgClass: 'bg-emerald-50',
-    badgeClass: 'bg-emerald-100 text-emerald-700',
-    activeClass: 'bg-emerald-500 text-white',
-    dotClass: 'text-emerald-400',
-  },
-  MID: {
-    icon: '⚡',
-    bgClass: 'bg-amber-50',
-    badgeClass: 'bg-amber-100 text-amber-700',
-    activeClass: 'bg-amber-500 text-white',
-    dotClass: 'text-amber-400',
-  },
-  HIGH: {
-    icon: '🔥',
-    bgClass: 'bg-red-50',
-    badgeClass: 'bg-red-100 text-red-700',
-    activeClass: 'bg-red-500 text-white',
-    dotClass: 'text-red-400',
-  },
-}
+const visibleProducts = computed(() => products.value.slice(0, visibleCount.value))
 
-const totalAmount = computed(() => {
-  const { period, monthlyAmount } = goalStore
-  const principal = period * monthlyAmount
-  const interest = ((monthlyAmount * period * (period + 1)) / 2) * (0.035 / 12)
-  return Math.round(principal + interest * (1 - 0.154))
-})
+const fetchProfile = async () => {
+  try {
+    const { data } = await api.get('/api/v1/search-profile/')
+    const chips: string[] = []
+    if (data.birth_date) {
+      const birth = new Date(data.birth_date)
+      const today = new Date()
+      const age =
+        today.getFullYear() -
+        birth.getFullYear() -
+        (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0)
+      chips.push(`만 ${age}세`)
+    }
+    if (data.salary_transfer) chips.push('급여 이체')
+    if (data.auto_transfer) chips.push('자동이체')
+    if (data.card_usage) chips.push('카드 실적')
+    if (data.housing_subscription) chips.push('주택청약')
+    conditionChips.value = chips
+  } catch {
+    // 조건 칩 없이 빈 상태로 유지
+  }
+}
 
 const fetchProducts = async () => {
   isLoading.value = true
@@ -276,5 +215,8 @@ const fetchProducts = async () => {
   }
 }
 
-onMounted(() => fetchProducts())
+onMounted(() => {
+  fetchProfile()
+  fetchProducts()
+})
 </script>

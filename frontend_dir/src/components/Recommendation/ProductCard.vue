@@ -1,67 +1,38 @@
 <template>
   <div
-    class="group cursor-pointer rounded-[24px] border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/70"
+    class="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/60"
     @click="router.push({ name: 'savings-detail', params: { id: props.id } })"
   >
-    <!-- 상단: 은행/상품명/난이도 -->
-    <div class="flex items-start justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <span class="w-4 text-base font-bold text-slate-400">{{ rank }}</span>
-
+    <!-- 상단: 은행 로고 + 상품명 / 금리 -->
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
         <div
-          class="flex h-11 w-11 items-center justify-center rounded-full text-base font-extrabold text-white shadow-sm"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white"
           :style="{ backgroundColor: bankColor }"
         >
           {{ bankInitial }}
         </div>
-
         <div>
-          <p class="text-sm font-medium text-slate-400">{{ bankName }} · 적금</p>
-          <p class="mt-0.5 text-lg font-extrabold text-slate-900">
-            {{ productName }}
-          </p>
+          <p class="text-sm text-slate-400">{{ bankName }} · 적금</p>
+          <p class="mt-0.5 text-base font-bold text-slate-900">{{ productName }}</p>
         </div>
       </div>
-
-      <span class="shrink-0 rounded-full px-3.5 py-1.5 text-sm font-bold" :class="difficultyClass">
-        조건 {{ difficulty }}
-      </span>
+      <div class="shrink-0 text-right">
+        <p class="text-xs text-slate-400">최고 금리</p>
+        <p class="mt-0.5 text-xl font-extrabold text-indigo-600">연 {{ maxRate }}%</p>
+        <p class="text-xs text-slate-400">기본금리 {{ baseRate }}%</p>
+      </div>
     </div>
 
-    <!-- 중간: 수령액 / 금리 -->
-    <div class="mt-4 flex items-end justify-between gap-6">
+    <!-- 하단: 수령액 + 자세히 보기 -->
+    <div class="mt-4 flex items-end justify-between">
       <div>
-        <p class="text-sm font-medium text-slate-400">예상 세후 수령액</p>
-        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900">
-          {{ formattedAmount }}만원
-        </p>
+        <p class="text-sm text-slate-400">예상 세후 수령액</p>
+        <p class="mt-0.5 text-2xl font-extrabold text-slate-900">{{ formattedAmount }}만원</p>
       </div>
-
-      <div class="text-right">
-        <p class="text-sm font-medium text-slate-400">최고금리</p>
-        <p class="mt-0.5 text-xl font-extrabold text-blue-600">연 {{ maxRate }}%</p>
-        <p class="mt-0.5 text-sm font-medium text-slate-400">기본금리 {{ baseRate }}%</p>
-      </div>
-    </div>
-
-    <!-- 하단: 우대조건 -->
-    <div class="mt-4 border-t border-slate-100 pt-4">
-      <p class="mb-3 text-sm font-bold text-slate-400 tracking-wide">우대금리 안내</p>
-      <div class="space-y-2">
-        <div
-          v-for="chip in conditionChips"
-          :key="chip"
-          class="flex items-start gap-3 rounded-2xl bg-blue-50 px-4 py-3 ring-1 ring-blue-100"
-        >
-          <span class="mt-0.5 shrink-0">💡</span>
-          <span class="text-sm font-semibold leading-relaxed text-blue-800">{{ chip }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 클릭 안내 -->
-    <div class="flex items-center mt-3 justify-end text-sm font-semibold text-slate-400">
-      <span class="transition group-hover:text-blue-600"> 자세히 보기 → </span>
+      <span class="text-sm font-semibold text-slate-400 transition group-hover:text-blue-600">
+        자세히 보기 →
+      </span>
     </div>
   </div>
 </template>
@@ -74,31 +45,15 @@ const router = useRouter()
 
 const props = defineProps<{
   id: number
-  rank: number
   bankName: string
   bankColor: string
   productName: string
-  difficulty: '없음' | '쉬움' | '보통' | '어려움'
   amount: number
   maxRate: number
   baseRate: number
   condition: string[]
 }>()
 
-const difficultyMap: Record<'없음' | '쉬움' | '보통' | '어려움', string> = {
-  없음: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200',
-  쉬움: 'bg-green-50 text-green-700 ring-1 ring-green-100',
-  보통: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100',
-  어려움: 'bg-red-50 text-red-600 ring-1 ring-red-100',
-}
-
-const difficultyClass = computed(() => difficultyMap[props.difficulty])
-
 const bankInitial = computed(() => props.bankName.charAt(0))
-
 const formattedAmount = computed(() => props.amount.toLocaleString())
-
-const conditionChips = computed(() =>
-  props.condition?.length ? props.condition : ['우대조건 없음'],
-)
 </script>
