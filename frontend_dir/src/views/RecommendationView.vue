@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7]">
     <div class="flex px-32 pb-12 pt-8">
       <aside class="w-1/4 mt-12 pr-8">
-        <img :src="memoWish" alt="위시" class="mx-auto w-32" />
-        <p class="mt-4 text-center text-base font-bold text-slate-700">
+        <img :src="happyWish" alt="위시" class="mx-auto w-44" />
+        <p class="mt-6 text-center text-base font-bold text-slate-700">
           {{ authStore.user?.nickname ?? '사용자' }} 님 조건에 맞는 상품을 골라봤어요 !
         </p>
 
@@ -45,14 +45,16 @@
       <div class="w-px bg-slate-200" />
 
       <!-- 오른쪽 메인 -->
-      <main class="flex-1 px-16 pt-2">
+      <main class="flex-1 px-14 pt-2">
         <div class="flex items-start justify-between">
           <div>
             <h1 class="text-4xl font-extrabold text-slate-900">추천 상품 목록</h1>
-            <p class="mt-2 text-base text-slate-400">상품은 세후 수령액 순으로 정렬됩니다</p>
+            <p class="mt-3 text-base font-light text-slate-400">
+              입력한 조건을 바탕으로 추천 상품을 정리했어요. <br />상품별 우대조건 충족 여부에 따라
+              예상 세후 수령액은 달라질 수 있으며, 수령액이 높은 순으로 정렬됩니다.
+            </p>
           </div>
 
-          <!-- 정렬 드롭다운 -->
           <div class="relative mt-1">
             <button
               @click="showSortDropdown = !showSortDropdown"
@@ -129,7 +131,7 @@ import { useGoalStore } from '@/stores/goal'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import { bankColorMap } from '@/constants/bankColors'
 import { useAuthStore } from '@/stores/auth'
-import memoWish from '@/assets/img/wishes/memoWish.png'
+import happyWish from '@/assets/img/wishes/happyWish.png'
 
 const goalStore = useGoalStore()
 const rawProducts = ref<any[]>([])
