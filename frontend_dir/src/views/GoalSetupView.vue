@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
@@ -228,6 +228,19 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
   auto: null,
   card: null,
   housing: null,
+})
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/api/v1/search-profile/')
+    if (data.save_term) selectedPeriod.value = data.save_term
+    if (data.monthly_amount) monthlyAmount.value = data.monthly_amount / 10000
+    if (data.birth_date) birthDate.value = data.birth_date
+    if (data.salary_transfer !== undefined) ynAnswers.salary = data.salary_transfer
+    if (data.auto_transfer !== undefined) ynAnswers.auto = data.auto_transfer
+    if (data.card_usage !== undefined) ynAnswers.card = data.card_usage
+    if (data.housing_subscription !== undefined) ynAnswers.housing = data.housing_subscription
+  } catch {}
 })
 
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
