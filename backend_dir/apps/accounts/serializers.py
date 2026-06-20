@@ -1,15 +1,12 @@
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
-from .models import Member
+from .models import Member, SearchProfile
 
 
 class SignupSerializer(serializers.Serializer):
     login_id = serializers.CharField(max_length=50)
     password = serializers.CharField(max_length=128, write_only=True)
     nickname = serializers.CharField(max_length=50)
-    birth_date = serializers.DateField()
-    job_status = serializers.ChoiceField(choices=Member.JobStatus.choices)
-    marital_status = serializers.ChoiceField(choices=Member.MaritalStatus.choices)
 
     def validate_login_id(self, value):
         if Member.objects.filter(login_id=value).exists():
@@ -42,64 +39,24 @@ class LoginSerializer(serializers.Serializer):
         return data
     
 
-class MemberGoalAmountSerializer(serializers.ModelSerializer):
-    member_id = serializers.IntegerField(source="id", read_only=True)
-    total_goal_amount = serializers.IntegerField()
+class SearchProfileSerializer(serializers.ModelSerializer):
+    """조회/추천 프로필(STEP01+02). 회원당 1개. prefill 조회 + 저장/수정에 사용."""
 
     class Meta:
-        model = Member
-        fields = ["member_id", "nickname", "total_goal_amount", "updated_at"]
-        read_only_fields = ["nickname", "updated_at"]
+        model = SearchProfile
+        fields = [
+            "save_term",
+            "monthly_amount",
+            "birth_date",
+            "salary_transfer",
+            "auto_transfer",
+            "card_usage",
+            "housing_subscription",
+        ]
 
-    def validate_total_goal_amount(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("total_goal_amount는 0보다 커야 합니다.")
+    def validate_monthly_amount(self, value):
+        if not (50_000 <= value <= 3_000_000):
+            raise serializers.ValidationError(
+                "월 저축액은 5만원 이상 300만원 이하여야 합니다."
+            )
         return value
-
-
-# ---- #13 마이페이지: 응답 문서화용 직렬화기 ----
-# 뷰는 계산 결과를 dict로 직접 만들어 반환하고, 이 직렬화기들은
-# drf-spectacular(Swagger)가 응답 모양을 그려주도록 형태만 선언한다.
-class MypageMemberSerializer(serializers.Serializer):
-    nickname = serializers.CharField()
-    total_goal_amount = serializers.IntegerField(allow_null=True)
-
-
-class MypageSummarySerializer(serializers.Serializer):
-    overall_gauge = serializers.FloatField(allow_null=True)
-    total_saved_payout = serializers.IntegerField()
-    enrollment_count = serializers.IntegerField()
-    monthly_transfer_total = serializers.IntegerField()
-    nearest_maturity_dday = serializers.IntegerField(allow_null=True)
-
-
-class MypagePaymentSerializer(serializers.Serializer):
-    record_id = serializers.IntegerField()
-    scheduled_date = serializers.DateField()
-    amount = serializers.IntegerField()
-    status = serializers.CharField()
-    is_modified = serializers.BooleanField()
-
-
-class MypageEnrollmentSerializer(serializers.Serializer):
-    enrollment_id = serializers.IntegerField()
-    product_id = serializers.IntegerField()
-    product_name = serializers.CharField()
-    bank_name = serializers.CharField()
-    monthly_amount = serializers.IntegerField()
-    term_months = serializers.IntegerField()
-    transfer_day = serializers.IntegerField()
-    enrolled_at = serializers.DateField()
-    maturity_date = serializers.DateField()
-    dday = serializers.IntegerField()
-    expected_payout_at_maturity = serializers.IntegerField()
-    individual_gauge = serializers.FloatField()
-    current_payout_estimate = serializers.IntegerField()
-    paid_amount_total = serializers.IntegerField()
-    recent_payments = MypagePaymentSerializer(many=True)
-
-
-class MypageResponseSerializer(serializers.Serializer):
-    member = MypageMemberSerializer()
-    summary = MypageSummarySerializer()
-    enrollments = MypageEnrollmentSerializer(many=True)

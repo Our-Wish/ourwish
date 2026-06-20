@@ -1,4 +1,7 @@
-"""GMS(OpenAI 호환) LLM 직접 호출 모듈. sync_products 배치에서만 사용."""
+"""GMS(OpenAI 호환) LLM 직접 호출 모듈. sync_products 배치에서만 사용.
+
+(예외: AI 챗봇은 유저 요청 시 실시간 호출 — 별도 모듈/뷰에서 다룬다.)
+"""
 import json
 import logging
 import re
@@ -9,145 +12,6 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 _TIMEOUT = 60  # 초 (gpt-5-mini 추론 응답이 가끔 느려 여유를 둠)
-
-DIFFICULTY_GUIDE = """
-난이도(difficulty) 분류 기준:
-
-difficulty는 우대금리 조건을 사용자가 실제로 달성하기 쉬운 정도를 의미한다.
-금리 혜택의 크기가 아니라, 조건을 맞추기 위해 필요한 행동, 반복 관리, 생활 패턴 변경, 기존 금융거래 여부를 기준으로 판단한다.
-
-LOW — 가볍게 챙길 수 있는 조건.
-앱 가입, 자동이체 등록처럼 대부분의 사용자가 어렵지 않게 완료할 수 있는 조건이다.
-한 번 설정하거나 가입 과정에서 자연스럽게 충족되는 조건은 LOW로 분류한다.
-
-예:
-앱 가입/로그인, 자동이체 등록, 신규 고객, 마케팅 동의, 전자통장 발급,
-입출금 통장 보유, 인터넷/모바일뱅킹 가입.
-
-MID — 조금 신경 쓰면 가능한 조건.
-급여이체나 카드 사용처럼 사용자의 생활 패턴에 따라 달성 여부가 달라지는 조건이다.
-매월 반복 관리가 필요하거나, 특정 계좌/상품을 꾸준히 유지해야 하는 조건은 MID로 분류한다.
-
-예:
-급여이체, 카드 실적, 공과금 자동이체, 주택청약 보유, 비대면 가입,
-가족 계좌 연결, 적금/예금 동시 보유.
-
-HIGH — 조건 확인이 필요한 조건.
-기존 자산, 거래 실적, 대출, 투자/퇴직연금 상품, 프리미엄 등급처럼
-사용자가 단기간에 맞추기 어렵거나 부담이 큰 조건은 HIGH로 분류한다.
-
-예:
-높은 카드 사용 실적, 외환 거래 실적, 대출 보유, 자산관리 계좌 보유,
-프리미엄/VIP 등급, 퇴직연금 가입, 주택담보대출 연계, 증권 연계 계좌.
-
-판단 규칙:
-- 하나의 우대조건에 여러 요구사항이 있으면 가장 어려운 요구사항을 기준으로 분류한다.
-- 한 번 설정하면 끝나는 조건은 LOW로 본다.
-- 매월 반복해서 관리해야 하는 조건은 최소 MID로 본다.
-- 급여이체, 카드 실적, 공과금 자동이체처럼 생활 패턴에 영향을 받는 조건은 MID로 본다.
-- 대출, 고액 자산, VIP 등급, 외환/증권/퇴직연금처럼 기존 금융거래나 큰 부담이 필요한 조건은 HIGH로 본다.
-- 금액, 횟수, 기간 조건이 클수록 더 어렵게 본다.
-- 목록에 없는 조건은 위 기준에 따라 분류한다.
-- 애매하면 더 어려운 쪽으로 분류한다.
-"""
-
-_LABEL_DEVELOPER = f"""
-너는 적금 우대금리 조건을 쉽게 풀어쓰는 도우미야.
-
-이제 막 돈을 모으기 시작한 사용자도 이해할 수 있도록,
-은행 약관처럼 딱딱하거나 어려운 표현을 쉬운 말로 바꿔줘.
-
-해야 할 일:
-1. 우대금리 조건 원문을 읽어.
-2. 사용자가 실제로 무엇을 하면 되는지 한 문장으로 설명해.
-3. 조건을 충족하기 쉬운 정도를 LOW, MID, HIGH 중 하나로 분류해.
-
-friendly_label 작성 규칙:
-- 40자 이내로 작성해.
-- 해요체로 작성해. 예: ~하면 돼요, ~해야 해요
-- 금융 용어는 가능한 쉽게 풀어써.
-- 원문에 있는 금액, 횟수, 기간, 대상 조건은 빠뜨리지 마.
-- 원문에 없는 조건이나 혜택은 추가하지 마.
-- 너무 광고 문구처럼 쓰지 말고, 서비스 화면에 넣기 좋은 문장으로 써.
-
-difficulty 작성 규칙:
-- 반드시 LOW, MID, HIGH 중 하나만 사용해.
-- 조건을 맞추기 위한 노력, 반복 관리, 금액 부담, 기존 금융거래 여부를 기준으로 판단해.
-
-{DIFFICULTY_GUIDE}
-
-출력 규칙:
-- 반드시 JSON 객체 하나만 출력해.
-- 마크다운, 코드블록, 추가 설명은 출력하지 마.
-- 키는 friendly_label, difficulty 두 개만 사용해.
-
-퓨샷 예시:
-입력: "당행 급여이체"
-출력: {{"friendly_label": "이 은행으로 월급을 받으면 돼요", "difficulty": "MID"}}
-
-입력: "카드 월 실적 30만원 이상"
-출력: {{"friendly_label": "카드를 한 달에 30만원 이상 써야 해요", "difficulty": "MID"}}
-
-입력: "주택담보대출 연계"
-출력: {{"friendly_label": "주택담보대출이 있어야 해요", "difficulty": "HIGH"}}
-
-입력: "마케팅 수신 동의"
-출력: {{"friendly_label": "혜택 안내 알림에 동의하면 돼요", "difficulty": "LOW"}}
-
-입력: "자동이체 등록"
-출력: {{"friendly_label": "자동이체를 등록하면 돼요", "difficulty": "LOW"}}
-"""
-
-
-_CORE_INFO_DEVELOPER = """
-너는 적금 상품 안내문을 처음 저축을 시작한 사용자도 쉽게 이해할 수 있게 요약하는 도우미야.
-
-목표:
-- 어려운 은행 안내문을 서비스 화면에 넣기 좋은 짧은 문장으로 바꿔.
-- 사용자가 가입 전 꼭 알아야 할 내용만 남겨.
-- 원문에 없는 내용은 절대 추측하지 마.
-
-각 항목이 담아야 할 내용:
-- join_summary: 누가 가입할 수 있고, 어떤 방식으로 가입하는지
-- maturity_summary: 만기 후 이자가 어떻게 적용되는지
-- etc_summary: 가입 전 꼭 확인해야 할 제한, 조건, 유의사항
-
-작성 규칙:
-- 각 항목은 1문장으로 작성해.
-- 각 항목은 50자 이내로 작성해.
-- 해요체로 작성해. 예: ~할 수 있어요, ~적용돼요, ~확인해야 해요
-- 은행 약관처럼 딱딱한 표현은 쉬운 말로 바꿔.
-- 금액, 기간, 대상, 방식 등 중요한 조건은 빠뜨리지 마.
-- 원문에 없는 내용은 추가하지 마.
-- 해당 정보가 없거나 의미 있는 내용이 없으면 null을 반환해.
-- 반드시 JSON 객체 하나만 출력해.
-- 마크다운, 코드블록, 추가 설명은 출력하지 마.
-
-퓨샷 예시:
-입력:
-가입 방법/대상: 영업점, 인터넷, 스마트폰 / 만 17세 이상 실명의 개인
-만기 후 이자: 만기 후 1개월 이내 약정이율의 50%, 1개월 초과 보통예금이율
-기타 유의사항: 1인 1계좌 가입 가능
-
-출력:
-{
-  "join_summary": "만 17세 이상이면 영업점이나 앱에서 가입할 수 있어요.",
-  "maturity_summary": "만기 후 기간에 따라 낮은 이자가 적용돼요.",
-  "etc_summary": "1인 1계좌만 가입할 수 있어요."
-}
-
-입력:
-가입 방법/대상: 정보 없음 / 정보 없음
-만기 후 이자: 정보 없음
-기타 유의사항: 정보 없음
-
-출력:
-{
-  "join_summary": null,
-  "maturity_summary": null,
-  "etc_summary": null
-}
-"""
 
 
 def _chat(developer_prompt, user_prompt):
@@ -204,99 +68,122 @@ def _parse_json(content):
             return None
 
 
-def generate_friendly_label(label):
-    """우대조건 원문 → (friendly_label, difficulty). 실패 항목은 None."""
-    user = (
-        f'조건 원문: "{label}"\n'
-        f'출력: {{"friendly_label": "...", "difficulty": "LOW|MID|HIGH"}}'
-    )
-    data = _parse_json(_chat(_LABEL_DEVELOPER, user))
-    if not data:
-        return None, None
+# ── 1) 매칭 태그 + 연령 제한 분류 ──────────────────────────────
+_TAGS_DEVELOPER = """
+너는 적금 상품의 우대조건 원문과 가입 대상을 읽고,
+정해진 4가지 우대조건 태그 해당 여부와 가입 연령 제한을 뽑아내는 분류기야.
 
-    friendly = (data.get("friendly_label") or "").strip()[:500] or None
-    difficulty = (data.get("difficulty") or "").strip().upper()
-    if difficulty not in {"LOW", "MID", "HIGH"}:
-        difficulty = None
-    return friendly, difficulty
+태그 4개 — 이 상품이 그 우대조건을 "제공하면" true, 아니면 false:
+- salary_transfer (급여이체): 이 은행 계좌로 급여/연금을 이체하면 우대받는 조건.
+- auto_transfer (자동이체): 적금 자동이체, 공과금 자동이체 등 자동이체 관련 우대.
+- card_usage (카드실적): 이 은행 신용/체크카드 사용실적이 있으면 우대.
+- housing_subscription (청약): 주택청약종합저축 보유(또는 미보유) 관련 우대.
 
+연령 제한 — 가입 대상에 나이 제한이 있으면 만 나이로 추출:
+- 예: "만 19세~34세" → age_min=19, age_max=34
+- 예: "만 65세 이상" → age_min=65, age_max=null
+- 예: "만 19세 이상" → age_min=19, age_max=null
+- 나이 제한이 없으면 age_min, age_max 모두 null.
 
-def generate_core_info(product):
-    """상품 → {join_summary, maturity_summary, etc_summary}. 실패 시 빈 dict."""
-    user = (
-        f"상품명: {product.product_name} ({product.bank.bank_name})\n"
-        f"다음 정보를 각각 1문장으로 요약해줘.\n"
-        f"- 가입 방법/대상: {product.join_way or '정보 없음'} / {product.join_member or '정보 없음'}\n"
-        f"- 만기 후 이자: {product.maturity_interest or '정보 없음'}\n"
-        f"- 기타 유의사항: {product.etc_note or '정보 없음'}\n\n"
-        f'출력: {{"join_summary": "...", "maturity_summary": "...", "etc_summary": "..."}}'
-    )
-    data = _parse_json(_chat(_CORE_INFO_DEVELOPER, user))
-    if not data:
-        return {}
-    return {
-        "join_summary": (data.get("join_summary") or "").strip() or None,
-        "maturity_summary": (data.get("maturity_summary") or "").strip() or None,
-        "etc_summary": (data.get("etc_summary") or "").strip() or None,
-    }
-
-
-_DIFFICULTY_SUMMARY_DEVELOPER = """
-너는 적금 우대조건을 난이도별로 묶어, "이 난이도까지 챙기면 어떤지"를 한 줄로 요약하는 도우미야.
-
-입력으로 난이도별(LOW/MID/HIGH) 우대조건 목록이 주어져.
-- LOW: 가볍게 챙길 수 있는 조건
-- MID: 조금 신경 쓰면 가능한 조건
-- HIGH: 충족이 까다로운 조건
-
-각 난이도마다 한 문장 요약을 만들어:
-- low_summary: LOW 조건만 챙겨도 우대금리를 받을 수 있다는 톤
-- mid_summary: MID 조건까지 챙기면 더 높은 금리를 받는다는 톤
-- high_summary: HIGH 조건까지 충족하면 최대 우대금리라는 톤
-
-작성 규칙:
-- 각 문장 50자 이내, 해요체.
-- 그 난이도의 조건 이름을 1~2개 자연스럽게 녹여서 써.
-- 구체적인 % 숫자는 쓰지 마(금리는 화면에서 따로 보여줌).
-- 해당 난이도에 조건이 없으면 그 항목은 null.
-- 원문에 없는 조건은 지어내지 마.
-- 반드시 JSON 객체 하나만 출력. 키: low_summary, mid_summary, high_summary.
+규칙:
+- 원문에 근거가 있을 때만 태그를 true로 한다. 추측·과잉판단 금지.
+- "사원증/사원카드" 같은 증빙 서류는 카드실적이 아니다(false).
+- 반드시 JSON 객체 하나만 출력. 마크다운·설명 금지.
+- 키: salary_transfer, auto_transfer, card_usage, housing_subscription, age_min, age_max.
 
 퓨샷 예시:
 입력:
-LOW: 앱에 가입하면 돼요 / 마케팅 동의하면 돼요
-MID: 급여이체하면 돼요 / 주택청약 보유하면 돼요
-HIGH: 자산을 보유해야 해요
+가입 대상: 만 19세 이상 만 34세 이하 실명의 개인
+우대조건: -당행 급여이체 실적 보유: 0.3%p / -자동이체 6회 이상: 0.2%p
 
 출력:
-{"low_summary": "앱 가입과 마케팅 동의만 챙겨도 우대금리를 받을 수 있어요.", "mid_summary": "급여이체와 주택청약까지 챙기면 더 높은 금리를 받을 수 있어요.", "high_summary": "자산 조건까지 충족하면 최대 우대금리를 받을 수 있어요."}
+{"salary_transfer": true, "auto_transfer": true, "card_usage": false, "housing_subscription": false, "age_min": 19, "age_max": 34}
+
+입력:
+가입 대상: 실명의 개인
+우대조건: -당행 주택청약종합저축 보유: 0.2%p / -당행 신용카드 월 30만원 이상 이용: 0.3%p
+
+출력:
+{"salary_transfer": false, "auto_transfer": false, "card_usage": true, "housing_subscription": true, "age_min": null, "age_max": null}
 """
 
-# 난이도 묶음 키. difficulty가 NULL인 조건은 HIGH로 취급한다(추천 뷰의 DIFFICULTY_RANK와 동일 규칙).
-_DIFFICULTY_TIERS = ("LOW", "MID", "HIGH")
+_TAG_KEYS = (
+    "salary_transfer",
+    "auto_transfer",
+    "card_usage",
+    "housing_subscription",
+)
 
 
-def generate_difficulty_summaries(product):
-    """상품의 우대조건을 난이도별로 묶어 {low, mid, high} 요약 생성. 실패·조건없음 시 빈 dict."""
-    tiers = {tier: [] for tier in _DIFFICULTY_TIERS}
-    for cond in product.conditions.all():
-        tier = cond.difficulty if cond.difficulty in tiers else "HIGH"  # NULL→HIGH
-        tiers[tier].append(cond.friendly_label or cond.label)
-    if not any(tiers.values()):
-        return {}  # 우대조건 없는 상품 → 요약 불필요
+def _to_age(value):
+    """LLM이 준 나이 값을 int 또는 None으로 정규화."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
+
+def generate_tags(product):
+    """상품 → {4개 태그 bool, age_min, age_max}. 실패 시 빈 dict.
+
+    우대조건 원문(special_condition_raw)으로 태그를, 가입 대상(join_member)으로
+    연령 제한을 뽑는다. 한 번의 GMS 호출로 처리한다.
+    """
     user = (
-        "난이도별 우대조건:\n"
-        f"LOW: {' / '.join(tiers['LOW']) or '없음'}\n"
-        f"MID: {' / '.join(tiers['MID']) or '없음'}\n"
-        f"HIGH: {' / '.join(tiers['HIGH']) or '없음'}\n\n"
-        '출력: {"low_summary": "...", "mid_summary": "...", "high_summary": "..."}'
+        f"가입 대상: {product.join_member or '정보 없음'}\n"
+        f"우대조건:\n{product.special_condition_raw or '없음'}\n\n"
+        '출력: {"salary_transfer": ..., "auto_transfer": ..., '
+        '"card_usage": ..., "housing_subscription": ..., '
+        '"age_min": ..., "age_max": ...}'
     )
-    data = _parse_json(_chat(_DIFFICULTY_SUMMARY_DEVELOPER, user))
+    data = _parse_json(_chat(_TAGS_DEVELOPER, user))
     if not data:
         return {}
-    return {
-        "low": (data.get("low_summary") or "").strip() or None,
-        "mid": (data.get("mid_summary") or "").strip() or None,
-        "high": (data.get("high_summary") or "").strip() or None,
-    }
+    result = {key: bool(data.get(key)) for key in _TAG_KEYS}
+    result["age_min"] = _to_age(data.get("age_min"))
+    result["age_max"] = _to_age(data.get("age_max"))
+    return result
+
+
+# ── 2) AI 한줄 요약("이런 분께 좋아요") ────────────────────────
+_AI_SUMMARY_DEVELOPER = """
+너는 적금 상품을 한 줄로 요약해, 어떤 사람에게 잘 맞는 상품인지 알려주는 도우미야.
+
+상품의 가입대상·가입방법·납입한도·만기이자·유의사항·우대조건을 종합해서,
+"이 상품은 이런 특징이라 이런 분께 좋아요" 형태의 한 문장을 만들어.
+
+작성 규칙:
+- 한 문장, 80자 이내, 해요체.
+- 상품의 실제 특징(대상·우대조건 등)과 어울리는 사용자 유형을 알려줘.
+- 광고처럼 과장하지 말고, 원문에 없는 내용은 지어내지 마.
+- 반드시 JSON 객체 하나만 출력. 마크다운·설명 금지. 키: ai_summary.
+
+퓨샷 예시:
+입력:
+상품명: 청년도약적금 (행복은행)
+가입 대상: 만 19~34세 청년
+우대조건: 급여이체, 자동이체 시 우대
+
+출력:
+{"ai_summary": "급여이체·자동이체를 꾸준히 할 수 있는 청년이 우대금리를 챙기기 좋은 적금이에요."}
+"""
+
+
+def generate_ai_summary(product):
+    """상품 → AI 한줄 요약 문자열. 실패 시 None."""
+    user = (
+        f"상품명: {product.product_name} ({product.bank.bank_name})\n"
+        f"가입 대상: {product.join_member or '정보 없음'}\n"
+        f"가입 방법: {product.join_way or '정보 없음'}\n"
+        f"납입 한도: {product.max_limit or '정보 없음'}\n"
+        f"만기 후 이자: {product.maturity_interest or '정보 없음'}\n"
+        f"기타 유의사항: {product.etc_note or '정보 없음'}\n"
+        f"우대조건:\n{product.special_condition_raw or '없음'}\n\n"
+        '출력: {"ai_summary": "..."}'
+    )
+    data = _parse_json(_chat(_AI_SUMMARY_DEVELOPER, user))
+    if not data:
+        return None
+    return (data.get("ai_summary") or "").strip() or None

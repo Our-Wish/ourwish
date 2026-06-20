@@ -19,20 +19,23 @@ class Product(models.Model):
     bank = models.ForeignKey(Bank, on_delete=models.RESTRICT, related_name="products")
     fin_prdt_cd = models.CharField(max_length=50)
     product_name = models.CharField(max_length=200)
+    # FSS 원문 필드 — 상품 상세에 그대로 노출.
     join_member = models.CharField(max_length=500, blank=True)
     join_way = models.CharField(max_length=200, blank=True)
-    max_limit = models.BigIntegerField(null=True, blank=True)
+    max_limit = models.BigIntegerField(null=True, blank=True)  # 월 납입 한도 필터에 사용
     maturity_interest = models.TextField(blank=True)
     etc_note = models.TextField(blank=True)
-    special_condition_raw = models.TextField(blank=True)
-    has_bonus = models.BooleanField(default=False)
-    maturity_summary = models.TextField(null=True, blank=True)
-    join_summary = models.TextField(null=True, blank=True)
-    etc_summary = models.TextField(null=True, blank=True)
-    # 난이도별(LOW/MID/HIGH) 요약 문구 — rate_by_difficulty의 summary_label용 (LLM 생성).
-    summary_label_low = models.TextField(null=True, blank=True)
-    summary_label_mid = models.TextField(null=True, blank=True)
-    summary_label_high = models.TextField(null=True, blank=True)
+    special_condition_raw = models.TextField(blank=True)  # 우대조건 전문(파싱 없이 노출)
+    # 매칭 태그 — 이 상품이 해당 우대조건을 제공하는가(LLM 배치 분류).
+    tag_salary_transfer = models.BooleanField(default=False)  # 급여이체
+    tag_auto_transfer = models.BooleanField(default=False)  # 자동이체
+    tag_card_usage = models.BooleanField(default=False)  # 카드실적
+    tag_housing_subscription = models.BooleanField(default=False)  # 청약
+    # 가입 연령 제한(NULL=제한 없음). 나이 필터에 사용.
+    age_min = models.IntegerField(null=True, blank=True)
+    age_max = models.IntegerField(null=True, blank=True)
+    # AI 한줄 요약("이런 분께 좋아요") — LLM 배치 생성.
+    ai_summary = models.TextField(null=True, blank=True)
     dcls_strt_day = models.CharField(max_length=8, blank=True)
     dcls_end_day = models.CharField(max_length=8, null=True, blank=True)
     synced_at = models.DateTimeField(auto_now=True)
@@ -65,24 +68,3 @@ class ProductOption(models.Model):
     class Meta:
         db_table = "product_option"
         unique_together = [("product", "save_term", "intr_rate_type", "rsrv_type")]
-
-
-class PreferentialCondition(models.Model):
-    class Difficulty(models.TextChoices):
-        LOW = "LOW", "쉬움"
-        MID = "MID", "보통"
-        HIGH = "HIGH", "어려움"
-
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="conditions"
-    )
-    label = models.CharField(max_length=500)
-    friendly_label = models.CharField(max_length=500, null=True, blank=True)
-    difficulty = models.CharField(
-        max_length=4, choices=Difficulty.choices, null=True, blank=True
-    )
-    rate = models.DecimalField(max_digits=5, decimal_places=2)
-
-    class Meta:
-        db_table = "preferential_condition"
-        unique_together = [("product", "label")]

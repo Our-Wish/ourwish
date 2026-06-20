@@ -23,15 +23,19 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-from apps.accounts.views import MypageView
+from apps.accounts.views import SearchProfileView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/accounts/", include("apps.accounts.urls")),
-    path("api/v1/goals/", include("apps.goals.urls")),
     path("api/v1/products/", include("apps.products.urls")),
     path("api/v1/enrollments/", include("apps.enrollments.urls")),
-    path("api/v1/mypage/", MypageView.as_view(), name="mypage"),
+    path("api/v1/favorites/", include("apps.favorites.urls")),
+    path(
+        "api/v1/search-profile/",
+        SearchProfileView.as_view(),
+        name="search_profile",
+    ),
     # ---- API 문서 (drf-spectacular) ----
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
