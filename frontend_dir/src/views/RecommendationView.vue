@@ -122,7 +122,6 @@ import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import { bankColorMap } from '@/constants/bankColors'
-import type { FilterKey } from '@/constants/levelInfo'
 import { useAuthStore } from '@/stores/auth'
 import memoWish from '@/assets/img/wishes/memoWish.png'
 
@@ -136,11 +135,6 @@ const conditionChips = ref<string[]>([])
 
 type ApiSort = 'base' | 'max' | 'all'
 
-const filterMap: Record<ApiSort, FilterKey> = {
-  base: 'BASE',
-  max: 'HIGH',
-  all: 'LOW',
-}
 
 interface SortOption {
   apiSort: ApiSort
@@ -167,19 +161,16 @@ function selectSort(opt: SortOption) {
 }
 
 const products = computed(() =>
-  rawProducts.value.map((item: any) => {
-    const levelData = item.rate_by_difficulty?.[filterMap[currentSort.value]]
-    return {
-      id: item.product_id,
-      bankName: item.bank_name,
-      bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
-      productName: item.product_name,
-      baseRate: item.base_rate,
-      maxRate: levelData?.expected_rate ?? item.base_rate,
-      amount: Math.round((levelData?.expected_payout ?? 0) / 10000),
-      condition: levelData?.summary_label ? [levelData.summary_label] : [],
-    }
-  }),
+  rawProducts.value.map((item: any) => ({
+    id: item.product_id,
+    bankName: item.bank_name,
+    bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
+    productName: item.product_name,
+    baseRate: item.base_rate,
+    maxRate: item.max_rate,
+    amount: Math.round(item.expected_payout / 10000),
+    condition: item.matched_tags ?? [],
+  })),
 )
 
 const visibleProducts = computed(() => products.value.slice(0, visibleCount.value))
