@@ -17,6 +17,14 @@ from .services import calculate_after_tax_payout
 # 유저 프로필(SearchProfile)의 우대조건 플래그 ↔ 상품 태그 필드 매핑.
 _TAG_FIELDS = ["salary_transfer", "auto_transfer", "card_usage", "housing_subscription"]
 
+# 우대조건 원문이 사실상 비어있음을 뜻하는 값들(파싱 없이 단순 판정).
+_NO_CONDITION = {"", "없음", "해당없음"}
+
+
+def _has_conditions(raw):
+    """우대조건 원문에 실제 내용이 있으면 True. 비어있거나 '없음'류면 False."""
+    return (raw or "").strip() not in _NO_CONDITION
+
 
 # 추천 응답 한 건의 모양(문서용). 실제 값은 _build_item이 dict로 만든다.
 RecommendItemSerializer = inline_serializer(
@@ -130,10 +138,15 @@ class ProductRecommendView(APIView):
             # 4) 우대조건 태그 매칭 (T로 답한 게 있을 때만)
             matched = [t for t in wanted if getattr(product, f"tag_{t}")]
             if wanted:
-                if sort == "all" and len(matched) < len(wanted):
-                    continue  # AND: 전부 만족해야 통과
-                if sort != "all" and not matched:
-                    continue  # OR: 하나라도 만족
+                if sort == "all":
+                    # AND: 내가 고른 조건을 전부 만족해야 통과(무조건 상품도 제외됨)
+                    if len(matched) < len(wanted):
+                        continue
+                else:
+                    # OR: 매칭되거나, 우대조건이 아예 없는 상품(충족할 게 없어 누구에게나
+                    # 공정)이면 통과. "조건은 있는데 내 태그로 안 잡히는 상품"만 제외.
+                    if not matched and _has_conditions(product.special_condition_raw):
+                        continue
 
             # 대표 옵션 = 선택 금리 기준 세후수령액이 가장 큰 옵션
             best_option = None
