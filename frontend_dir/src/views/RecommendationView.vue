@@ -44,7 +44,6 @@
 
       <div class="w-px bg-slate-200" />
 
-      <!-- 오른쪽 메인 -->
       <main class="flex-1 px-14 pt-2">
         <div class="flex items-start justify-between">
           <div>
@@ -150,12 +149,13 @@ interface SortOption {
 }
 
 const sortOptions: SortOption[] = [
-  { apiSort: 'base', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
   { apiSort: 'max', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
+  { apiSort: 'base', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
+
   { apiSort: 'all', label: '우대금리 모두 만족한 적금', shortLabel: '우대 금리 순' },
 ]
 
-const currentSort = ref<ApiSort>('base')
+const currentSort = ref<ApiSort>('max')
 
 const currentSortLabel = computed(
   () => sortOptions.find((o) => o.apiSort === currentSort.value)?.shortLabel ?? '기본 금리 순',
@@ -200,9 +200,7 @@ const fetchProfile = async () => {
     if (data.card_usage) chips.push(CONDITION_LABELS.card_usage)
     if (data.housing_subscription) chips.push(CONDITION_LABELS.housing_subscription)
     conditionChips.value = chips
-  } catch {
-    // 조건 칩 없이 빈 상태로 유지
-  }
+  } catch {}
 }
 
 const fetchProducts = async () => {

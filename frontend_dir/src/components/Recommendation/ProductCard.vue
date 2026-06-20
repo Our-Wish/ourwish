@@ -1,15 +1,20 @@
 <template>
   <div
-    class="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/60"
+    class="group flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/60"
     @click="router.push({ name: 'savings-detail', params: { id: props.id } })"
   >
-    <div v-if="condition.length" class="mb-3 flex flex-wrap gap-2">
-      <span
-        v-for="tag in condition"
-        :key="tag"
-        class="rounded-2xl bg-indigo-50 px-2.5 py-0.5 text-xs font-light text-indigo-500"
-      >
-        {{ conditionLabel(tag) }}
+    <div class="mb-3 flex flex-wrap gap-2">
+      <template v-if="condition.length">
+        <span
+          v-for="tag in condition"
+          :key="tag"
+          class="rounded-2xl bg-indigo-50 px-2.5 py-1 text-xs font-light text-indigo-500"
+        >
+          {{ conditionLabel(tag) }}
+        </span>
+      </template>
+      <span v-else class="rounded-2xl bg-slate-100 px-2.5 py-1 text-xs font-light text-slate-400">
+        기본금리형
       </span>
     </div>
 
@@ -33,7 +38,7 @@
       </div>
     </div>
 
-    <div class="mt-4 flex items-end justify-between">
+    <div class="mt-auto flex items-end justify-between pt-4">
       <div>
         <p class="text-sm text-slate-400">예상 세후 수령액</p>
         <p class="mt-0.5 text-2xl font-extrabold text-slate-900">{{ formattedAmount }}만원</p>
