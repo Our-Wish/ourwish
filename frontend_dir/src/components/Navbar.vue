@@ -50,8 +50,6 @@ const { isAuthenticated } = storeToRefs(authStore)
 const route = useRoute()
 const isHome = computed(() => route.path === '/')
 
-const nickname = computed(() => authStore.user?.nickname ?? '')
-
 const logout = () => {
   authStore.logout()
 }
