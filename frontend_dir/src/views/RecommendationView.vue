@@ -70,11 +70,11 @@
           >
             <button
               v-for="opt in sortOptions"
-              :key="opt.filter"
+              :key="opt.apiSort"
               @click="selectSort(opt)"
               class="w-full px-5 py-3.5 text-left text-base font-medium transition"
               :class="
-                currentSort === opt.filter
+                currentSort === opt.apiSort
                   ? 'bg-indigo-500 text-white'
                   : 'text-slate-700 hover:bg-slate-50'
               "
@@ -131,35 +131,44 @@ const rawProducts = ref<any[]>([])
 const isLoading = ref(false)
 const showSortDropdown = ref(false)
 const visibleCount = ref(6)
-const currentSort = ref<FilterKey>('BASE')
 const authStore = useAuthStore()
-
 const conditionChips = ref<string[]>([])
 
+type ApiSort = 'base' | 'max' | 'all'
+
+const filterMap: Record<ApiSort, FilterKey> = {
+  base: 'BASE',
+  max: 'HIGH',
+  all: 'LOW',
+}
+
 interface SortOption {
-  filter: FilterKey
+  apiSort: ApiSort
   label: string
   shortLabel: string
 }
 
 const sortOptions: SortOption[] = [
-  { filter: 'BASE', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
-  { filter: 'HIGH', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
-  { filter: 'LOW', label: '우대금리 모두 만족한 적금', shortLabel: '우대 금리 순' },
+  { apiSort: 'base', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
+  { apiSort: 'max', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
+  { apiSort: 'all', label: '우대금리 모두 만족한 적금', shortLabel: '우대 금리 순' },
 ]
 
+const currentSort = ref<ApiSort>('base')
+
 const currentSortLabel = computed(
-  () => sortOptions.find((o) => o.filter === currentSort.value)?.shortLabel ?? '기본 금리 순',
+  () => sortOptions.find((o) => o.apiSort === currentSort.value)?.shortLabel ?? '기본 금리 순',
 )
 
 function selectSort(opt: SortOption) {
-  currentSort.value = opt.filter
+  currentSort.value = opt.apiSort
   showSortDropdown.value = false
+  fetchProducts()
 }
 
 const products = computed(() =>
   rawProducts.value.map((item: any) => {
-    const levelData = item.rate_by_difficulty?.[currentSort.value]
+    const levelData = item.rate_by_difficulty?.[filterMap[currentSort.value]]
     return {
       id: item.product_id,
       bankName: item.bank_name,
@@ -205,6 +214,7 @@ const fetchProducts = async () => {
       params: {
         term: goalStore.period,
         monthly_cap: goalStore.monthlyAmount * 10000,
+        sort: currentSort.value,
       },
     })
     rawProducts.value = data.results
