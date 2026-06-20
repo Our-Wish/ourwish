@@ -13,7 +13,7 @@ export type AuthUser = {
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: sessionStorage.getItem(ACCESS_KEY) as string | null,
-    user: null as AuthUser | null,
+    user: JSON.parse(sessionStorage.getItem('auth_user') ?? 'null') as AuthUser | null,
     showLoginModal: false,
     showSignupModal: false,
   }),
@@ -59,16 +59,19 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.setToken(null, null)
       this.user = null
+      sessionStorage.removeItem('auth_user')
     },
     async login(login_id: string, password: string) {
       const { data } = await api.post('/api/v1/accounts/login/', { login_id, password })
       this.setToken(data.access, data.refresh)
       this.user = data.member
+      sessionStorage.setItem('auth_user', JSON.stringify(data.member))
     },
     async signup(payload: { login_id: string; password: string; nickname: string }) {
       const { data } = await api.post('/api/v1/accounts/signup/', payload)
       this.setToken(data.access, data.refresh)
       this.user = data.member
+      sessionStorage.setItem('auth_user', JSON.stringify(data.member))
     },
   },
 })
