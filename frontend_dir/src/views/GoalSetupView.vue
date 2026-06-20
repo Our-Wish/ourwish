@@ -1,22 +1,22 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-16">
-    <div class="flex pl-40">
-      <div class="flex w-1/3 flex-col justify-between">
+    <div class="flex px-32">
+      <div class="flex w-1/3 flex-col pl-8 justify-between">
         <div>
           <p class="text-xl font-semibold text-blue-600">
             {{ step === 1 ? 'STEP 01' : 'STEP 02' }}
           </p>
           <h1 class="mt-3 text-5xl font-extrabold leading-tight text-slate-900">
             <template v-if="step === 1">얼마나 모을지<br />먼저 정해볼게요</template>
-            <template v-else>받을 수 있는<br />우대조건을 찾아볼게요</template>
+            <template v-else>더 높은 금리를<br />받을 수 있어요</template>
           </h1>
           <p class="mt-5 text-lg leading-relaxed text-slate-500">
             <template v-if="step === 1">
               저축 기간과 매달 넣을 금액을 알려주시면<br />목표에 맞는 적금 후보를 찾아드릴게요.
             </template>
             <template v-else>
-              실제로 받을 수 있는 금리는 사람마다 달라요.<br />회원님이 받을 수 있는 최적의
-              우대금리를 찾아드릴게요.
+              실제로 받을 수 있는 금리는 사람마다 달라요.<br />조건이 맞을수록 더 높은 금리를 받을
+              수 있어요.
             </template>
           </p>
         </div>
