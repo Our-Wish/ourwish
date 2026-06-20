@@ -2,6 +2,7 @@ from django.test import SimpleTestCase
 
 from apps.products.models import ProductOption
 from apps.products.services import calculate_after_tax_payout
+from apps.products.views import _has_conditions
 
 
 class AfterTaxPayoutTest(SimpleTestCase):
@@ -30,3 +31,15 @@ class AfterTaxPayoutTest(SimpleTestCase):
             self.MONTHLY, self.TERM, 0, ProductOption.IntrRateType.SIMPLE
         )
         self.assertEqual(result, 1_200_000)
+
+
+class HasConditionsTest(SimpleTestCase):
+    """우대조건 유무 판정 — 무조건 상품을 추천 OR필터에 통과시킬 때 사용."""
+
+    def test_no_condition_markers(self):
+        # 비어있거나 '없음'류(앞뒤 공백 포함)·None → 우대조건 없음
+        for raw in ["", "   ", "없음", " 해당없음 ", None]:
+            self.assertFalse(_has_conditions(raw))
+
+    def test_real_conditions(self):
+        self.assertTrue(_has_conditions("급여이체: 연 0.3%p"))
