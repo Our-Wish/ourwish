@@ -101,23 +101,19 @@
 
         <!-- Step 2 콘텐츠 -->
         <template v-else>
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col divide-y divide-slate-200">
+
             <!-- Q1: 나이 -->
-            <div
-              class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white/70 px-6 py-4"
-            >
+            <div class="flex items-center justify-between gap-4 py-5">
               <div>
-                <p class="text-base font-semibold text-slate-800">
-                  1. 현재 나이가 어떻게 되시나요 ?
-                </p>
-                <p class="mt-1 text-sm text-slate-400">
-                  청년 우대 상품이나 연령 제한 상품을 확인할 수 있어요.
-                </p>
+                <p class="text-base font-semibold text-slate-800">1. 현재 나이가 어떻게 되시나요 ?</p>
+                <p class="mt-1 text-sm text-slate-400">청년 우대 상품이나 연령 제한 상품을 확인할 수 있어요.</p>
               </div>
               <input
                 v-model="birthDate"
-                type="date"
-                class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="text"
+                placeholder="연도. 월. 일"
+                class="shrink-0 w-36 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-500 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -125,7 +121,7 @@
             <div
               v-for="q in ynQuestions"
               :key="q.key"
-              class="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/70 px-6 py-4"
+              class="flex items-center justify-between gap-4 py-5"
             >
               <div class="flex-1">
                 <p class="text-base font-semibold text-slate-800">{{ q.label }}</p>
@@ -134,32 +130,20 @@
               <div class="flex shrink-0 gap-2">
                 <button
                   @click="ynAnswers[q.key] = true"
-                  class="w-10 rounded-xl py-2 text-base font-bold transition"
-                  :class="
-                    ynAnswers[q.key] === true
-                      ? 'bg-blue-600 text-white'
-                      : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-400'
-                  "
-                >
-                  Y
-                </button>
+                  class="h-11 w-11 rounded-xl text-base font-bold transition"
+                  :class="ynAnswers[q.key] === true ? 'bg-blue-600 text-white' : 'border border-slate-200 bg-white text-slate-400 hover:border-slate-400'"
+                >Y</button>
                 <button
                   @click="ynAnswers[q.key] = false"
-                  class="w-10 rounded-xl py-2 text-base font-bold transition"
-                  :class="
-                    ynAnswers[q.key] === false
-                      ? 'bg-blue-600 text-white'
-                      : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-400'
-                  "
-                >
-                  N
-                </button>
+                  class="h-11 w-11 rounded-xl text-base font-bold transition"
+                  :class="ynAnswers[q.key] === false ? 'bg-blue-600 text-white' : 'border border-slate-200 bg-white text-slate-400 hover:border-slate-400'"
+                >N</button>
               </div>
             </div>
           </div>
 
           <!-- 추천받기 버튼 -->
-          <div>
+          <div class="pb-2">
             <button
               @click="onNext"
               :disabled="isLoading"
