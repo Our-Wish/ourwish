@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
@@ -230,6 +230,19 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
   housing: null,
 })
 
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/api/v1/search-profile/')
+    if (data.save_term) selectedPeriod.value = data.save_term
+    if (data.monthly_amount) monthlyAmount.value = data.monthly_amount / 10000
+    if (data.birth_date) birthDate.value = data.birth_date
+    if (data.salary_transfer !== undefined) ynAnswers.salary = data.salary_transfer
+    if (data.auto_transfer !== undefined) ynAnswers.auto = data.auto_transfer
+    if (data.card_usage !== undefined) ynAnswers.card = data.card_usage
+    if (data.housing_subscription !== undefined) ynAnswers.housing = data.housing_subscription
+  } catch {}
+})
+
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
 const afterTaxInterest = computed(() => {
   const interest =
@@ -242,11 +255,22 @@ const onNext = async () => {
   if (step.value === 1) {
     step.value++
   } else {
+    const unanswered = ynQuestions.some((q) => ynAnswers[q.key] === null)
+    if (!birthDate.value || unanswered) {
+      alert('모든 항목에 답변해주세요.')
+      return
+    }
+
     isLoading.value = true
     try {
-      await api.post('/api/v1/goals/', {
-        term_months: selectedPeriod.value,
-        monthly_cap: monthlyAmount.value * 10000,
+      await api.put('/api/v1/search-profile/', {
+        save_term: selectedPeriod.value,
+        monthly_amount: monthlyAmount.value * 10000,
+        birth_date: birthDate.value,
+        salary_transfer: ynAnswers.salary,
+        auto_transfer: ynAnswers.auto,
+        card_usage: ynAnswers.card,
+        housing_subscription: ynAnswers.housing,
       })
       goalStore.setGoal(selectedPeriod.value, monthlyAmount.value)
       router.push({ name: 'recommendation' })
