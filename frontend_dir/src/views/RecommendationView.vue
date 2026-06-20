@@ -182,23 +182,23 @@ const products = computed(() =>
 
 const visibleProducts = computed(() => products.value.slice(0, visibleCount.value))
 
+const CONDITION_LABELS = {
+  birth_date: '만 나이',
+  salary_transfer: '급여이체',
+  auto_transfer: '자동이체',
+  card_usage: '카드실적',
+  housing_subscription: '주택청약',
+} as const
+
 const fetchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
     const chips: string[] = []
-    if (data.birth_date) {
-      const birth = new Date(data.birth_date)
-      const today = new Date()
-      const age =
-        today.getFullYear() -
-        birth.getFullYear() -
-        (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0)
-      chips.push(`만 ${age}세`)
-    }
-    if (data.salary_transfer) chips.push('급여 이체')
-    if (data.auto_transfer) chips.push('자동이체')
-    if (data.card_usage) chips.push('카드 실적')
-    if (data.housing_subscription) chips.push('주택청약')
+    if (data.birth_date) chips.push(CONDITION_LABELS.birth_date)
+    if (data.salary_transfer) chips.push(CONDITION_LABELS.salary_transfer)
+    if (data.auto_transfer) chips.push(CONDITION_LABELS.auto_transfer)
+    if (data.card_usage) chips.push(CONDITION_LABELS.card_usage)
+    if (data.housing_subscription) chips.push(CONDITION_LABELS.housing_subscription)
     conditionChips.value = chips
   } catch {
     // 조건 칩 없이 빈 상태로 유지

@@ -3,7 +3,16 @@
     class="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/60"
     @click="router.push({ name: 'savings-detail', params: { id: props.id } })"
   >
-    <!-- 상단: 은행 로고 + 상품명 / 금리 -->
+    <div v-if="condition.length" class="mb-3 flex flex-wrap gap-2">
+      <span
+        v-for="tag in condition"
+        :key="tag"
+        class="rounded-2xl bg-indigo-50 px-2.5 py-0.5 text-xs font-light text-indigo-500"
+      >
+        {{ conditionLabel(tag) }}
+      </span>
+    </div>
+
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-center gap-3">
         <div
@@ -14,7 +23,7 @@
         </div>
         <div>
           <p class="text-sm text-slate-400">{{ bankName }} · 적금</p>
-          <p class="mt-0.5 text-base font-bold text-slate-900">{{ productName }}</p>
+          <p class="mt-1 text-base font-bold text-slate-900">{{ productName }}</p>
         </div>
       </div>
       <div class="shrink-0 text-right">
@@ -24,7 +33,6 @@
       </div>
     </div>
 
-    <!-- 하단: 수령액 + 자세히 보기 -->
     <div class="mt-4 flex items-end justify-between">
       <div>
         <p class="text-sm text-slate-400">예상 세후 수령액</p>
@@ -53,6 +61,16 @@ const props = defineProps<{
   baseRate: number
   condition: string[]
 }>()
+
+const CONDITION_LABELS: Record<string, string> = {
+  birth_date: '만 나이',
+  salary_transfer: '급여이체',
+  auto_transfer: '자동이체',
+  card_usage: '카드실적',
+  housing_subscription: '주택청약',
+}
+
+const conditionLabel = (tag: string) => CONDITION_LABELS[tag] ?? tag
 
 const bankInitial = computed(() => props.bankName.charAt(0))
 const formattedAmount = computed(() => props.amount.toLocaleString())
