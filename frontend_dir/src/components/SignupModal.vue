@@ -13,7 +13,7 @@
       </button>
 
       <div class="space-y-1">
-        <h1 class="text-4xl font-bold text-slate-950">회원가입</h1>
+        <h1 class="text-4xl font-semibold text-slate-950">회원가입</h1>
       </div>
 
       <p class="mt-3 text-base text-slate-500">회원가입하고 맞춤 적금 플랜을 추천받아보세요 :)</p>
@@ -93,8 +93,13 @@ const onSubmit = async () => {
   try {
     await authStore.signup(form)
     emit('close')
-  } catch {
-    errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
+  } catch (err: any) {
+    const data = err?.response?.data
+    if (data?.login_id) {
+      errorMessage.value = '이미 사용 중인 아이디입니다.'
+    } else {
+      errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
+    }
   } finally {
     loading.value = false
   }
