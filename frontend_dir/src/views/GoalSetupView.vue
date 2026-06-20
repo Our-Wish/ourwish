@@ -242,11 +242,22 @@ const onNext = async () => {
   if (step.value === 1) {
     step.value++
   } else {
+    const unanswered = ynQuestions.some((q) => ynAnswers[q.key] === null)
+    if (!birthDate.value || unanswered) {
+      alert('모든 항목에 답변해주세요.')
+      return
+    }
+
     isLoading.value = true
     try {
-      await api.post('/api/v1/goals/', {
-        term_months: selectedPeriod.value,
-        monthly_cap: monthlyAmount.value * 10000,
+      await api.put('/api/v1/search-profile/', {
+        save_term: selectedPeriod.value,
+        monthly_amount: monthlyAmount.value * 10000,
+        birth_date: birthDate.value,
+        salary_transfer: ynAnswers.salary,
+        auto_transfer: ynAnswers.auto,
+        card_usage: ynAnswers.card,
+        housing_subscription: ynAnswers.housing,
       })
       goalStore.setGoal(selectedPeriod.value, monthlyAmount.value)
       router.push({ name: 'recommendation' })
