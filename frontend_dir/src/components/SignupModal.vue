@@ -13,7 +13,7 @@
       </button>
 
       <div class="space-y-1">
-        <h1 class="text-4xl font-semibold text-slate-950">회원가입</h1>
+        <h1 class="mt-3 text-4xl font-semibold text-slate-950">회원가입</h1>
       </div>
 
       <p class="mt-3 text-base text-slate-500">회원가입하고 맞춤 적금 플랜을 추천받아보세요 :)</p>
