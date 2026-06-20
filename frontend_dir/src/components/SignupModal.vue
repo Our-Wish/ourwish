@@ -13,7 +13,7 @@
       </button>
 
       <div class="space-y-1">
-        <h1 class="text-4xl font-bold text-slate-950">회원가입</h1>
+        <h1 class="mt-3 text-4xl font-semibold text-slate-950">회원가입</h1>
       </div>
 
       <p class="mt-3 text-base text-slate-500">회원가입하고 맞춤 적금 플랜을 추천받아보세요 :)</p>
@@ -46,57 +46,6 @@
           />
         </div>
 
-        <div class="flex items-center gap-4">
-          <label class="ml-1.5 mb-2 block text-[17px] font-medium text-slate-600 whitespace-nowrap"
-            >생년월일</label
-          >
-          <input
-            v-model="form.birth_date"
-            type="date"
-            class="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
-
-        <div class="flex items-center gap-4">
-          <label class="ml-1.5 shrink-0 text-[17px] font-medium text-slate-600">직업</label>
-          <div class="flex gap-2">
-            <button
-              v-for="opt in jobOptions"
-              :key="opt.value"
-              type="button"
-              @click="form.job_status = opt.value"
-              :class="[
-                'rounded-xl px-5 py-2.5 text-base font-medium transition',
-                form.job_status === opt.value
-                  ? 'bg-slate-900 text-white'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-400',
-              ]"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <label class="ml-1.5 shrink-0 text-[17px] font-medium text-slate-600">결혼 여부</label>
-          <div class="flex gap-2">
-            <button
-              v-for="opt in maritalOptions"
-              :key="opt.value"
-              type="button"
-              @click="form.marital_status = opt.value"
-              :class="[
-                'rounded-xl px-5 py-2.5 text-base font-medium transition',
-                form.marital_status === opt.value
-                  ? 'bg-slate-900 text-white'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-400',
-              ]"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-
         <p v-if="errorMessage" class="text-base text-red-600">{{ errorMessage }}</p>
 
         <button
@@ -127,17 +76,6 @@ import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: []; openLogin: [] }>()
 
-const jobOptions = [
-  { value: 'STUDENT', label: '학생' },
-  { value: 'EMPLOYED', label: '직장인' },
-  { value: 'OTHER', label: '기타' },
-]
-
-const maritalOptions = [
-  { value: 'SINGLE', label: '미혼' },
-  { value: 'MARRIED', label: '기혼' },
-]
-
 const loading = ref(false)
 const errorMessage = ref('')
 
@@ -145,9 +83,6 @@ const form = reactive({
   login_id: '',
   password: '',
   nickname: '',
-  birth_date: '',
-  job_status: '',
-  marital_status: '',
 })
 
 const authStore = useAuthStore()
@@ -158,8 +93,13 @@ const onSubmit = async () => {
   try {
     await authStore.signup(form)
     emit('close')
-  } catch {
-    errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
+  } catch (err: any) {
+    const data = err?.response?.data
+    if (data?.login_id) {
+      errorMessage.value = '이미 사용 중인 아이디입니다.'
+    } else {
+      errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
+    }
   } finally {
     loading.value = false
   }

@@ -65,14 +65,7 @@ export const useAuthStore = defineStore('auth', {
       this.setToken(data.access, data.refresh)
       this.user = data.member
     },
-    async signup(payload: {
-      login_id: string
-      password: string
-      nickname: string
-      birth_date: string
-      job_status: string
-      marital_status: string
-    }) {
+    async signup(payload: { login_id: string; password: string; nickname: string }) {
       const { data } = await api.post('/api/v1/accounts/signup/', payload)
       this.setToken(data.access, data.refresh)
       this.user = data.member

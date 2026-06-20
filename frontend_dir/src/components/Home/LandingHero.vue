@@ -14,12 +14,12 @@
     <img
       :src="mainImg"
       aria-hidden="true"
-      class="pointer-events-none absolute -top-16 -left-20 w-208 rotate-[-18deg] opacity-60 drop-shadow-2xl"
+      class="pointer-events-none absolute top-4 left-8 w-120 rotate-[-18deg] opacity-60 drop-shadow-2xl"
     />
     <img
       :src="mainImg"
       aria-hidden="true"
-      class="pointer-events-none absolute -bottom-16 -right-20 w-3xl rotate-15 opacity-55 drop-shadow-2xl"
+      class="pointer-events-none absolute bottom-4 right-8 w-md rotate-15 opacity-55 drop-shadow-2xl"
     />
 
     <div class="relative z-10 flex flex-col items-center px-8 text-center">
@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import mainImg from '@/assets/mainImg.png'
+import mainImg from '@/assets/mainImg2.png'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
