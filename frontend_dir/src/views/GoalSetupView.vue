@@ -71,7 +71,7 @@
             </div>
 
             <div>
-              <p class="mb-3 text-base font-semibold text-slate-400">[수령액 간편 계산기]</p>
+              <p class="mb-3 text-base font-semibold text-slate-600">[수령액 간편 계산기]</p>
               <p class="text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
               <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
                 <span>원금 {{ principal }}만원</span>
@@ -84,7 +84,7 @@
                 >
               </div>
               <p class="mt-2 text-sm text-slate-400">
-                · 예상 수령액은 평균 금리(연 4.0%)를 기준으로 계산된 참고용 금액입니다.
+                * 예상 수령액은 평균 금리(연 4.0%)를 기준으로 계산된 참고용 금액입니다.
               </p>
             </div>
           </div>
