@@ -20,7 +20,7 @@
             </template>
           </p>
         </div>
-        <img :src="step === 1 ? hiWish : questionWish" class="mb-10 w-60 self-start" />
+        <img :src="step === 1 ? hiWish : questionWish" class="mt-10 w-60 self-start" />
       </div>
       <div class="w-px bg-slate-200" />
 
@@ -89,11 +89,10 @@
             </div>
           </div>
 
-          <!-- 다음 버튼 -->
           <div class="flex justify-end">
             <button
               @click="onNext"
-              class="rounded-2xl bg-slate-900 px-8 py-4 text-base font-semibold text-white transition hover:bg-slate-700"
+              class="cursor-pointer rounded-2xl mr-2 text-lg font-semibold transition hover:text-slate-400"
             >
               다음 단계로 →
             </button>
