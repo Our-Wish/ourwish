@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import mainImg from '@/assets/mainImg2.png'
+import mainImg from '@/assets/img/main/mainImg2.png'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 

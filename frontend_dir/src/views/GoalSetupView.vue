@@ -1,202 +1,242 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50">
-    <!-- 상단 헤더 -->
-    <header class="flex items-center justify-between px-5 py-4">
-      <button
-        @click="onBack"
-        class="flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+  <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-8">
+    <div class="flex px-32">
+      <div class="flex w-1/3 flex-col pl-8 justify-between">
+        <button
+          @click="step--"
+          :class="step === 1 ? 'invisible' : ''"
+          class="cursor-pointer self-start text-sm mb-2 text-slate-400 transition hover:text-slate-700"
         >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
-      <span class="text-2xl font-semibold text-slate-900 pb-8">목표 설정</span>
-      <span class="text-base font-medium text-slate-400"
-        >{{ step }}단계 · {{ step === 1 ? '기간 선택' : '월 저축 금액 선택' }}</span
-      >
-    </header>
+          ← 이전 단계로
+        </button>
+        <div>
+          <p class="text-xl font-semibold text-blue-600">
+            {{ step === 1 ? 'STEP 01' : 'STEP 02' }}
+          </p>
 
-    <!-- 프로그레스 바 -->
-    <div class="flex gap-1.5 px-5">
-      <div
-        class="h-1.5 flex-1 rounded-full transition-colors"
-        :class="step >= 1 ? 'bg-blue-600' : 'bg-slate-200'"
-      />
-      <div
-        class="h-1.5 flex-1 rounded-full transition-colors"
-        :class="step >= 2 ? 'bg-blue-600' : 'bg-slate-200'"
-      />
-    </div>
-
-    <!-- 콘텐츠 -->
-    <div class="flex flex-1 flex-col px-5 pt-10">
-      <!-- Step 1: 기간 선택 -->
-      <template v-if="step === 1">
-        <div class="mb-8">
-          <h1 class="text-3xl font-extrabold text-slate-900">언제까지 모을까요?</h1>
-          <p class="mt-2 text-slate-500">모으고 싶은 기간을 선택해주세요</p>
-        </div>
-
-        <div class="flex flex-col gap-3">
-          <button
-            v-for="option in periodOptions"
-            :key="option.value"
-            @click="selectedPeriod = option.value"
-            class="flex items-center justify-between rounded-2xl border-2 px-6 py-5 text-left transition"
-            :class="
-              selectedPeriod === option.value
-                ? 'border-blue-600 bg-blue-50'
-                : 'border-slate-200 bg-white hover:border-slate-300'
-            "
-          >
-            <div>
-              <p class="text-xl font-bold text-slate-900">{{ option.label }}</p>
-              <p class="mt-0.5 text-sm text-slate-400">{{ option.desc }}</p>
-            </div>
-            <div
-              v-if="selectedPeriod === option.value"
-              class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      </template>
-
-      <!-- Step 2: 월 납입액 -->
-      <template v-if="step === 2">
-        <div class="mb-8">
-          <h1 class="text-3xl font-extrabold leading-tight text-slate-900">
-            매달 얼마를<br />저축할 수 있나요?
+          <h1 class="mt-3 text-5xl font-extrabold leading-tight text-slate-900">
+            <template v-if="step === 1">얼마나 모을지<br />먼저 정해볼게요</template>
+            <template v-else>더 높은 금리를<br />받을 수 있어요</template>
           </h1>
-          <p class="mt-2 text-slate-500">가능한 금액을 선택하면 예상 수령액을 확인할 수 있어요.</p>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 bg-white p-6">
-          <p class="text-base text-slate-500">월 저축 금액</p>
-          <p class="mt-1 text-4xl font-extrabold text-slate-900">{{ monthlyAmount }}만원</p>
-
-          <div class="mt-6">
-            <input
-              v-model.number="monthlyAmount"
-              type="range"
-              :min="5"
-              :max="300"
-              :step="5"
-              class="w-full accent-blue-600"
-            />
-            <div class="mt-1 flex justify-between text-xs text-slate-400">
-              <span>5만원</span>
-              <span>300만원</span>
-            </div>
-          </div>
-
-          <div class="mt-5 flex flex-wrap gap-2">
-            <button
-              v-for="chip in amountChips"
-              :key="chip"
-              @click="monthlyAmount = chip"
-              class="rounded-full px-4 py-1.5 text-sm font-medium transition"
-              :class="
-                monthlyAmount === chip
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              "
-            >
-              {{ chip }}만원
-            </button>
-          </div>
-        </div>
-
-        <!-- 예상 금액 카드 -->
-        <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6">
-          <p class="text-base text-slate-800 pb-1">{{ selectedPeriod }}개월 후 예상 수령액</p>
-          <p class="mt-1 text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
-          <div class="mt-4 flex items-center gap-2 text-base">
-            <span class="text-slate-500">원금</span>
-            <span class="font-bold text-slate-900">{{ principal }}만원</span>
-            <span class="text-slate-300">|</span>
-            <span class="text-slate-500"
-              >예상 이자 <span class="text-sm text-slate-400">세후</span></span
-            >
-            <span class="font-bold text-blue-600">+{{ afterTaxInterest }}만원</span>
-          </div>
-          <p class="mt-4 text-sm text-slate-400">
-            * 다음 단계에서 우대금리 적용 여부를 직접 확인할 수 있어요.
+          <p class="mt-5 text-lg leading-relaxed text-slate-500">
+            <template v-if="step === 1">
+              저축 기간과 매달 넣을 금액을 알려주시면<br />목표에 맞는 적금 후보를 찾아드릴게요.
+            </template>
+            <template v-else>
+              실제로 받을 수 있는 금리는 사람마다 달라요.<br />조건이 맞을수록 더 높은 금리를 받을
+              수 있어요.
+            </template>
           </p>
         </div>
-      </template>
-    </div>
+        <img :src="step === 1 ? hiWish : fightingWish" class="mt-10 w-60 self-start" />
+      </div>
+      <div class="w-px bg-slate-200" />
 
-    <!-- 하단 버튼 -->
-    <div class="px-5 pb-8 pt-4">
-      <button
-        @click="onNext"
-        :disabled="isLoading"
-        class="w-full rounded-2xl bg-blue-600 py-4 text-lg font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
-      >
-        {{ isLoading ? '저장 중...' : step === 1 ? '다음' : '추천 상품 보기' }}
-      </button>
+      <div class="flex flex-1 flex-col justify-between px-16 pt-10">
+        <template v-if="step === 1">
+          <div class="flex flex-col gap-8">
+            <div>
+              <p class="mb-4 text-lg font-medium text-slate-700">1. 저축 기간</p>
+              <div class="flex gap-3">
+                <button
+                  v-for="option in periodOptions"
+                  :key="option.value"
+                  @click="selectedPeriod = option.value"
+                  class="flex-1 rounded-2xl border-2 py-3 text-base font-semibold transition"
+                  :class="
+                    selectedPeriod === option.value
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-400'
+                  "
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <p class="mb-4 text-lg font-medium text-slate-700">2. 월 저축 금액</p>
+              <div class="rounded-2xl border border-slate-200 bg-white/70 px-6 py-5">
+                <div class="flex items-center justify-between">
+                  <p class="text-2xl font-extrabold text-slate-900">{{ monthlyAmount }}만원</p>
+                </div>
+                <div class="mt-4">
+                  <input
+                    v-model.number="monthlyAmount"
+                    type="range"
+                    :min="5"
+                    :max="300"
+                    :step="5"
+                    class="w-full accent-blue-600"
+                  />
+                  <div class="mt-2 flex justify-between text-sm text-slate-400">
+                    <span>5만원</span>
+
+                    <span>300만원</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p class="mb-3 text-base font-semibold text-slate-600">[수령액 간편 계산기]</p>
+              <p class="text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
+              <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
+                <span>원금 {{ principal }}만원</span>
+                <span class="text-slate-300">|</span>
+                <span
+                  >예상 이자 세후
+                  <span class="font-semibold text-blue-500"
+                    >+ {{ afterTaxInterest }}만원</span
+                  ></span
+                >
+              </div>
+              <p class="mt-2 text-sm text-slate-400">
+                * 예상 수령액은 평균 금리(연 4.0%)를 기준으로 계산된 참고용 금액입니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              @click="onNext"
+              class="cursor-pointer rounded-2xl mr-2 text-lg font-semibold transition hover:text-slate-400"
+            >
+              다음 단계로 →
+            </button>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="flex flex-col gap-8">
+            <div class="flex flex-col divide-y divide-slate-200">
+              <div class="flex items-center justify-between gap-4 py-5">
+                <div>
+                  <p class="text-base font-semibold text-slate-800">
+                    1. 현재 나이가 어떻게 되시나요 ?
+                  </p>
+                  <p class="mt-1 text-sm text-slate-400">
+                    청년 우대 상품이나 연령 제한 상품을 확인할 수 있어요.
+                  </p>
+                </div>
+                <input
+                  v-model="birthDate"
+                  type="date"
+                  class="shrink-0 w-36 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-500 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div
+                v-for="q in ynQuestions"
+                :key="q.key"
+                class="flex items-center justify-between gap-4 py-5"
+              >
+                <div class="flex-1">
+                  <p class="text-base font-semibold text-slate-800">{{ q.label }}</p>
+                  <p class="mt-1 text-sm text-slate-400">{{ q.desc }}</p>
+                </div>
+                <div class="flex shrink-0 gap-2">
+                  <button
+                    @click="ynAnswers[q.key] = true"
+                    class="h-11 w-11 rounded-xl text-base font-bold transition"
+                    :class="
+                      ynAnswers[q.key] === true
+                        ? 'bg-blue-600 text-white'
+                        : 'border border-slate-200 bg-white text-slate-400 hover:border-slate-400'
+                    "
+                  >
+                    Y
+                  </button>
+                  <button
+                    @click="ynAnswers[q.key] = false"
+                    class="h-11 w-11 rounded-xl text-base font-bold transition"
+                    :class="
+                      ynAnswers[q.key] === false
+                        ? 'bg-blue-600 text-white'
+                        : 'border border-slate-200 bg-white text-slate-400 hover:border-slate-400'
+                    "
+                  >
+                    N
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              @click="onNext"
+              :disabled="isLoading"
+              class="w-full rounded-2xl bg-slate-900 py-4 text-base font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
+            >
+              {{ isLoading ? '저장 중...' : '나에게 맞는 적금 상품 추천받기' }}
+            </button>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
+import hiWish from '@/assets/img/wishes/hiWish.png'
+import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
 const router = useRouter()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const monthlyAmount = ref(50)
 const isLoading = ref(false)
+const birthDate = ref('')
 const goalStore = useGoalStore()
 
 const periodOptions = [
-  { value: 3, label: '3개월', desc: '빠르게 모으기' },
-  { value: 6, label: '6개월', desc: '단기 목표' },
-  { value: 12, label: '12개월', desc: '균형 있게 모으기 (가장 인기🔥)' },
-  { value: 24, label: '24개월', desc: '여유 있게 모으기' },
-  { value: 36, label: '36개월', desc: '장기 플랜' },
+  { value: 3, label: '3개월' },
+  { value: 6, label: '6개월' },
+  { value: 12, label: '12개월' },
+  { value: 24, label: '24개월' },
+  { value: 36, label: '36개월' },
 ]
 
-const amountChips = [10, 30, 50, 100]
+const ynQuestions = [
+  {
+    key: 'salary',
+    label: '2. 월급이나 연금을 이 은행 계좌로 받을 수 있나요 ?',
+    desc: '급여이체 우대조건이 있는 상품을 추천할 때 활용해요.',
+  },
+  {
+    key: 'auto',
+    label: '3. 매달 자동이체로 적금을 납입할 수 있나요 ?',
+    desc: '가장 흔한 우대조건 중 하나에요.',
+  },
+  {
+    key: 'card',
+    label: '4. 이 은행 카드로 매달 10만원 이상 쓸 수 있나요 ?',
+    desc: '카드 실적 우대금리 적용 여부를 확인해요.',
+  },
+  {
+    key: 'housing',
+    label: '5. 주택청약종합저축 통장을 가지고 있나요 ?',
+    desc: '청약 보유 고객에게 우대금리를 제공하는 상품이 있어요.',
+  },
+]
 
-// 적금 이자 계산 (연 4.5%, 세후 15.4% 공제)
+const ynAnswers = reactive<Record<string, boolean | null>>({
+  salary: null,
+  auto: null,
+  card: null,
+  housing: null,
+})
+
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
 const afterTaxInterest = computed(() => {
   const interest =
-    ((monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) * (0.045 / 12)
+    ((monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) * (0.04 / 12)
   return Math.round(interest * (1 - 0.154))
 })
 const totalAmount = computed(() => principal.value + afterTaxInterest.value)
-
-const onBack = () => {
-  if (step.value === 1) router.push({ name: 'home' })
-  else step.value--
-}
 
 const onNext = async () => {
   if (step.value === 1) {
