@@ -1,26 +1,30 @@
-"""가입(Enrollment) 도메인에서 쓰는 날짜 계산 유틸.
-
-만기일(maturity_date)은 #10 목록 조회와 #13 마이페이지가 모두 쓰므로
-한 곳에 모아 두고 재사용한다.
-"""
-import calendar
+"""가입(Enrollment) 도메인 날짜·게이지 유틸."""
 from datetime import date
 
 
-def add_months(base_date, months):
-    """base_date에 months개월을 더한 날짜를 돌려준다.
+def months_between(start, end):
+    """start~end 사이 '완료된 개월 수'. end가 start보다 이르거나 같으면 0.
 
-    파이썬 기본 date에는 '몇 개월 더하기'가 없어서 직접 계산한다.
-    1월 31일 + 1개월처럼 그달에 없는 날이 되면 그달의 말일로 맞춘다.
-    (예: 2025-01-31 + 1개월 → 2025-02-28)
+    예: 2025-06-20 ~ 2026-06-20 → 12개월. 2025-06-20 ~ 2026-06-19 → 11개월(하루 모자람).
     """
-    # 0부터 세는 '달 인덱스'로 바꿔 계산하면 연도 넘김이 쉽다.
-    # 예: 2025-12(=index 11) + 1 → index 12 → 2026-01
-    month_index = base_date.month - 1 + months
-    year = base_date.year + month_index // 12   # 12로 나눈 몫 = 넘어간 연도 수
-    month = month_index % 12 + 1                 # 나머지 = 그 해의 달(1~12)
+    if end <= start:
+        return 0
+    months = (end.year - start.year) * 12 + (end.month - start.month)
+    if end.day < start.day:  # 일(day)이 아직 안 찼으면 한 달 덜 친다
+        months -= 1
+    return max(months, 0)
 
-    # 그 달의 마지막 날(28~31)을 구해 day가 넘치지 않게 자른다.
-    last_day = calendar.monthrange(year, month)[1]
-    day = min(base_date.day, last_day)
-    return date(year, month, day)
+
+def calculate_achievement_gauge(start_date, maturity_date, today=None):
+    """달성 게이지(%) — 금액 기반.
+
+    월납입액이 일정하다고 보면
+      (월납입 × 경과개월) / (월납입 × 총개월) = 경과개월 / 총개월
+    이라 개월 비율로 계산한다. 만기를 지났으면 100%로 막는다.
+    """
+    today = today or date.today()
+    total = months_between(start_date, maturity_date)
+    if total <= 0:
+        return 0.0
+    elapsed = min(months_between(start_date, today), total)
+    return round(elapsed / total * 100, 1)

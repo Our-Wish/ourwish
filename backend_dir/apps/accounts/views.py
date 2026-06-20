@@ -1,6 +1,3 @@
-from datetime import date
-
-from django.db.models import Prefetch, Sum
 from drf_spectacular.utils import (
     OpenApiParameter,
     extend_schema,
@@ -14,15 +11,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
-
-from apps.enrollments.models import Enrollment, PaymentRecord
-from apps.enrollments.utils import add_months
-from .models import Member
+from .models import Member, SearchProfile
 from .serializers import (
     SignupSerializer,
     LoginSerializer,
-    MemberGoalAmountSerializer,
-    MypageResponseSerializer,
+    SearchProfileSerializer,
 )
 
 
@@ -165,129 +158,34 @@ class TokenRefreshView(APIView):
             raise InvalidToken(e.args[0])
 
 
-class MemberGoalAmountView(APIView):
+class SearchProfileView(APIView):
+    """조회/추천 프로필 — 회원당 1개. GET=prefill 조회, PUT=저장/수정."""
+
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        request=MemberGoalAmountSerializer,
-        responses={200: MemberGoalAmountSerializer},
-        summary="최종 목표 금액 수정 (#14)",
+        responses={200: SearchProfileSerializer},
+        summary="조회 프로필 조회 (재방문 prefill)",
     )
-    def patch(self, request):
-        serializer = MemberGoalAmountSerializer(request.user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data)
-
-
-class MypageView(APIView):
-    """#13 GET /mypage/ — 마이페이지 전체 데이터(게이지·납입현황 종합)."""
-
-    permission_classes = [IsAuthenticated]
-    RECENT_PAYMENTS_LIMIT = 3  # 가입별로 최근 납입 몇 건을 내려줄지
-
-    @extend_schema(responses=MypageResponseSerializer)
     def get(self, request):
-        member = request.user
-        today = date.today()
-
-        # 내 가입 + 상품/은행 JOIN + 납입레코드(최신순) 한 번에 로딩.
-        enrollments = (
-            Enrollment.objects.filter(member=member)
-            .select_related("product", "product__bank")
-            .prefetch_related(
-                Prefetch(
-                    "payment_records",
-                    queryset=PaymentRecord.objects.order_by("-scheduled_date"),
-                )
+        profile = getattr(request.user, "search_profile", None)
+        if profile is None:
+            return Response(
+                {"detail": "조회 프로필이 없습니다."},
+                status=status.HTTP_404_NOT_FOUND,
             )
-            .order_by("-enrolled_at")
+        return Response(SearchProfileSerializer(profile).data)
+
+    @extend_schema(
+        request=SearchProfileSerializer,
+        responses={200: SearchProfileSerializer},
+        summary="조회 프로필 저장/수정 (추천받기 제출)",
+    )
+    def put(self, request):
+        serializer = SearchProfileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile, _ = SearchProfile.objects.update_or_create(
+            member=request.user,
+            defaults=serializer.validated_data,
         )
-
-        enrollment_payloads = []
-        total_saved_payout = 0
-        ddays = []
-
-        for enrollment in enrollments:
-            payments = list(enrollment.payment_records.all())  # 이미 최신순 정렬됨
-            paid_amount_total = sum(p.amount for p in payments)
-            plan_total = enrollment.monthly_amount * enrollment.term_months  # 만기까지 총 납입 예정액
-
-            # 개별 게이지 = 납입 누계 / 만기 총 납입예정 × 100
-            individual_gauge = (
-                round(paid_amount_total / plan_total * 100, 1) if plan_total else 0.0
-            )
-            # ② 현재 세후 수령액 추정 = 박제된 만기 수령액을 납입 진척도로 안분
-            current_payout_estimate = (
-                round(enrollment.expected_payout_at_maturity * paid_amount_total / plan_total)
-                if plan_total
-                else 0
-            )
-            total_saved_payout += current_payout_estimate
-
-            maturity_date = add_months(enrollment.enrolled_at, enrollment.term_months)
-            dday = (maturity_date - today).days
-            ddays.append(dday)
-
-            enrollment_payloads.append(
-                {
-                    "enrollment_id": enrollment.id,
-                    "product_id": enrollment.product_id,
-                    "product_name": enrollment.product.product_name,
-                    "bank_name": enrollment.product.bank.bank_name,
-                    "monthly_amount": enrollment.monthly_amount,
-                    "term_months": enrollment.term_months,
-                    "transfer_day": enrollment.transfer_day,
-                    "enrolled_at": enrollment.enrolled_at,
-                    "maturity_date": maturity_date,
-                    "dday": dday,
-                    "expected_payout_at_maturity": enrollment.expected_payout_at_maturity,
-                    "individual_gauge": individual_gauge,
-                    "current_payout_estimate": current_payout_estimate,
-                    "paid_amount_total": paid_amount_total,
-                    "recent_payments": [
-                        {
-                            "record_id": p.id,
-                            "scheduled_date": p.scheduled_date,
-                            "amount": p.amount,
-                            "status": p.status,
-                            "is_modified": p.is_modified,
-                        }
-                        for p in payments[: self.RECENT_PAYMENTS_LIMIT]
-                    ],
-                }
-            )
-
-        # 이번 달 실제 납입(PAID) 합계
-        monthly_transfer_total = (
-            PaymentRecord.objects.filter(
-                enrollment__member=member,
-                status=PaymentRecord.Status.PAID,
-                scheduled_date__year=today.year,
-                scheduled_date__month=today.month,
-            ).aggregate(total=Sum("amount"))["total"]
-            or 0
-        )
-
-        # 전체 게이지: 목표금액이 없으면 null
-        if member.total_goal_amount:
-            overall_gauge = round(total_saved_payout / member.total_goal_amount * 100, 1)
-        else:
-            overall_gauge = None
-
-        data = {
-            "member": {
-                "nickname": member.nickname,
-                "total_goal_amount": member.total_goal_amount,
-            },
-            "summary": {
-                "overall_gauge": overall_gauge,
-                "total_saved_payout": total_saved_payout,
-                "enrollment_count": len(enrollment_payloads),
-                "monthly_transfer_total": monthly_transfer_total,
-                "nearest_maturity_dday": min(ddays) if ddays else None,
-            },
-            "enrollments": enrollment_payloads,
-        }
-        return Response(data)
+        return Response(SearchProfileSerializer(profile).data)

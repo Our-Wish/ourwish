@@ -1,67 +1,40 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Product, PreferentialCondition
-from .services import calculate_rate_by_difficulty
+from .models import Product, ProductOption
 
 
-class RateLevelSerializer(serializers.Serializer):
-    """rate_by_difficulty의 한 난이도(BASE/LOW/MID/HIGH) 모양 — Swagger 문서화 전용.
+class ProductOptionSerializer(serializers.ModelSerializer):
+    """상세의 옵션 한 개 — save_term·금리타입·base/max만(난이도 계산 제거)."""
 
-    실제 값은 services.calculate_rate_by_difficulty가 dict로 만든다.
-    """
-
-    bonus_rate = serializers.FloatField(help_text="그 난이도에서 더해지는 우대금리 합(%p)")
-    expected_rate = serializers.FloatField(
-        help_text="예상 적용금리 = min(base_rate + bonus_rate, max_rate)"
-    )
-    expected_payout = serializers.IntegerField(
-        required=False, help_text="세후 수령액. 추천 목록(#7)에만 포함, 상세(#8)엔 없음"
-    )
-    condition_ids = serializers.ListField(
-        child=serializers.IntegerField(), help_text="그 난이도에서 켜지는 우대조건 id 배열"
-    )
-    summary_label = serializers.CharField(
-        allow_null=True, help_text="난이도 조건을 쉽게 풀어쓴 AI 요약. BASE는 항상 null"
-    )
-
-
-class RateByDifficultySerializer(serializers.Serializer):
-    """난이도별 누적 예상금리 — BASE=기본금리, LOW·MID·HIGH는 누적(MID=LOW+MID). 문서화 전용."""
-
-    BASE = RateLevelSerializer()
-    LOW = RateLevelSerializer()
-    MID = RateLevelSerializer()
-    HIGH = RateLevelSerializer()
-
-
-class ProductOptionDetailSerializer(serializers.Serializer):
-    """#8 상세의 옵션 한 개 모양 — 문서화 전용. 실제 직렬화는 get_options가 dict로 만든다."""
-
-    save_term = serializers.IntegerField()
-    intr_rate_type = serializers.CharField()
-    rsrv_type = serializers.CharField()
     base_rate = serializers.FloatField()
     max_rate = serializers.FloatField(allow_null=True)
-    rate_by_difficulty = RateByDifficultySerializer()
-
-
-class PreferentialConditionSerializer(serializers.ModelSerializer):
-    condition_id = serializers.IntegerField(source="id", read_only=True)
 
     class Meta:
-        model = PreferentialCondition
-        fields = ["condition_id", "label", "friendly_label", "difficulty", "rate"]
+        model = ProductOption
+        fields = ["save_term", "intr_rate_type", "rsrv_type", "base_rate", "max_rate"]
+
+
+class ProductTagSerializer(serializers.Serializer):
+    """상품이 제공하는 매칭 태그 4개(문서화용)."""
+
+    salary_transfer = serializers.BooleanField()
+    auto_transfer = serializers.BooleanField()
+    card_usage = serializers.BooleanField()
+    housing_subscription = serializers.BooleanField()
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    """#8 상품 상세. FSS 원문 필드 + 우대조건 전문 + AI 요약 + 태그/연령."""
+
     product_id = serializers.IntegerField(source="id", read_only=True)
     bank_name = serializers.CharField(source="bank.bank_name", read_only=True)
     bank_type = serializers.CharField(source="bank.bank_type", read_only=True)
     base_rate = serializers.SerializerMethodField()
     max_rate = serializers.SerializerMethodField()
-    options = serializers.SerializerMethodField()
-    conditions = PreferentialConditionSerializer(many=True, read_only=True)
+    tags = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
+    options = ProductOptionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -70,19 +43,21 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "bank_name",
             "bank_type",
             "product_name",
-            "join_way",
-            "has_bonus",
-            "base_rate",
-            "max_rate",
+            # FSS 원문 5필드(문자열 그대로 노출)
             "join_member",
+            "join_way",
             "max_limit",
             "maturity_interest",
             "etc_note",
-            "join_summary",
-            "maturity_summary",
-            "etc_summary",
+            "special_condition_raw",  # 우대조건 전문(파싱 없이)
+            "ai_summary",
+            "tags",
+            "age_min",
+            "age_max",
+            "is_favorited",
+            "base_rate",
+            "max_rate",
             "options",
-            "conditions",
         ]
 
     def _best_option(self, obj):
@@ -93,50 +68,34 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_base_rate(self, obj) -> float:
         best = self._best_option(obj)
-        return best.base_rate if best else None
+        return float(best.base_rate) if best else None
 
     def get_max_rate(self, obj) -> float:
         best = self._best_option(obj)
-        return best.max_rate if best else None
+        if best and best.max_rate is not None:
+            return float(best.max_rate)
+        return None
 
-    @extend_schema_field(ProductOptionDetailSerializer(many=True))
-    def get_options(self, obj):
-        # 옵션마다 난이도별 누적 금리(rate_by_difficulty)를 함께 내려준다.
-        # 상세 화면은 납입액이 없어 expected_payout 없이(=금리만) 계산한다.
-        conditions = list(obj.conditions.all())
-        summary_labels = {
-            "LOW": obj.summary_label_low,
-            "MID": obj.summary_label_mid,
-            "HIGH": obj.summary_label_high,
+    @extend_schema_field(ProductTagSerializer)
+    def get_tags(self, obj):
+        return {
+            "salary_transfer": obj.tag_salary_transfer,
+            "auto_transfer": obj.tag_auto_transfer,
+            "card_usage": obj.tag_card_usage,
+            "housing_subscription": obj.tag_housing_subscription,
         }
-        return [
-            {
-                "save_term": option.save_term,
-                "intr_rate_type": option.intr_rate_type,
-                "rsrv_type": option.rsrv_type,
-                "base_rate": float(option.base_rate),
-                "max_rate": (
-                    float(option.max_rate) if option.max_rate is not None else None
-                ),
-                "rate_by_difficulty": calculate_rate_by_difficulty(
-                    option, conditions, summary_labels
-                ),
-            }
-            for option in obj.options.all()
-        ]
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_favorited(self, obj):
+        # 뷰가 context로 넣어준 현재 유저의 찜 여부(하트 채움 표시용).
+        return self.context.get("is_favorited", False)
 
 
 class RecommendQuerySerializer(serializers.Serializer):
-    """추천 API의 쿼리 파라미터(term, monthly_cap, filter) 검증용.
+    """추천 목록 정렬 기준(쿼리 파라미터).
 
-    DB 모델을 만들거나 저장하는 게 아니라 '입력값 검증'만 하므로
-    ModelSerializer가 아니라 일반 Serializer를 쓴다.
+    base = 기본금리로 계산한 세후수령액순, max = 최고금리로 계산한 수령액순,
+    all  = 내가 고른 우대조건을 전부 만족(AND)하는 상품만 추려 최고금리 수령액순.
     """
 
-    term = serializers.ChoiceField(choices=[3, 6, 12, 24, 36])
-    monthly_cap = serializers.IntegerField(min_value=1)
-    # 정렬 기준 난이도. 응답엔 BASE/LOW/MID/HIGH 모두 담고, 이 값의 세후수령액으로 정렬한다.
-    # BASE = 우대조건 하나도 안 챙긴 기본금리.
-    difficulty = serializers.ChoiceField(
-        choices=["BASE", "LOW", "MID", "HIGH"], default="BASE"
-    )
+    sort = serializers.ChoiceField(choices=["base", "max", "all"], default="base")

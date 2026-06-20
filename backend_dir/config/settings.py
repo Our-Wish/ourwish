@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.products",
     "apps.goals",
     "apps.enrollments",
+    "apps.favorites",
 ]
 
 MIDDLEWARE = [
