@@ -36,7 +36,7 @@
           @click="goToMyPage"
           class="rounded-2xl border border-slate-300/70 bg-white/70 px-12 py-4 text-base font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white active:scale-95"
         >
-          MY PAGE
+          나의 적금 관리
         </button>
 
         <button
