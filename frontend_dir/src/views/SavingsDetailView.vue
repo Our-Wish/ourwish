@@ -135,6 +135,7 @@ import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
 import { bankColorMap } from '@/constants/bankColors'
 import { TAG_LABELS } from '@/constants/tagLabels'
+import type { ProductDetail } from '@/types/product'
 import { BANK_URL_MAP } from '@/constants/bankUrls'
 import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
@@ -148,24 +149,6 @@ const productId = computed(() => Number(route.params.id))
 
 const isLoading = ref(false)
 const isFavorite = ref(false)
-
-type Condition = { label: string; value: string }
-
-
-type ProductDetail = {
-  id: number
-  bankName: string
-  bankColor: string
-  productName: string
-  baseRate: number
-  maxRate: number
-  intr_rate_type: string
-  rsrv_type: string
-  conditions: Condition[]
-  specialCondition: string
-  aiSummaries: string[]
-  tags: string[]
-}
 
 const product = ref<ProductDetail | null>(null)
 

@@ -87,15 +87,10 @@
 </template>
 
 <script setup lang="ts">
+import type { ProductDetail } from '@/types/product'
+
 defineProps<{
-  product: {
-    bankName: string
-    bankColor: string
-    productName: string
-    baseRate: number
-    maxRate: number
-    tags: string[]
-  }
+  product: Pick<ProductDetail, 'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags'>
   isFavorite: boolean
   bonusRate: number
   bankUrl: string
