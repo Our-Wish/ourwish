@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.db.models import Q
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers, status
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.favorites.models import Favorite
+from .llm import stream_chat_reply
 from .models import Product
 from .serializers import ProductDetailSerializer, RecommendQuerySerializer
 from .services import calculate_after_tax_payout
@@ -189,3 +191,50 @@ class ProductRecommendView(APIView):
             "expected_payout": expected_payout,
             "matched_tags": matched_tags,
         }
+
+
+class ProductChatView(APIView):
+    """상품 상세 AI 챗봇 — 대화를 받아 GMS 답변을 '스트리밍'으로 흘려보낸다.
+
+    대화는 프론트가 보관(백엔드 stateless). body 예: {"messages": [{role, content}, ...]}.
+    응답은 JSON이 아니라 text/plain '스트림'(답변 조각이 실시간으로 흘러나옴).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=inline_serializer(
+            name="ChatRequest",
+            fields={"messages": serializers.ListField(child=serializers.DictField())},
+        ),
+        summary="상품 상세 AI 챗봇 (스트리밍, #108)",
+        description="대화 배열을 받아 GMS 답변을 text/plain 스트림으로 반환.",
+    )
+    def post(self, request, product_id):
+        product = get_object_or_404(
+            Product.objects.select_related("bank"), id=product_id
+        )
+
+        messages = request.data.get("messages")
+        # 내용 있는 user 질문이 하나라도 있어야 함(없으면 스트림 열기 전에 400).
+        has_question = isinstance(messages, list) and any(
+            isinstance(m, dict)
+            and m.get("role") == "user"
+            and (m.get("content") or "").strip()
+            for m in messages
+        )
+        if not has_question:
+            return Response(
+                {"detail": "messages 배열에 user 질문이 필요해요."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 제너레이터를 그대로 넘기면, 답변 조각이 생기는 대로 클라이언트로 흘러나간다.
+        response = StreamingHttpResponse(
+            stream_chat_reply(product, messages),
+            content_type="text/plain; charset=utf-8",
+        )
+        # nginx가 응답을 모아뒀다 한꺼번에 주지 않도록(=실시간 스트리밍) 끄는 헤더.
+        response["X-Accel-Buffering"] = "no"
+        response["Cache-Control"] = "no-cache"
+        return response

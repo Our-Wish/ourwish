@@ -260,3 +260,113 @@ def generate_ai_summary(product):
     if not isinstance(terms, list):
         terms = []
     return _render_summary(summary, terms[:1])  # 어려운 용어는 1개만 보여준다
+
+
+# ── 3) AI 챗봇 (상품 상세 실시간 Q&A, 스트리밍) ────────────────
+# 다른 LLM 기능과 달리 "유저 요청 시 실시간" 호출하는 유일한 예외.
+# 대화는 프론트가 보관하고 매 요청에 통째로 보내므로, 백엔드는
+# (1) 최근 N턴만 자르고 (2) 그 상품 데이터를 developer 메시지로 주입해 GMS에 넘긴다.
+# 답변은 조각조각(스트리밍) 흘려보낸다. (stateless: 저장 안 함)
+_CHAT_TURNS = 5  # 최근 N턴(질문1+답1=1턴)만 GMS에 보냄 → 토큰·비용 가드
+_CHAT_ROLES = {"user", "assistant"}  # 프론트가 보낼 수 있는 역할(이외는 무시)
+
+
+def _build_chat_instruction(product):
+    """그 상품 데이터 + 역할/답변 지침을 담은 developer(=system 역할) 프롬프트."""
+    return (
+        f"너는 적금 상품 '{product.product_name}'({product.bank.bank_name})에 대해 "
+        "알려주는, 금융을 잘 모르는 사회초년생을 다정하게 도와주는 선배 같은 안내자야. "
+        "쉬운 존댓말로 따뜻하지만 깔끔하게 답해. (이모지는 쓰지 마, 보통 2~4문장)\n\n"
+        "답변 지침:\n"
+        "- 사용자가 물어본 금융 용어·개념은 무엇이든 쉽게 설명해줘(흔한 말도 물어보면 당연히 설명).\n"
+        "- 단, 이 상품의 구체적인 수치·조건(금리·한도·기간 등)은 아래 [상품 정보]에 있는 것만 "
+        "말하고, 없으면 지어내지 말고 '이 상품은 그 부분이 제공된 정보에 없어요'라고 솔직히 알려줘.\n"
+        "- 묻지 않았는데 괄호로 용어를 자동 풀이하는 건 평잔·고시금리·고시이율 같은 진짜 어려운 "
+        "용어만 해. 적금·우대금리·만기처럼 흔한 말은 자동 풀이는 생략해.\n"
+        "- 상품명·가입 대상처럼 명확한 사실은 군더더기 없이 바로 답해. "
+        "'은행에서 확인하세요'·'참고용' 같은 안내는 정보에 없거나 불확실한 구체 수치를 "
+        "답할 때만 붙이고, 매 답변마다 붙이지 마.\n"
+        "- 가입을 권유하거나('가입하세요'), 단정하거나, 수익을 보장하는 말은 하지 마.\n"
+        "- 이 상품과 전혀 무관한 질문이면 정중히 이 상품 관련 질문으로 돌려줘.\n\n"
+        "[상품 정보]\n"
+        f"가입 대상: {product.join_member or '정보 없음'}\n"
+        f"가입 방법: {product.join_way or '정보 없음'}\n"
+        f"납입 한도: {product.max_limit or '정보 없음'}\n"
+        f"만기 후 이자: {product.maturity_interest or '정보 없음'}\n"
+        f"기타 유의사항: {product.etc_note or '정보 없음'}\n"
+        f"우대조건:\n{product.special_condition_raw or '없음'}\n"
+    )
+
+
+def _trim_history(messages):
+    """프론트가 보낸 대화에서 user/assistant만 추려 최근 N턴(2*N개)만 남긴다."""
+    cleaned = [
+        {"role": m["role"], "content": m["content"].strip()}
+        for m in messages
+        if isinstance(m, dict)
+        and m.get("role") in _CHAT_ROLES
+        and isinstance(m.get("content"), str)
+        and m["content"].strip()
+    ]
+    return cleaned[-(_CHAT_TURNS * 2):]
+
+
+def _stream_gms(messages):
+    """GMS를 stream 모드로 호출 → 답변 텍스트 조각을 차례로 yield. 실패 시 안내문."""
+    if not settings.GMS_API_KEY:
+        logger.warning("GMS_API_KEY 미설정 — LLM 호출 건너뜀")
+        yield "죄송해요, 지금은 답변을 드릴 수 없어요."
+        return
+    try:
+        res = requests.post(
+            settings.GMS_API_URL,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.GMS_API_KEY}",
+            },
+            json={
+                "model": settings.GMS_MODEL,
+                "reasoning_effort": "low",
+                "messages": messages,
+                "stream": True,  # ← GMS가 토큰을 조각조각(SSE)으로 보내게
+            },
+            stream=True,  # ← requests도 응답을 통째로 안 받고 흘려받게
+            timeout=_TIMEOUT,
+        )
+        res.raise_for_status()
+        # GMS는 'data: {json}' 줄들을 보냄. 각 줄에서 delta.content만 뽑아 흘린다.
+        for line in res.iter_lines(decode_unicode=True):
+            if not line or not line.startswith("data:"):
+                continue
+            data = line[len("data:"):].strip()
+            if data == "[DONE]":  # 끝 신호
+                break
+            try:
+                chunk = json.loads(data)
+            except json.JSONDecodeError:
+                continue
+            piece = chunk["choices"][0].get("delta", {}).get("content")
+            if piece:
+                yield piece
+    except requests.HTTPError as exc:
+        body = exc.response.text[:300] if exc.response is not None else ""
+        logger.warning("GMS 스트리밍 실패: %s | %s", exc, body)
+        yield "죄송해요, 답변을 가져오지 못했어요."
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        logger.warning("GMS 스트리밍 실패: %s", exc)
+        yield "죄송해요, 답변을 가져오지 못했어요."
+
+
+def stream_chat_reply(product, messages):
+    """상품 + 대화 배열 → 답변 텍스트 조각을 순서대로 yield (뷰의 StreamingHttpResponse용).
+
+    messages: 프론트가 보낸 [{"role": "user"|"assistant", "content": str}, ...].
+    """
+    history = _trim_history(messages)
+    if not history:
+        return  # 보낼 게 없으면 아무것도 안 흘림 (뷰에서 이미 400으로 거름)
+    full = [
+        {"role": "developer", "content": _build_chat_instruction(product)},
+        *history,
+    ]
+    yield from _stream_gms(full)
