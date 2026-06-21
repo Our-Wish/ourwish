@@ -129,6 +129,7 @@ import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import { bankColorMap } from '@/constants/bankColors'
+import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
 import { useAuthStore } from '@/stores/auth'
 import happyWish from '@/assets/img/wishes/happyWish.png'
 
@@ -182,23 +183,16 @@ const products = computed(() =>
 
 const visibleProducts = computed(() => products.value.slice(0, visibleCount.value))
 
-const CONDITION_LABELS = {
-  birth_date: '만 나이',
-  salary_transfer: '급여이체',
-  auto_transfer: '자동이체',
-  card_usage: '카드실적',
-  housing_subscription: '주택청약',
-} as const
 
 const fetchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
     const chips: string[] = []
-    if (data.birth_date) chips.push(CONDITION_LABELS.birth_date)
-    if (data.salary_transfer) chips.push(CONDITION_LABELS.salary_transfer)
-    if (data.auto_transfer) chips.push(CONDITION_LABELS.auto_transfer)
-    if (data.card_usage) chips.push(CONDITION_LABELS.card_usage)
-    if (data.housing_subscription) chips.push(CONDITION_LABELS.housing_subscription)
+    if (data.birth_date) chips.push(CONDITION_LABELS['birth_date']!)
+    if (data.salary_transfer) chips.push(CONDITION_LABELS['salary_transfer']!)
+    if (data.auto_transfer) chips.push(CONDITION_LABELS['auto_transfer']!)
+    if (data.card_usage) chips.push(CONDITION_LABELS['card_usage']!)
+    if (data.housing_subscription) chips.push(CONDITION_LABELS['housing_subscription']!)
     conditionChips.value = chips
   } catch {}
 }

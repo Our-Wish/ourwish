@@ -1,149 +1,70 @@
 <template>
-  <div class="min-h-screen bg-slate-50 pb-24">
-    <header class="flex items-center px-5 py-4">
-      <button @click="router.go(-1)" class="flex items-center gap-1 text-sm text-slate-600">
-        <span>‹</span>
-        <span>뒤로</span>
-      </button>
-    </header>
-
+  <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7]">
     <div v-if="isLoading" class="flex items-center justify-center py-24 text-slate-400">
       불러오는 중...
     </div>
 
-    <div v-else-if="product" class="px-5 pb-12">
-      <!-- 상단 카드 -->
-      <div class="rounded-3xl p-6 text-white" :style="{ backgroundColor: product.bankColor }">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold"
-            >
-              {{ product.bankName[0] }}
+    <div v-else-if="product" class="mx-auto max-w-6xl px-8 pb-16 pt-6">
+      <ProductHeaderCard
+        :product="product"
+        :is-favorite="isFavorite"
+        :bonus-rate="bonusRate"
+        :bank-url="bankUrl"
+        @toggle-favorite="toggleFavorite"
+        @select-product="selectProduct"
+      />
+
+      <div class="flex items-start gap-5">
+        <div class="w-3/5 space-y-4">
+          <div class="rounded-[28px] border border-blue-100 bg-white p-7">
+            <div class="mb-4 flex items-center gap-3">
+              <p class="text-lg font-semibold text-slate-800">✨ AI 상품 요약</p>
             </div>
-            <span class="text-sm font-medium opacity-90">{{ product.bankName }} · 적금</span>
-          </div>
-          <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">★ 우대금리</span>
-        </div>
 
-        <h1 class="mt-5 text-2xl font-bold">{{ product.productName }}</h1>
-
-        <div class="my-4 border-t border-white/20" />
-
-        <div class="flex items-end justify-between">
-          <div>
-            <p class="text-xs opacity-70">현재 예상 금리</p>
-            <p class="mt-1 text-4xl font-extrabold">약 {{ product.baseRate.toFixed(2) }}%</p>
-          </div>
-          <div class="text-right text-sm opacity-90">
-            <p class="opacity-70">기본/최고</p>
-            <p class="font-semibold">{{ product.baseRate }}% / {{ product.maxRate }}%</p>
-          </div>
-        </div>
-
-        <div
-          class="mt-4 flex w-full items-center justify-between rounded-2xl bg-white/15 px-4 py-3 text-sm font-medium"
-        >
-          <span>{{ product.bankName }} · {{ product.productName }}</span>
-        </div>
-      </div>
-
-      <!-- 핵심 조건 -->
-      <div class="mt-8">
-        <p class="text-sm font-semibold text-blue-500">핵심 조건</p>
-        <p class="mt-1 text-lg font-bold text-slate-900">한눈에 보는 상세 내용</p>
-
-        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div
-            v-for="(item, index) in product.conditions"
-            :key="item.label"
-            class="flex items-start gap-6 px-5 py-4"
-            :class="{ 'border-t border-slate-100': index > 0 }"
-          >
-            <span class="w-24 shrink-0 text-sm text-slate-400">{{ item.label }}</span>
-            <span class="text-sm font-semibold text-slate-900">{{ item.value }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI 쉽게 풀어쓴 설명 -->
-      <div class="mt-6 rounded-2xl bg-slate-100 p-5">
-        <div class="flex items-center gap-2">
-          <span class="rounded-lg bg-indigo-500 px-2 py-0.5 text-xs font-bold text-white">AI</span>
-          <span class="text-sm font-semibold text-indigo-500">쉽게 풀어쓴 설명</span>
-        </div>
-        <p class="mt-3 font-bold text-slate-900">{{ product.aiHeadline }}</p>
-        <p class="mt-1 text-sm text-slate-500">{{ product.aiDescription }}</p>
-      </div>
-
-      <!-- 나의 금리 알아보기 -->
-      <div class="mt-8">
-        <p class="text-sm font-semibold text-blue-500">나의 금리 알아보기</p>
-        <p class="mt-1 text-lg font-bold text-slate-900">달성할 수 있는 조건을 체크해보세요</p>
-        <p class="mt-0.5 text-xs text-slate-400">
-          체크한 조건에 따라 예상 금리·세후수령액이 바뀌어요
-        </p>
-
-        <!-- 체크박스 목록 -->
-        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div
-            v-for="(cond, index) in product.bonusConditions"
-            :key="cond.label"
-            class="flex cursor-pointer items-center gap-4 px-5 py-4"
-            :class="{ 'border-t border-slate-100': index > 0 }"
-            @click="toggleCondition(index)"
-          >
-            <div
-              class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition"
-              :class="checked[index] ? 'border-blue-500 bg-blue-500' : 'border-slate-300 bg-white'"
-            >
-              <svg v-if="checked[index]" class="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M2 6l3 3 5-5"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
-            <span class="flex-1 text-base text-slate-800">{{ cond.label }}</span>
-            <span
-              class="shrink-0 rounded-full px-2.5 py-0.5 text-sm font-semibold"
-              :class="difficultyBadgeClass[cond.difficulty] ?? 'bg-slate-100 text-slate-500'"
-            >{{ difficultyLabel[cond.difficulty] ?? cond.difficulty }}</span>
-            <span class="shrink-0 text-base font-semibold text-slate-400"
-              >+{{ cond.bonusRate.toFixed(1) }}%p</span
-            >
-          </div>
-        </div>
-
-        <!-- 결과 영역 -->
-        <div class="mt-3 rounded-2xl border border-slate-200 bg-white px-5 py-5">
-          <p class="text-xs text-slate-400">현재 예상 금리</p>
-          <p class="mt-1 text-3xl font-extrabold text-blue-600">연 {{ currentRate.toFixed(2) }}%</p>
-
-          <div class="mt-4 flex items-end justify-between">
             <div>
-              <p class="text-xs text-slate-400">예상 세후 수령액</p>
-              <p class="mt-1 text-xl font-bold text-slate-900">{{ estimatedAmount }}만원</p>
+              <ul v-if="product.aiSummaries.length" class="space-y-2.5">
+                <li v-for="(s, i) in product.aiSummaries" :key="i" class="flex items-start gap-2.5">
+                  <span class="mt-0.5 shrink-0 text-blue-400">•</span>
+                  <span class="text-sm leading-7 text-slate-600">{{ s }}</span>
+                </li>
+              </ul>
+              <p v-else class="text-sm leading-7 text-slate-400">AI 요약 정보가 없는 상품이에요.</p>
             </div>
-            <p class="text-xs text-slate-400">
-              매달 {{ goalStore.monthlyAmount }}만원 · {{ goalStore.period }}개월
-            </p>
+          </div>
+
+          <ProductBasicInfo :conditions="product.conditions" />
+
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-base font-semibold text-slate-800">우대금리 조건</p>
+            <div v-if="product.specialCondition" class="mt-2 ml-1">
+              <p class="mt-2 whitespace-pre-line text-sm leading-relaxed break-keep text-slate-600">
+                {{ product.specialCondition }}
+              </p>
+            </div>
+            <p v-else class="mt-4 text-sm text-slate-400">우대 조건 정보가 없는 상품이에요</p>
+          </div>
+        </div>
+
+        <div class="w-2/5 space-y-4">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-base font-bold text-slate-900">근처 영업점 찾기</p>
+            추후 연결 예정
+          </div>
+
+          <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
+            <div class="flex items-center gap-2.5 bg-blue-300 px-4 py-3">
+              <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/40">
+                <img src="@/assets/img/wishes/hiWish.png" class="h-6 w-6 object-contain" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">OURWISH 챗봇</p>
+                <p class="text-xs text-blue-50">금융 상품 AI 도우미, 위시입니다 :)</p>
+              </div>
+            </div>
+            <Chat :productId="product.id" />
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- 하단 고정 버튼 -->
-    <div class="mx-auto max-w-6xl px-9">
-      <button
-        @click="selectProduct"
-        class="w-full rounded-2xl bg-blue-500 py-3 text-lg font-semibold text-white transition hover:bg-blue-400"
-      >
-        이 상품 선택하기
-      </button>
     </div>
   </div>
 </template>
@@ -154,6 +75,12 @@ import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
 import { bankColorMap } from '@/constants/bankColors'
+import { TAG_LABELS } from '@/constants/tagLabels'
+import type { ProductDetail } from '@/types/product'
+import { BANK_URL_MAP } from '@/constants/bankUrls'
+import Chat from '@/components/Chat.vue'
+import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
+import ProductBasicInfo from '@/components/SavingsDetail/ProductBasicInfo.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -161,44 +88,18 @@ const goalStore = useGoalStore()
 
 const productId = computed(() => Number(route.params.id))
 
-const difficultyBadgeClass: Record<string, string> = {
-  LOW: 'bg-green-50 text-green-700',
-  MID: 'bg-yellow-50 text-yellow-700',
-  HIGH: 'bg-red-50 text-red-600',
-}
-
-const difficultyLabel: Record<string, string> = {
-  LOW: '쉬움',
-  MID: '보통',
-  HIGH: '어려움',
-}
-
-const checked = ref<boolean[]>([])
 const isLoading = ref(false)
-
-function toggleCondition(index: number) {
-  checked.value[index] = !checked.value[index]
-}
-
-type Condition = { label: string; value: string }
-type BonusCondition = { condition_id: number; label: string; bonusRate: number; difficulty: string }
-
-type ProductDetail = {
-  id: number
-  bankName: string
-  bankColor: string
-  productName: string
-  baseRate: number
-  maxRate: number
-  intr_rate_type: string
-  rsrv_type: string
-  conditions: Condition[]
-  aiHeadline: string
-  aiDescription: string
-  bonusConditions: BonusCondition[]
-}
+const isFavorite = ref(false)
 
 const product = ref<ProductDetail | null>(null)
+
+function cleanText(text: string): string {
+  return text
+    .split('\n')
+    .map((line) => line.replace(/^\s*(\d+\s*[.)]\s*|[*·\-•]\s*)/, '').trim())
+    .filter(Boolean)
+    .join('\n')
+}
 
 function formatLimit(value: number): string {
   if (!value || value > 9e15) return '제한 없음'
@@ -206,42 +107,35 @@ function formatLimit(value: number): string {
 }
 
 function buildProduct(data: any): ProductDetail {
-  const baseRate = data.base_rate ?? 0
-  const maxRate = data.max_rate ?? 0
-
   const matchedOption =
-    (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ?? data.options?.[0] ?? {}
-
-  const bonusConditions: BonusCondition[] = (data.conditions ?? []).map((c: any) => ({
-    condition_id: c.condition_id,
-    label: c.friendly_label || c.label,
-    bonusRate: c.rate,
-    difficulty: c.difficulty,
-  }))
-
-  checked.value = bonusConditions.map(() => false)
-
-  const summaryParts = [data.join_summary, data.maturity_summary, data.etc_summary].filter(Boolean)
+    (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ??
+    data.options?.[0] ??
+    {}
 
   return {
     id: data.product_id,
     bankName: data.bank_name,
     bankColor: bankColorMap[data.bank_name] ?? '#6366f1',
     productName: data.product_name,
-    baseRate,
-    maxRate,
+    baseRate: matchedOption.base_rate ?? data.base_rate ?? 0,
+    maxRate: matchedOption.max_rate ?? data.max_rate ?? 0,
     intr_rate_type: matchedOption.intr_rate_type ?? 'S',
     rsrv_type: matchedOption.rsrv_type ?? 'S',
     conditions: [
-      { label: '가입 대상', value: data.join_member ?? '-' },
-      { label: '가입 방법', value: data.join_way ?? '-' },
+      { label: '가입 대상', value: data.join_member ? cleanText(data.join_member) : '-' },
+      { label: '가입 방법', value: data.join_way ? cleanText(data.join_way) : '-' },
       { label: '월 납입 한도', value: formatLimit(data.max_limit) },
-      { label: '만기후 이자율', value: data.maturity_interest ?? '-' },
-      { label: '기타 유의사항', value: data.etc_note ?? '-' },
+      {
+        label: '만기후 이자율',
+        value: data.maturity_interest ? cleanText(data.maturity_interest) : '-',
+      },
+      { label: '기타 유의사항', value: data.etc_note ? cleanText(data.etc_note) : '-' },
     ],
-    aiHeadline: summaryParts[0] ?? '',
-    aiDescription: summaryParts.slice(1).join(' ') ?? '',
-    bonusConditions,
+    specialCondition: data.special_condition_raw ? cleanText(data.special_condition_raw) : '',
+    aiSummaries: data.ai_summary ? cleanText(data.ai_summary).split('\n').filter(Boolean) : [],
+    tags: Object.entries(data.tags ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => TAG_LABELS[k] ?? k),
   }
 }
 
@@ -250,6 +144,7 @@ onMounted(async () => {
   try {
     const { data } = await api.get(`/api/v1/products/${productId.value}/`)
     product.value = buildProduct(data)
+    isFavorite.value = data.is_favorited ?? false
   } catch {
     alert('상품 정보를 불러오는 데 실패했어요.')
   } finally {
@@ -257,42 +152,42 @@ onMounted(async () => {
   }
 })
 
-const currentRate = computed(() => {
+const bankUrl = computed(() =>
+  product.value ? (BANK_URL_MAP[product.value.bankName as keyof typeof BANK_URL_MAP] ?? '#') : '#',
+)
+
+const bonusRate = computed(() => {
   if (!product.value) return 0
-  const bonus = product.value.bonusConditions.reduce(
-    (sum, cond, i) => (checked.value[i] ? sum + cond.bonusRate : sum),
-    0,
-  )
-  return product.value.baseRate + bonus
+  return Math.max(0, product.value.maxRate - product.value.baseRate)
 })
 
-const estimatedAmount = computed(() => {
-  const { period, monthlyAmount } = goalStore
-  const rate = currentRate.value / 100
-  const interest = ((monthlyAmount * period * (period + 1)) / 2) * (rate / 12)
-  return Math.round(period * monthlyAmount + interest * (1 - 0.154))
-})
+async function toggleFavorite() {
+  if (!product.value) return
+  try {
+    if (isFavorite.value) {
+      await api.delete(`/api/v1/favorites/${product.value.id}/`)
+    } else {
+      await api.post('/api/v1/favorites/', { product_id: product.value.id })
+    }
+    isFavorite.value = !isFavorite.value
+    alert(isFavorite.value ? '관심 상품에 추가했어요.' : '관심 상품에서 제거됐어요.')
+  } catch {
+    alert('찜하기 처리에 실패했어요. 다시 시도해주세요.')
+  }
+}
 
 async function selectProduct() {
   if (!product.value) return
-  const checkedConditionIds = product.value.bonusConditions
-    .filter((_, i) => checked.value[i])
-    .map((c) => c.condition_id)
-
   try {
-    await api.post('/api/v1/enrollments/', {
-      product_id: product.value.id,
-      monthly_amount: goalStore.monthlyAmount * 10000,
-      term_months: goalStore.period,
-      intr_rate_type: product.value.intr_rate_type,
-      rsrv_type: product.value.rsrv_type,
-      transfer_day: 25,
-      enrolled_at: new Date().toISOString().split('T')[0],
-      checked_condition_ids: checkedConditionIds,
-    })
+    await api.post('/api/v1/enrollments/', { product_id: product.value.id })
     router.push({ name: 'mypage' })
-  } catch {
-    alert('상품 가입에 실패했어요. 다시 시도해주세요.')
+  } catch (err: any) {
+    if (err?.response?.status === 409) {
+      alert('이미 등록된 상품이에요.')
+      router.push({ name: 'mypage' })
+    } else {
+      alert('상품 가입에 실패했어요. 다시 시도해주세요.')
+    }
   }
 }
 </script>
