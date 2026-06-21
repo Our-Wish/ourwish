@@ -93,7 +93,7 @@ async function sendMessage() {
 
   // 2) 빈 봇 말풍선 먼저 만들기 (조각이 여기로 흘러들어옴)
   messages.value.push({ role: 'assistant', content: '' })
-  const bot = messages.value[messages.value.length - 1] // ★ 반응형 프록시를 잡아야 화면 갱신됨
+  const bot = messages.value[messages.value.length - 1]! // 방금 push해서 항상 존재. ★프록시를 잡아야 화면 갱신됨
   await scrollToBottom()
 
   let pending = '' // 받았지만 아직 화면에 안 푼 글자(버퍼)
