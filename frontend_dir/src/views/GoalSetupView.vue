@@ -254,6 +254,7 @@ const totalAmount = computed(() => principal.value + afterTaxInterest.value)
 const onNext = async () => {
   if (step.value === 1) {
     step.value++
+    window.scrollTo(0, 0)
   } else {
     const unanswered = ynQuestions.some((q) => ynAnswers[q.key] === null)
     if (!birthDate.value || unanswered) {
