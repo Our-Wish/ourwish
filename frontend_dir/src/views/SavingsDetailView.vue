@@ -36,8 +36,8 @@
 
           <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-base font-semibold text-slate-800">우대금리 조건</p>
-            <div v-if="product.specialCondition" class="mt-4 ml-2">
-              <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+            <div v-if="product.specialCondition" class="mt-2 ml-1">
+              <p class="mt-2 whitespace-pre-line text-sm leading-relaxed break-keep text-slate-600">
                 {{ product.specialCondition }}
               </p>
             </div>
