@@ -47,7 +47,15 @@
       <div class="mx-7 w-px shrink-0 self-stretch bg-blue-100"></div>
 
       <div class="flex w-2/5 flex-col justify-center">
-        <p class="text-sm font-bold tracking-widest text-[#64748B]">최고 금리</p>
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-bold tracking-widest text-[#64748B]">최고 금리</p>
+          <button
+            @click="showCalc = true"
+            class="rounded-full bg-slate-100 px-3.5 py-1.5 text-sm font-semibold text-slate-500 transition hover:bg-blue-50 hover:text-blue-500"
+          >
+            예상 수령액 계산기
+          </button>
+        </div>
 
         <p class="mt-2 text-6xl font-black leading-none tracking-tight text-[#2563EB]">
           {{ product.maxRate }}<span class="text-3xl">%</span>
@@ -83,7 +91,7 @@
               : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600'
           "
         >
-          {{ isFavorite ? '♥' : '♡' }} 상품 찜하기
+          상품 찜하기 {{ isFavorite ? '♥' : '♡' }}
         </button>
 
         <button
@@ -95,10 +103,20 @@
       </div>
     </div>
   </div>
+
+  <CalcModal
+    v-if="showCalc"
+    :base-rate="product.baseRate"
+    :max-rate="product.maxRate"
+    :bonus-rate="bonusRate"
+    @close="showCalc = false"
+  />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { ProductDetail } from '@/types/product'
+import CalcModal from './CalcModal.vue'
 
 defineProps<{
   product: Pick<
@@ -114,4 +132,6 @@ defineEmits<{
   'toggle-favorite': []
   'select-product': []
 }>()
+
+const showCalc = ref(false)
 </script>

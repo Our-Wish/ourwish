@@ -27,8 +27,8 @@
       >
         OURWISH
       </h1>
-      <p class="mt-3 text-3xl font-medium text-slate-800">
-        쉽고, 간단하게, 나에게 맞는 적금을 찾다
+      <p class="mt-3 text-3xl font-normal text-slate-800">
+        쉽고, 간단하게, 나에게 맞는 적금을 찾다 —
       </p>
 
       <div class="mt-12 flex gap-4">
@@ -36,7 +36,7 @@
           @click="goToMyPage"
           class="rounded-2xl border border-slate-300/70 bg-white/70 px-12 py-4 text-base font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white active:scale-95"
         >
-          MY PAGE
+          나의 적금 관리
         </button>
 
         <button
