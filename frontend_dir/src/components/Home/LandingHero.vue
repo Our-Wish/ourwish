@@ -27,8 +27,8 @@
       >
         OURWISH
       </h1>
-      <p class="mt-3 text-3xl font-medium text-slate-800">
-        쉽고, 간단하게, 나에게 맞는 적금을 찾다
+      <p class="mt-3 text-3xl font-normal text-slate-800">
+        쉽고, 간단하게, 나에게 맞는 적금을 찾다 —
       </p>
 
       <div class="mt-12 flex gap-4">
