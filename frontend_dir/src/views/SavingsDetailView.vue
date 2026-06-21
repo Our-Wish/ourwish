@@ -134,6 +134,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
 import { bankColorMap } from '@/constants/bankColors'
+import { TAG_LABELS } from '@/constants/tagLabels'
 import { BANK_URL_MAP } from '@/constants/bankUrls'
 import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
@@ -150,12 +151,6 @@ const isFavorite = ref(false)
 
 type Condition = { label: string; value: string }
 
-const TAG_LABELS: Record<string, string> = {
-  salary_transfer: '급여이체',
-  auto_transfer: '자동이체',
-  card_usage: '카드실적',
-  housing_subscription: '주택청약',
-}
 
 type ProductDetail = {
   id: number
