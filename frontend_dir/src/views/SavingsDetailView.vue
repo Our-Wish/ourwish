@@ -68,7 +68,7 @@
               자세히 알아보기 →
             </a>
             <button
-              @click="isFavorite = !isFavorite"
+              @click="toggleFavorite"
               class="flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-sm font-semibold transition"
               :class="
                 isFavorite
@@ -76,7 +76,7 @@
                   : 'border-slate-200 text-slate-600 hover:border-slate-300'
               "
             >
-              {{ isFavorite ? '♥' : '♡' }} 관심상품
+              {{ isFavorite ? '♥' : '♡' }} 상품 찜하기
             </button>
             <button
               @click="selectProduct"
@@ -353,6 +353,21 @@ const bonusRate = computed(() => {
   if (!product.value) return 0
   return Math.max(0, product.value.maxRate - product.value.baseRate)
 })
+
+async function toggleFavorite() {
+  if (!product.value) return
+  try {
+    if (isFavorite.value) {
+      await api.delete(`/api/v1/favorites/${product.value.id}/`)
+    } else {
+      await api.post('/api/v1/favorites/', { product_id: product.value.id })
+    }
+    isFavorite.value = !isFavorite.value
+    alert(isFavorite.value ? '관심 상품에 추가했어요.' : '관심 상품에서 제거됐어요.')
+  } catch {
+    alert('찜하기 처리에 실패했어요. 다시 시도해주세요.')
+  }
+}
 
 async function selectProduct() {
   if (!product.value) return
