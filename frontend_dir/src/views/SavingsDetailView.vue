@@ -61,11 +61,11 @@
 
           <div class="flex w-1/5 flex-col justify-center gap-2.5">
             <a
-              :href="product.productUrl || '#'"
+              :href="bankUrl"
               target="_blank"
               class="flex items-center justify-center rounded-xl bg-[#2563EB] py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
             >
-              상품 자세히 보기 ->
+              자세히 알아보기 →
             </a>
             <button
               @click="isFavorite = !isFavorite"
@@ -293,7 +293,6 @@ type ProductDetail = {
   specialCondition: string
   aiSummaries: string[]
   tags: string[]
-  productUrl: string
 }
 
 const product = ref<ProductDetail | null>(null)
@@ -330,7 +329,6 @@ function buildProduct(data: any): ProductDetail {
     tags: Object.entries(data.tags ?? {})
       .filter(([, v]) => v)
       .map(([k]) => TAG_LABELS[k] ?? k),
-    productUrl: BANK_URL_MAP[data.bank_name as keyof typeof BANK_URL_MAP] ?? '',
   }
 }
 
@@ -346,6 +344,10 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const bankUrl = computed(() =>
+  product.value ? (BANK_URL_MAP[product.value.bankName as keyof typeof BANK_URL_MAP] ?? '#') : '#',
+)
 
 const bonusRate = computed(() => {
   if (!product.value) return 0
