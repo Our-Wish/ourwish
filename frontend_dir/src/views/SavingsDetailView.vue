@@ -128,6 +128,14 @@ const isFavorite = ref(false)
 
 const product = ref<ProductDetail | null>(null)
 
+function cleanText(text: string): string {
+  return text
+    .split('\n')
+    .map((line) => line.replace(/^\s*(\d+\s*[.)]\s*|[*·\-•]\s*)/, '').trim())
+    .filter(Boolean)
+    .join('\n')
+}
+
 function formatLimit(value: number): string {
   if (!value || value > 9e15) return '제한 없음'
   return `${Math.round(value / 10000).toLocaleString()}만원`
@@ -149,14 +157,14 @@ function buildProduct(data: any): ProductDetail {
     intr_rate_type: matchedOption.intr_rate_type ?? 'S',
     rsrv_type: matchedOption.rsrv_type ?? 'S',
     conditions: [
-      { label: '가입 대상', value: data.join_member ?? '-' },
-      { label: '가입 방법', value: data.join_way ?? '-' },
+      { label: '가입 대상', value: data.join_member ? cleanText(data.join_member) : '-' },
+      { label: '가입 방법', value: data.join_way ? cleanText(data.join_way) : '-' },
       { label: '월 납입 한도', value: formatLimit(data.max_limit) },
-      { label: '만기후 이자율', value: data.maturity_interest ?? '-' },
-      { label: '기타 유의사항', value: data.etc_note ?? '-' },
+      { label: '만기후 이자율', value: data.maturity_interest ? cleanText(data.maturity_interest) : '-' },
+      { label: '기타 유의사항', value: data.etc_note ? cleanText(data.etc_note) : '-' },
     ],
-    specialCondition: data.special_condition_raw ?? '',
-    aiSummaries: data.ai_summary ? data.ai_summary.split('\n').filter(Boolean) : [],
+    specialCondition: data.special_condition_raw ? cleanText(data.special_condition_raw) : '',
+    aiSummaries: data.ai_summary ? cleanText(data.ai_summary).split('\n').filter(Boolean) : [],
     tags: Object.entries(data.tags ?? {})
       .filter(([, v]) => v)
       .map(([k]) => TAG_LABELS[k] ?? k),
