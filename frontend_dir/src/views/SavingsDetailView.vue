@@ -16,7 +16,7 @@
 
       <div class="flex items-start gap-5">
         <div class="w-3/5 space-y-4">
-          <div class="rounded-[28px] border border-blue-100 bg-blue-50/70 p-7">
+          <div class="rounded-[28px] border border-blue-100 bg-white p-7">
             <div class="mb-4 flex items-center gap-3">
               <p class="text-lg font-semibold text-slate-800">✨ AI 상품 요약</p>
             </div>
@@ -179,18 +179,15 @@ async function toggleFavorite() {
 async function selectProduct() {
   if (!product.value) return
   try {
-    await api.post('/api/v1/enrollments/', {
-      product_id: product.value.id,
-      monthly_amount: goalStore.monthlyAmount * 10000,
-      term_months: goalStore.period,
-      intr_rate_type: product.value.intr_rate_type,
-      rsrv_type: product.value.rsrv_type,
-      transfer_day: 25,
-      enrolled_at: new Date().toISOString().split('T')[0],
-    })
+    await api.post('/api/v1/enrollments/', { product_id: product.value.id })
     router.push({ name: 'mypage' })
-  } catch {
-    alert('상품 가입에 실패했어요. 다시 시도해주세요.')
+  } catch (err: any) {
+    if (err?.response?.status === 409) {
+      alert('이미 등록된 상품이에요.')
+      router.push({ name: 'mypage' })
+    } else {
+      alert('상품 가입에 실패했어요. 다시 시도해주세요.')
+    }
   }
 }
 </script>
