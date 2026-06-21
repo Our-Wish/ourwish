@@ -259,6 +259,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
 import { bankColorMap } from '@/constants/bankColors'
+import { BANK_URL_MAP } from '@/constants/bankUrls'
 import Chat from '@/components/Chat.vue'
 
 const router = useRouter()
@@ -329,7 +330,7 @@ function buildProduct(data: any): ProductDetail {
     tags: Object.entries(data.tags ?? {})
       .filter(([, v]) => v)
       .map(([k]) => TAG_LABELS[k] ?? k),
-    productUrl: data.product_url ?? '',
+    productUrl: BANK_URL_MAP[data.bank_name as keyof typeof BANK_URL_MAP] ?? '',
   }
 }
 
