@@ -14,50 +14,26 @@
         @select-product="selectProduct"
       />
 
-      <!-- 본문 2칼럼 -->
       <div class="flex items-start gap-5">
-        <!-- 왼쪽 (3/5) -->
         <div class="w-3/5 space-y-4">
-          <!-- 한눈에 요약 -->
-          <div class="rounded-2xl bg-blue-50 p-6">
-            <div class="flex items-center gap-2">
-              <svg
-                class="h-5 w-5 text-blue-500"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                />
-              </svg>
-              <p class="text-base font-bold text-blue-700">한눈에 요약</p>
+          <div class="rounded-[28px] border border-blue-100 bg-blue-50/70 p-7">
+            <div class="mb-4 flex items-center gap-3">
+              <p class="text-lg font-semibold text-slate-800">✨ AI 상품 요약</p>
             </div>
-            <ul class="mt-4 space-y-3">
-              <li v-for="(s, i) in product.aiSummaries" :key="i" class="flex items-start gap-3">
-                <svg
-                  class="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                <span class="text-base text-slate-700">{{ s }}</span>
-              </li>
-            </ul>
+
+            <div>
+              <ul v-if="product.aiSummaries.length" class="space-y-2.5">
+                <li v-for="(s, i) in product.aiSummaries" :key="i" class="flex items-start gap-2.5">
+                  <span class="mt-0.5 shrink-0 text-blue-400">•</span>
+                  <span class="text-sm leading-7 text-slate-600">{{ s }}</span>
+                </li>
+              </ul>
+              <p v-else class="text-sm leading-7 text-slate-400">AI 요약 정보가 없는 상품이에요.</p>
+            </div>
           </div>
 
-          <!-- 상품 기본 정보 -->
           <ProductBasicInfo :conditions="product.conditions" />
 
-          <!-- 우대금리 조건 -->
           <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-base font-semibold text-slate-800">우대 조건 안내</p>
             <div v-if="product.specialCondition" class="mt-4">
