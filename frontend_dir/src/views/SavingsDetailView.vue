@@ -1,60 +1,131 @@
 <template>
-  <div class="min-h-screen bg-slate-100">
+  <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7]">
     <div v-if="isLoading" class="flex items-center justify-center py-24 text-slate-400">
       불러오는 중...
     </div>
 
-    <div v-else-if="product" class="mx-auto max-w-6xl px-8 pb-16 pt-2">
-      <div class="flex items-start gap-5">
-        <div class="w-3/5 space-y-4">
-          <div class="rounded-2xl bg-white p-6 shadow-sm">
-            <div class="flex items-center justify-between gap-6">
-              <div class="flex items-center gap-4">
-                <div
-                  class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-extrabold text-white"
-                  :style="{ backgroundColor: product.bankColor }"
+    <div v-else-if="product" class="mx-auto max-w-6xl px-8 pb-16 pt-6">
+      <div
+        class="mb-6 overflow-hidden rounded-3xl bg-white shadow-[0_4px_24px_rgba(15,23,42,0.08)]"
+      >
+        <div class="flex w-full items-stretch px-8 py-7">
+          <div class="flex w-2/5 items-center gap-5">
+            <div
+              class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl font-extrabold text-white"
+              :style="{
+                background: `linear-gradient(145deg, ${product.bankColor}cc, ${product.bankColor})`,
+                boxShadow: `0 4px 12px ${product.bankColor}38`,
+              }"
+            >
+              {{ product.bankName[0] }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-[#64748B]">{{ product.bankName }}</p>
+              <p class="mt-1 text-3xl font-extrabold tracking-tight text-[#0F172A]">
+                {{ product.productName }}
+              </p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span
+                  v-for="tag in product.tags"
+                  :key="tag"
+                  class="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-100"
+                  >#{{ tag }}</span
                 >
-                  {{ product.bankName[0] }}
-                </div>
-                <div>
-                  <p class="text-sm text-slate-400">{{ product.bankName }} · 적금</p>
-                  <p class="mt-0.5 text-xl font-bold text-slate-900">{{ product.productName }}</p>
-                  <p class="mt-1 text-sm text-slate-500">
-                    예상 세후 수령액
-                    <span class="font-bold text-slate-900">{{ estimatedAmount }}만원</span>
-                  </p>
-                </div>
-              </div>
-
-              <!-- 금리 -->
-              <div class="text-center">
-                <p class="text-sm text-slate-400">최고 금리</p>
-                <p class="mt-1 text-4xl font-extrabold text-blue-600">연 {{ product.maxRate }}%</p>
-                <p class="mt-0.5 text-sm text-slate-400">기본금리 {{ product.baseRate }}%</p>
-              </div>
-
-              <!-- 버튼 -->
-              <div class="flex flex-col items-end gap-2">
-                <a href="#" class="text-sm text-slate-400 hover:text-slate-600">상품 보러가기 →</a>
-                <button
-                  @click="selectProduct"
-                  class="rounded-xl bg-blue-500 px-6 py-2.5 text-base font-semibold text-white transition hover:bg-blue-400"
+                <span
+                  v-if="!product.tags.length"
+                  class="rounded-full bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-400"
+                  >기본금리형</span
                 >
-                  상품 등록하기
-                </button>
-                <button
-                  @click="isFavorite = !isFavorite"
-                  class="rounded-xl border px-6 py-2.5 text-base font-semibold transition"
-                  :class="
-                    isFavorite
-                      ? 'border-blue-400 bg-blue-50 text-blue-600'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                  "
-                >
-                  {{ isFavorite ? '찜 완료 ♥' : '상품 찜하기' }}
-                </button>
               </div>
             </div>
+          </div>
+
+          <div class="mx-6 w-px shrink-0 self-stretch bg-slate-100"></div>
+
+          <div class="flex w-2/5 flex-col justify-center">
+            <p class="text-sm font-semibold uppercase tracking-widest text-[#64748B]">최고 금리</p>
+            <p class="mt-2 text-4xl font-black leading-none tracking-tight text-[#2563EB]">
+              연 {{ product.maxRate }}<span class="text-[1.75rem]">%</span>
+            </p>
+            <p class="mt-3 text-sm text-[#64748B]">
+              기본금리 {{ product.baseRate }}%<span
+                v-if="bonusRate > 0"
+                class="ml-1.5 font-semibold text-indigo-500"
+              >
+                + 우대금리 {{ bonusRate.toFixed(1) }}%p
+              </span>
+            </p>
+          </div>
+
+          <div class="mx-6 w-px shrink-0 self-stretch bg-slate-100"></div>
+
+          <div class="flex w-1/5 flex-col justify-center gap-2.5">
+            <a
+              :href="product.productUrl || '#'"
+              target="_blank"
+              class="flex items-center justify-center rounded-xl bg-[#2563EB] py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
+            >
+              상품 자세히 보기 ->
+            </a>
+            <button
+              @click="isFavorite = !isFavorite"
+              class="flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-sm font-semibold transition"
+              :class="
+                isFavorite
+                  ? 'border-blue-300 bg-blue-50 text-blue-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300'
+              "
+            >
+              {{ isFavorite ? '♥' : '♡' }} 관심상품
+            </button>
+            <button
+              @click="selectProduct"
+              class="flex items-center justify-center rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+            >
+              상품 등록하기
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 본문 2칼럼 -->
+      <div class="flex items-start gap-5">
+        <!-- 왼쪽 (3/5) -->
+        <div class="w-3/5 space-y-4">
+          <!-- 한눈에 요약 -->
+          <div class="rounded-2xl bg-blue-50 p-6">
+            <div class="flex items-center gap-2">
+              <svg
+                class="h-5 w-5 text-blue-500"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                />
+              </svg>
+              <p class="text-base font-bold text-blue-700">한눈에 요약</p>
+            </div>
+            <ul class="mt-4 space-y-3">
+              <li v-for="(s, i) in product.aiSummaries" :key="i" class="flex items-start gap-3">
+                <svg
+                  class="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span class="text-base text-slate-700">{{ s }}</span>
+              </li>
+            </ul>
           </div>
 
           <!-- 상품 기본 정보 -->
@@ -113,125 +184,26 @@
 
           <!-- 우대금리 조건 -->
           <div class="rounded-2xl bg-white p-6 shadow-sm">
-            <div class="flex items-center gap-2">
-              <p class="text-base font-bold text-slate-900">우대금리 조건</p>
-              <span
-                v-if="product.bonusConditions.length"
-                class="rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-semibold text-blue-600"
-                >{{ product.bonusConditions.length }}개</span
-              >
-            </div>
-
-            <div v-if="product.bonusConditions.length" class="mt-4 divide-y divide-slate-100">
-              <div
-                v-for="(cond, index) in product.bonusConditions"
-                :key="cond.label"
-                class="flex cursor-pointer items-center gap-4 py-3.5"
-                @click="toggleCondition(index)"
-              >
-                <div
-                  class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition"
-                  :class="
-                    checked[index] ? 'border-blue-500 bg-blue-500' : 'border-slate-300 bg-white'
-                  "
-                >
-                  <svg
-                    v-if="checked[index]"
-                    class="h-3 w-3 text-white"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                  >
-                    <path
-                      d="M2 6l3 3 5-5"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-                <span class="flex-1 text-base text-slate-800">{{ cond.label }}</span>
-                <span
-                  class="shrink-0 rounded-full px-2.5 py-0.5 text-sm font-semibold"
-                  :class="difficultyBadgeClass[cond.difficulty] ?? 'bg-slate-100 text-slate-500'"
-                  >{{ difficultyLabel[cond.difficulty] ?? cond.difficulty }}</span
-                >
-                <span class="shrink-0 text-base font-semibold text-blue-400"
-                  >+{{ cond.bonusRate.toFixed(1) }}%p</span
-                >
-              </div>
-            </div>
-            <p v-else class="mt-4 text-base text-slate-400">우대 조건이 없는 상품이에요</p>
-
-            <!-- 금리 계산 결과 -->
-            <div class="mt-5 rounded-xl bg-blue-50 px-5 py-4">
-              <p class="text-sm text-blue-400">현재 예상 금리</p>
-              <p class="mt-1 text-3xl font-extrabold text-blue-600">
-                연 {{ currentRate.toFixed(2) }}%
+            <p class="text-base font-semibold text-slate-800">우대 조건 안내</p>
+            <div v-if="product.specialCondition" class="mt-4">
+              <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                {{ product.specialCondition }}
               </p>
-              <div class="mt-3 flex items-end justify-between">
-                <div>
-                  <p class="text-sm text-slate-400">예상 세후 수령액</p>
-                  <p class="mt-0.5 text-xl font-bold text-slate-900">{{ estimatedAmount }}만원</p>
-                </div>
-                <p class="text-sm text-slate-400">
-                  매달 {{ goalStore.monthlyAmount }}만원 · {{ goalStore.period }}개월
-                </p>
-              </div>
             </div>
-          </div>
-
-          <!-- 한눈에 요약 -->
-          <div class="rounded-2xl bg-blue-50 p-6">
-            <div class="flex items-center gap-2">
-              <svg
-                class="h-5 w-5 text-blue-500"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                />
-              </svg>
-              <p class="text-base font-bold text-blue-700">한눈에 요약</p>
-            </div>
-            <ul class="mt-4 space-y-3">
-              <li v-for="(s, i) in product.aiSummaries" :key="i" class="flex items-start gap-3">
-                <svg
-                  class="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                <span class="text-base text-slate-700">{{ s }}</span>
-              </li>
-            </ul>
+            <p v-else class="mt-4 text-sm text-slate-400">우대 조건 정보가 없는 상품이에요</p>
           </div>
         </div>
 
-        <!-- ── 오른쪽 (2/5) ── -->
+        <!-- 오른쪽 (2/5): 지도 + 챗봇 -->
         <div class="w-2/5 space-y-4">
           <!-- 근처 영업점 -->
           <div class="rounded-2xl bg-white p-5 shadow-sm">
             <p class="text-base font-bold text-slate-900">근처 영업점 찾기</p>
-
-            <!-- 카카오맵 자리 -->
             <div
               class="mt-4 flex h-44 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-400"
             >
               지도 영역 (카카오맵)
             </div>
-
-            <!-- 지점 목록 자리 -->
             <div class="mt-4 divide-y divide-slate-100">
               <div v-for="i in 2" :key="i" class="flex items-start gap-3 py-3">
                 <div
@@ -250,7 +222,6 @@
                 </div>
               </div>
             </div>
-
             <button
               class="mt-3 w-full rounded-xl border border-slate-200 py-2 text-sm text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
             >
@@ -296,28 +267,17 @@ const goalStore = useGoalStore()
 
 const productId = computed(() => Number(route.params.id))
 
-const difficultyBadgeClass: Record<string, string> = {
-  LOW: 'bg-green-50 text-green-700',
-  MID: 'bg-yellow-50 text-yellow-700',
-  HIGH: 'bg-red-50 text-red-600',
-}
-
-const difficultyLabel: Record<string, string> = {
-  LOW: '쉬움',
-  MID: '보통',
-  HIGH: '어려움',
-}
-
-const checked = ref<boolean[]>([])
 const isLoading = ref(false)
 const isFavorite = ref(false)
 
-function toggleCondition(index: number) {
-  checked.value[index] = !checked.value[index]
-}
-
 type Condition = { label: string; value: string }
-type BonusCondition = { condition_id: number; label: string; bonusRate: number; difficulty: string }
+
+const TAG_LABELS: Record<string, string> = {
+  salary_transfer: '급여이체',
+  auto_transfer: '자동이체',
+  card_usage: '카드실적',
+  housing_subscription: '주택청약',
+}
 
 type ProductDetail = {
   id: number
@@ -329,8 +289,10 @@ type ProductDetail = {
   intr_rate_type: string
   rsrv_type: string
   conditions: Condition[]
+  specialCondition: string
   aiSummaries: string[]
-  bonusConditions: BonusCondition[]
+  tags: string[]
+  productUrl: string
 }
 
 const product = ref<ProductDetail | null>(null)
@@ -341,30 +303,18 @@ function formatLimit(value: number): string {
 }
 
 function buildProduct(data: any): ProductDetail {
-  const baseRate = data.base_rate ?? 0
-  const maxRate = data.max_rate ?? 0
-
   const matchedOption =
     (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ??
     data.options?.[0] ??
     {}
-
-  const bonusConditions: BonusCondition[] = (data.conditions ?? []).map((c: any) => ({
-    condition_id: c.condition_id,
-    label: c.friendly_label || c.label,
-    bonusRate: c.rate,
-    difficulty: c.difficulty,
-  }))
-
-  checked.value = bonusConditions.map(() => false)
 
   return {
     id: data.product_id,
     bankName: data.bank_name,
     bankColor: bankColorMap[data.bank_name] ?? '#6366f1',
     productName: data.product_name,
-    baseRate,
-    maxRate,
+    baseRate: matchedOption.base_rate ?? data.base_rate ?? 0,
+    maxRate: matchedOption.max_rate ?? data.max_rate ?? 0,
     intr_rate_type: matchedOption.intr_rate_type ?? 'S',
     rsrv_type: matchedOption.rsrv_type ?? 'S',
     conditions: [
@@ -374,8 +324,12 @@ function buildProduct(data: any): ProductDetail {
       { label: '만기후 이자율', value: data.maturity_interest ?? '-' },
       { label: '기타 유의사항', value: data.etc_note ?? '-' },
     ],
-    aiSummaries: [data.join_summary, data.maturity_summary, data.etc_summary].filter(Boolean),
-    bonusConditions,
+    specialCondition: data.special_condition_raw ?? '',
+    aiSummaries: data.ai_summary ? data.ai_summary.split('\n').filter(Boolean) : [],
+    tags: Object.entries(data.tags ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => TAG_LABELS[k] ?? k),
+    productUrl: data.product_url ?? '',
   }
 }
 
@@ -384,6 +338,7 @@ onMounted(async () => {
   try {
     const { data } = await api.get(`/api/v1/products/${productId.value}/`)
     product.value = buildProduct(data)
+    isFavorite.value = data.is_favorited ?? false
   } catch {
     alert('상품 정보를 불러오는 데 실패했어요.')
   } finally {
@@ -391,28 +346,13 @@ onMounted(async () => {
   }
 })
 
-const currentRate = computed(() => {
+const bonusRate = computed(() => {
   if (!product.value) return 0
-  const bonus = product.value.bonusConditions.reduce(
-    (sum, cond, i) => (checked.value[i] ? sum + cond.bonusRate : sum),
-    0,
-  )
-  return product.value.baseRate + bonus
-})
-
-const estimatedAmount = computed(() => {
-  const { period, monthlyAmount } = goalStore
-  const rate = currentRate.value / 100
-  const interest = ((monthlyAmount * period * (period + 1)) / 2) * (rate / 12)
-  return Math.round(period * monthlyAmount + interest * (1 - 0.154))
+  return Math.max(0, product.value.maxRate - product.value.baseRate)
 })
 
 async function selectProduct() {
   if (!product.value) return
-  const checkedConditionIds = product.value.bonusConditions
-    .filter((_, i) => checked.value[i])
-    .map((c) => c.condition_id)
-
   try {
     await api.post('/api/v1/enrollments/', {
       product_id: product.value.id,
@@ -422,7 +362,6 @@ async function selectProduct() {
       rsrv_type: product.value.rsrv_type,
       transfer_day: 25,
       enrolled_at: new Date().toISOString().split('T')[0],
-      checked_condition_ids: checkedConditionIds,
     })
     router.push({ name: 'mypage' })
   } catch {
