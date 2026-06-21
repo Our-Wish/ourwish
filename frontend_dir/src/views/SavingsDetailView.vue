@@ -48,49 +48,17 @@
         <div class="w-2/5 space-y-4">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
             <p class="text-base font-bold text-slate-900">근처 영업점 찾기</p>
-            <div
-              class="mt-4 flex h-44 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-400"
-            >
-              지도 영역 (카카오맵)
-            </div>
-            <div class="mt-4 divide-y divide-slate-100">
-              <div v-for="i in 2" :key="i" class="flex items-start gap-3 py-3">
-                <div
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white"
-                >
-                  {{ i }}
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <p class="text-sm font-medium text-slate-300">- -</p>
-                    <span class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-400"
-                      >영업점</span
-                    >
-                  </div>
-                  <p class="mt-0.5 text-sm text-slate-300">위치 정보 없음</p>
-                </div>
-              </div>
-            </div>
-            <button
-              class="mt-3 w-full rounded-xl border border-slate-200 py-2 text-sm text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
-            >
-              더 많은 지점 보기 ∨
-            </button>
+            추후 연결 예정
           </div>
 
           <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
-            <div class="flex items-center gap-3 bg-blue-500 px-5 py-4">
-              <div
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-lg"
-              >
-                🤖
+            <div class="flex items-center gap-2.5 bg-blue-300 px-4 py-3">
+              <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/40">
+                <img src="@/assets/img/wishes/hiWish.png" class="h-6 w-6 object-contain" />
               </div>
               <div>
-                <p class="text-base font-semibold text-white">OURWISH 챗봇</p>
-                <div class="flex items-center gap-1.5">
-                  <div class="h-2 w-2 rounded-full bg-green-400"></div>
-                  <p class="text-sm text-blue-100">온라인</p>
-                </div>
+                <p class="text-sm font-semibold text-white">OURWISH 챗봇</p>
+                <p class="text-xs text-blue-50">금융 상품 AI 도우미, 위시입니다 :)</p>
               </div>
             </div>
             <Chat :productId="product.id" />
