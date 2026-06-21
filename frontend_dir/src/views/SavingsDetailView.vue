@@ -35,8 +35,8 @@
           <ProductBasicInfo :conditions="product.conditions" />
 
           <div class="rounded-2xl bg-white p-6 shadow-sm">
-            <p class="text-base font-semibold text-slate-800">우대 조건 안내</p>
-            <div v-if="product.specialCondition" class="mt-4">
+            <p class="text-base font-semibold text-slate-800">우대금리 조건</p>
+            <div v-if="product.specialCondition" class="mt-4 ml-2">
               <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">
                 {{ product.specialCondition }}
               </p>
@@ -45,9 +45,7 @@
           </div>
         </div>
 
-        <!-- 오른쪽 (2/5): 지도 + 챗봇 -->
         <div class="w-2/5 space-y-4">
-          <!-- 근처 영업점 -->
           <div class="rounded-2xl bg-white p-5 shadow-sm">
             <p class="text-base font-bold text-slate-900">근처 영업점 찾기</p>
             <div
@@ -80,7 +78,6 @@
             </button>
           </div>
 
-          <!-- 챗봇 -->
           <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
             <div class="flex items-center gap-3 bg-blue-500 px-5 py-4">
               <div
@@ -160,7 +157,10 @@ function buildProduct(data: any): ProductDetail {
       { label: '가입 대상', value: data.join_member ? cleanText(data.join_member) : '-' },
       { label: '가입 방법', value: data.join_way ? cleanText(data.join_way) : '-' },
       { label: '월 납입 한도', value: formatLimit(data.max_limit) },
-      { label: '만기후 이자율', value: data.maturity_interest ? cleanText(data.maturity_interest) : '-' },
+      {
+        label: '만기후 이자율',
+        value: data.maturity_interest ? cleanText(data.maturity_interest) : '-',
+      },
       { label: '기타 유의사항', value: data.etc_note ? cleanText(data.etc_note) : '-' },
     ],
     specialCondition: data.special_condition_raw ? cleanText(data.special_condition_raw) : '',

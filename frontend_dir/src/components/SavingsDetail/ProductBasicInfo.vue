@@ -9,7 +9,9 @@
         }}</span>
       </div>
     </div>
-    <p class="mt-4 text-sm text-slate-400">※ 실제 가입 전 상품설명서와 약관을 꼭 확인해주세요.</p>
+    <p class="mt-4 text-sm font-light text-slate-400">
+      ※ 실제 가입 전 상품설명서와 약관을 꼭 확인해주세요 :)
+    </p>
   </div>
 </template>
 

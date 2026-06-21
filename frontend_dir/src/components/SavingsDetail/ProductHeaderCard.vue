@@ -1,8 +1,7 @@
 <template>
   <div class="mb-6 overflow-hidden rounded-3xl bg-white shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
     <div class="flex w-full items-stretch px-8 py-7">
-      <!-- 좌: 은행 로고 + 상품명 + 태그 -->
-      <div class="flex w-2/5 items-center gap-5">
+      <div class="flex w-1/2 items-center gap-5">
         <div
           class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl font-extrabold text-white"
           :style="{
@@ -90,7 +89,10 @@
 import type { ProductDetail } from '@/types/product'
 
 defineProps<{
-  product: Pick<ProductDetail, 'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags'>
+  product: Pick<
+    ProductDetail,
+    'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags'
+  >
   isFavorite: boolean
   bonusRate: number
   bankUrl: string
