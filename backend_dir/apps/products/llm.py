@@ -286,7 +286,7 @@ def generate_ai_summary(product):
     terms = data.get("terms")
     if not isinstance(terms, list):
         terms = []
-    return _render_summary(summary, terms[:1])  # 어려운 용어는 1개만 보여준다
+    return _render_summary(summary, terms[:2])  # 어려운 용어는 최대 두개까지
 
 
 # ── 3) AI 챗봇 (상품 상세 실시간 Q&A, 스트리밍) ────────────────
