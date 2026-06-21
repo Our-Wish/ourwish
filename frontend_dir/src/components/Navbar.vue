@@ -7,7 +7,7 @@
   >
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between">
       <RouterLink to="/" class="text-xl font-bold tracking-tight text-slate-900"
-        >OurWish</RouterLink
+        >OURWISH</RouterLink
       >
 
       <div class="flex items-center gap-4">
