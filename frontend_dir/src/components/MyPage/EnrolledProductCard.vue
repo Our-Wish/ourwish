@@ -17,7 +17,7 @@
 
       <template v-if="isFilled">
         <div class="flex-1">
-          <p class="text-xs text-slate-400">{{ bankName }}•{{ productType }}</p>
+          <p class="text-xs text-slate-400">{{ bankName }}</p>
           <div class="flex items-center gap-4">
             <p class="text-lg font-bold text-slate-900">{{ productName }}</p>
             <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
@@ -42,7 +42,7 @@
 
       <template v-else>
         <div class="flex-1">
-          <p class="text-xs text-slate-400">{{ bankName }}•{{ productType }}</p>
+          <p class="text-xs text-slate-400">{{ bankName }}</p>
           <p class="text-lg font-bold text-slate-900">{{ productName }}</p>
           <p class="mt-1 text-sm text-slate-400">
             목표 금액과 기간을 입력해 달성률을 확인해보세요.
