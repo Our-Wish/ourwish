@@ -34,8 +34,10 @@ class SearchProfile(models.Model):
         Member, on_delete=models.CASCADE, related_name="search_profile"
     )
     # STEP 01
-    save_term = models.IntegerField(choices=SaveTerm.choices)  # 저축 기간(개월)
-    monthly_amount = models.IntegerField()  # 월 저축액(원), 5만~300만
+    save_term = models.IntegerField(choices=SaveTerm.choices)  # 저축/예치 기간(개월)
+    monthly_amount = models.IntegerField()  # 월 저축액(원, 적금용), 5만~300만
+    # 예금(거치식) 추천용 예치금액(원). 적금만 쓰던 시절엔 없던 값이라 nullable.
+    deposit_amount = models.IntegerField(null=True, blank=True)
     # STEP 02
     birth_date = models.DateField()  # 생년월일 → 만 나이/연령대 매칭에 사용
     salary_transfer = models.BooleanField()  # 급여이체 가능 여부

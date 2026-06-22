@@ -16,7 +16,15 @@ class Bank(models.Model):
 
 
 class Product(models.Model):
+    class ProductType(models.TextChoices):
+        SAVINGS = "SAVINGS", "적금"
+        DEPOSIT = "DEPOSIT", "예금"
+
     bank = models.ForeignKey(Bank, on_delete=models.RESTRICT, related_name="products")
+    # 적금(적립식)/예금(거치식) 구분. 기존 데이터는 전부 적금이라 기본값 SAVINGS.
+    product_type = models.CharField(
+        max_length=20, choices=ProductType.choices, default=ProductType.SAVINGS
+    )
     fin_prdt_cd = models.CharField(max_length=50)
     product_name = models.CharField(max_length=200)
     # FSS 원문 필드 — 상품 상세에 그대로 노출.
@@ -59,7 +67,10 @@ class ProductOption(models.Model):
     )
     save_term = models.IntegerField()
     intr_rate_type = models.CharField(max_length=1, choices=IntrRateType.choices)
-    rsrv_type = models.CharField(max_length=1, choices=RsrvType.choices)
+    # 예금(거치식)은 FSS 데이터에 적립유형 자체가 없어 NULL로 둔다(적금만 값이 있음).
+    rsrv_type = models.CharField(
+        max_length=1, choices=RsrvType.choices, null=True, blank=True
+    )
     base_rate = models.DecimalField(max_digits=5, decimal_places=2)
     max_rate = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True

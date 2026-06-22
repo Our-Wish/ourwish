@@ -70,7 +70,7 @@ def _parse_json(content):
 
 # ── 1) 매칭 태그 + 연령 제한 분류 ──────────────────────────────
 _TAGS_DEVELOPER = """
-너는 적금 상품의 우대조건 원문과 가입 대상을 읽고,
+너는 {PRODUCT_LABEL} 상품의 우대조건 원문과 가입 대상을 읽고,
 정해진 4가지 우대조건 태그 해당 여부와 가입 연령 제한을 뽑아내는 분류기야.
 
 태그 4개 — 이 상품이 그 우대조건을 "제공하면" true, 아니면 false:
@@ -131,6 +131,9 @@ def generate_tags(product):
     우대조건 원문(special_condition_raw)으로 태그를, 가입 대상(join_member)으로
     연령 제한을 뽑는다. 한 번의 GMS 호출로 처리한다.
     """
+    developer = _TAGS_DEVELOPER.replace(
+        "{PRODUCT_LABEL}", product.get_product_type_display()
+    )
     user = (
         f"가입 대상: {product.join_member or '정보 없음'}\n"
         f"우대조건:\n{product.special_condition_raw or '없음'}\n\n"
@@ -138,7 +141,7 @@ def generate_tags(product):
         '"card_usage": ..., "housing_subscription": ..., '
         '"age_min": ..., "age_max": ...}'
     )
-    data = _parse_json(_chat(_TAGS_DEVELOPER, user))
+    data = _parse_json(_chat(developer, user))
     if not data:
         return {}
     result = {key: bool(data.get(key)) for key in _TAG_KEYS}
@@ -154,14 +157,14 @@ def generate_tags(product):
 # LLM에는 {용어, 뜻}만 받고, "'OOO'는 ~라는 뜻이에요!" 친절한 문장은 파이썬이
 # 조립한다. 조사(은/는·라는/이라는)도 받침을 보고 직접 붙여 맞춤법 오류를 없앤다.
 _AI_SUMMARY_DEVELOPER = """
-너는 금융을 처음 접하는 사회초년생에게 적금 상품을 쉽게 설명해주는 OURWISH AI 도우미야.
+너는 금융을 처음 접하는 사회초년생에게 {PRODUCT_LABEL} 상품을 쉽게 설명해주는 OURWISH AI 도우미야.
 
 상품의 가입대상·가입방법·납입한도·만기이자·유의사항·우대조건을 읽고
 summary와 terms를 만들어.
 
 목표:
 - 사용자가 상품설명서를 다 읽지 않아도
-  "이 적금이 어떤 사람에게 유리한지" 바로 이해하게 만든다.
+  "이 {PRODUCT_LABEL}이 어떤 사람에게 유리한지" 바로 이해하게 만든다.
 - 단순히 우대조건을 나열하지 말고,
   어떤 생활 패턴을 가진 사람에게 맞는 상품인지 쉽게 말한다.
 
@@ -174,7 +177,7 @@ summary 규칙:
 - 1문장, 80자 이내, 반드시 '~요!'로 끝낸다.
 - 사회초년생이 딱 보고 이해할 수 있게 친절하게 쓴다.
 - 우대조건이 있으면 대표 조건 2~3개만 골라 말한다.
-- 조건을 나열하기보다 "어떤 사람에게 유리한 적금인지"가 느껴지게 쓴다.
+- 조건을 나열하기보다 "어떤 사람에게 유리한 {PRODUCT_LABEL}인지"가 느껴지게 쓴다.
 - 급여이체, 공과금 자동이체, 카드사용, 오픈뱅킹, 주택청약, 비대면가입 등 실제 조건명을 사용한다.
 - %p, 금액, 기간 같은 숫자는 쓰지 않는다.
 - "조건을 채우면 이자를 더 받아요"처럼 뻔한 표현은 금지한다.
@@ -184,16 +187,16 @@ summary 규칙:
 - "우대받기 좋은", "챙기기 좋은"만 반복하지 말고 상품마다 다른 표현을 쓴다.
 
 좋은 summary 예:
-- "우리은행을 주거래로 쓰고 월급·공과금·카드결제까지 관리하는 사람에게 잘 맞는 적금이에요!"
-- "스마트폰으로 간편하게 가입하고, 오픈뱅킹을 함께 쓰면 우대받기 좋은 적금이에요!"
-- "카드 사용과 개인정보 동의, 외화적금 가입까지 함께 할 사람에게 유리한 적금이에요!"
-- "비대면으로 가입하고 다른 은행 계좌를 오픈뱅킹에 연결하면 챙기기 좋은 적금이에요!"
+- "우리은행을 주거래로 쓰고 월급·공과금·카드결제까지 관리하는 사람에게 잘 맞는 {PRODUCT_LABEL}이에요!"
+- "스마트폰으로 간편하게 가입하고, 오픈뱅킹을 함께 쓰면 우대받기 좋은 {PRODUCT_LABEL}이에요!"
+- "카드 사용과 개인정보 동의, 외화적금 가입까지 함께 할 사람에게 유리한 {PRODUCT_LABEL}이에요!"
+- "비대면으로 가입하고 다른 은행 계좌를 오픈뱅킹에 연결하면 챙기기 좋은 {PRODUCT_LABEL}이에요!"
 
 나쁜 summary 예:
-- "조건을 충족하면 우대받는 적금이에요!"
-- "금리가 좋은 적금이에요!"
+- "조건을 충족하면 우대받는 {PRODUCT_LABEL}이에요!"
+- "금리가 좋은 {PRODUCT_LABEL}이에요!"
 - "여러 조건을 만족하면 이자를 더 받을 수 있어요!"
-- "월급·연금 이체하거나 공과금 자동이체나 우리카드 결제하면 우대받는 적금이에요!"
+- "월급·연금 이체하거나 공과금 자동이체나 우리카드 결제하면 우대받는 {PRODUCT_LABEL}이에요!"
 
 terms 규칙:
 - terms는 진짜 어려운 금융용어 2개까지만 고른다.
@@ -210,7 +213,7 @@ terms 규칙:
 만기 후 이자: 만기시점 약정이율 기준
 
 출력:
-{"summary":"우리은행을 주거래로 쓰고 월급·공과금·카드결제까지 관리하는 사람에게 잘 맞는 적금이에요!","terms":[{"term":"약정이율","meaning":"가입할 때 정해진 적용 이자율"}]}
+{"summary":"우리은행을 주거래로 쓰고 월급·공과금·카드결제까지 관리하는 사람에게 잘 맞는 {PRODUCT_LABEL}이에요!","terms":[{"term":"약정이율","meaning":"가입할 때 정해진 적용 이자율"}]}
 
 예시 2:
 입력:
@@ -219,7 +222,7 @@ terms 규칙:
 가입방법: 스마트폰, 전화
 
 출력:
-{"summary":"스마트폰으로 가입하고 우리은행 통장과 오픈뱅킹을 함께 쓰면 챙기기 좋은 적금이에요!","terms":[]}
+{"summary":"스마트폰으로 가입하고 우리은행 통장과 오픈뱅킹을 함께 쓰면 챙기기 좋은 {PRODUCT_LABEL}이에요!","terms":[]}
 
 예시 3:
 입력:
@@ -227,7 +230,7 @@ terms 규칙:
 우대조건: 평잔 유지, 주택청약 보유, 함께예금 동시 가입, 오픈뱅킹 타행계좌 등록, 인터넷/모바일뱅킹 가입
 
 출력:
-{"summary":"주택청약이나 오픈뱅킹을 이미 쓰고 있다면 우대조건을 챙기기 쉬운 적금이에요!","terms":[{"term":"평잔","meaning":"일정 기간 통장에 있던 평균 잔액"}]}
+{"summary":"주택청약이나 오픈뱅킹을 이미 쓰고 있다면 우대조건을 챙기기 쉬운 {PRODUCT_LABEL}이에요!","terms":[{"term":"평잔","meaning":"일정 기간 통장에 있던 평균 잔액"}]}
 
 예시 4:
 입력:
@@ -235,7 +238,7 @@ terms 규칙:
 우대조건: 외화적금 동일자 가입, 카드사용실적, 개인정보 동의
 
 출력:
-{"summary":"여행자금처럼 목돈을 모으면서 외화적금과 카드사용도 함께 챙길 사람에게 어울리는 적금이에요!","terms":[{"term":"고시금리","meaning":"은행이 정해 공시한 기준 이자율"}]}
+{"summary":"여행자금처럼 목돈을 모으면서 외화적금과 카드사용도 함께 챙길 사람에게 어울리는 {PRODUCT_LABEL}이에요!","terms":[{"term":"고시금리","meaning":"은행이 정해 공시한 기준 이자율"}]}
 """
 
 
@@ -269,6 +272,9 @@ def _render_summary(summary, terms):
 
 def generate_ai_summary(product):
     """상품 → AI 쉬운말 소개 문자열(친절한 핵심 + 용어 풀이 줄들). 실패 시 None."""
+    developer = _AI_SUMMARY_DEVELOPER.replace(
+        "{PRODUCT_LABEL}", product.get_product_type_display()
+    )
     user = (
         f"상품명: {product.product_name} ({product.bank.bank_name})\n"
         f"가입 대상: {product.join_member or '정보 없음'}\n"
@@ -280,7 +286,7 @@ def generate_ai_summary(product):
         '출력: {"summary": "(쉽고 친절한 핵심 한 줄)", '
         '"terms": [{"term": "용어", "meaning": "쉬운 뜻"}, ...]}'
     )
-    data = _parse_json(_chat(_AI_SUMMARY_DEVELOPER, user))
+    data = _parse_json(_chat(developer, user))
     if not data:
         return None
     summary = (data.get("summary") or "").strip()
@@ -303,8 +309,9 @@ _CHAT_ROLES = {"user", "assistant"}  # 프론트가 보낼 수 있는 역할(이
 
 def _build_chat_instruction(product):
     """상품 데이터 + 역할/답변 지침을 담은 developer 프롬프트."""
+    label = product.get_product_type_display()  # "적금" 또는 "예금"
     return (
-        f"너는 적금 상품 '{product.product_name}'({product.bank.bank_name})을 "
+        f"너는 {label} 상품 '{product.product_name}'({product.bank.bank_name})을 "
         "금융을 잘 모르는 사회초년생에게 쉽게 풀어 설명하는 OURWISH AI 도우미야. "
         "다정한 존댓말을 쓰되, 답변은 짧고 명확하게 해. 이모지는 쓰지 마.\n\n"
 

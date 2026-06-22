@@ -4,11 +4,11 @@ from django.core.management.base import BaseCommand
 from apps.products.fss_sync import FSSProductSync
 from apps.products.models import Product
 
-FSS_BASE_URL = "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json"
+FSS_BASE_URL = "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json"
 
 
 class Command(BaseCommand):
-    help = "금감원 API에서 적금 상품을 받아 DB에 적재. --with-llm 시 GMS로 태그·요약 보강"
+    help = "금감원 API에서 예금 상품을 받아 DB에 적재. --with-llm 시 GMS로 태그·요약 보강"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -34,8 +34,9 @@ class Command(BaseCommand):
         sync = FSSProductSync(
             fss_api_key=settings.FSS_API_KEY,
             base_url=FSS_BASE_URL,
-            product_type=Product.ProductType.SAVINGS,
-            has_rsrv_type=True,
+            product_type=Product.ProductType.DEPOSIT,
+            # 예금(거치식)은 FSS optionList에 적립유형(rsrv_type) 필드가 없음.
+            has_rsrv_type=False,
         )
         total_products, total_options = sync.run(self.stdout, self.stderr)
         self.stdout.write(

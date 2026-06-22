@@ -47,6 +47,7 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         fields = [
             "save_term",
             "monthly_amount",
+            "deposit_amount",
             "birth_date",
             "salary_transfer",
             "auto_transfer",
