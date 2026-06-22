@@ -4,6 +4,8 @@
 키는 .env의 YOUTUBE_API_KEY를 settings를 통해 읽어 쓴다(브라우저엔 노출되지 않음).
 """
 
+import html
+
 import requests
 from django.conf import settings
 
@@ -57,8 +59,9 @@ def search_videos(query, max_results=12):
         results.append(
             {
                 "video_id": item["id"]["videoId"],
-                "title": snippet["title"],
-                "channel_name": snippet["channelTitle"],
+                # YouTube는 제목·채널명을 HTML 이스케이프(&#39; 등)해 주므로 풀어준다.
+                "title": html.unescape(snippet["title"]),
+                "channel_name": html.unescape(snippet["channelTitle"]),
                 "thumbnail_url": _pick_thumbnail(snippet["thumbnails"]),
                 "published_at": snippet["publishedAt"],
             }
@@ -88,9 +91,10 @@ def get_video_detail(video_id):
     snippet = items[0]["snippet"]
     return {
         "video_id": video_id,
-        "title": snippet["title"],
-        "channel_name": snippet["channelTitle"],
+        # 제목·채널명·설명 모두 HTML 이스케이프되어 오므로 풀어준다.
+        "title": html.unescape(snippet["title"]),
+        "channel_name": html.unescape(snippet["channelTitle"]),
         "published_at": snippet["publishedAt"],
-        "description": snippet.get("description", ""),
+        "description": html.unescape(snippet.get("description", "")),
         "thumbnail_url": _pick_thumbnail(snippet["thumbnails"]),
     }
