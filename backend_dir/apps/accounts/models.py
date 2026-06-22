@@ -41,9 +41,14 @@ class SearchProfile(models.Model):
     # STEP 02
     birth_date = models.DateField()  # 생년월일 → 만 나이/연령대 매칭에 사용
     salary_transfer = models.BooleanField()  # 급여이체 가능 여부
-    auto_transfer = models.BooleanField()  # 자동이체 가능 여부
+    auto_transfer = models.BooleanField()  # 자동이체 가능 여부 (적금)
     card_usage = models.BooleanField()  # 카드실적 가능 여부
-    housing_subscription = models.BooleanField()  # 주택청약 보유 여부
+    housing_subscription = models.BooleanField()  # 주택청약 보유 여부 (적금)
+    # 예금 전용 STEP02 답변. 적금만 쓰던 기존 프로필엔 없던 값이라 기본값 False.
+    first_transaction = models.BooleanField(default=False)  # 이 은행 첫거래(신규) 여부
+    online_signup = models.BooleanField(default=False)  # 비대면(인터넷·모바일) 가입 의향
+    marketing_consent = models.BooleanField(default=False)  # 마케팅·알림 수신 동의 가능
+    redeposit = models.BooleanField(default=False)  # 만기 재예치/재가입 의향
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

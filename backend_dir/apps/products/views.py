@@ -17,15 +17,21 @@ from .serializers import ProductDetailSerializer, RecommendQuerySerializer
 from .services import calculate_after_tax_payout, calculate_deposit_after_tax_payout
 
 # 유저 프로필(SearchProfile)의 우대조건 플래그 ↔ 상품 태그 필드 매핑.
-_TAG_FIELDS = ["salary_transfer", "auto_transfer", "card_usage", "housing_subscription"]
+# 상품군(product_type)마다 STEP02 질문이 달라 태그 집합도 다르다.
+#   적금: 급여이체·자동이체·카드실적·청약
+#   예금: 첫거래·비대면가입·마케팅동의·재예치 (예금 우대조건 데이터 빈도 기준)
+_SAVINGS_TAG_FIELDS = ["salary_transfer", "auto_transfer", "card_usage", "housing_subscription"]
+_DEPOSIT_TAG_FIELDS = ["first_transaction", "online_signup", "marketing_consent", "redeposit"]
 
 # 우대조건 원문이 사실상 비어있음을 뜻하는 값들(파싱 없이 단순 판정).
-_NO_CONDITION = {"", "없음", "해당없음"}
+# 예금 데이터에 '해당사항없음'·'우대조건없음'류가 많아 함께 포함한다.
+_NO_CONDITION = {"", "없음", "해당없음", "해당사항없음", "우대조건없음", "우대사항없음"}
 
 
 def _has_conditions(raw):
     """우대조건 원문에 실제 내용이 있으면 True. 비어있거나 '없음'류면 False."""
-    return (raw or "").strip() not in _NO_CONDITION
+    # 공백 제거 후 비교 → "해당사항 없음" 같은 띄어쓰기 변형도 함께 잡는다.
+    return (raw or "").replace(" ", "").strip() not in _NO_CONDITION
 
 
 # 추천 응답 한 건의 모양(문서용). 실제 값은 _build_item이 dict로 만든다.
@@ -122,8 +128,9 @@ class ProductRecommendView(APIView):
         else:
             amount = profile.monthly_amount
         age = _calc_age(profile.birth_date)
-        # 유저가 T로 답한 우대조건 태그 목록.
-        wanted = [tag for tag in _TAG_FIELDS if getattr(profile, tag)]
+        # 상품군에 맞는 태그 집합에서, 유저가 T로 답한 것만 추린다.
+        tag_fields = _DEPOSIT_TAG_FIELDS if is_deposit else _SAVINGS_TAG_FIELDS
+        wanted = [tag for tag in tag_fields if getattr(profile, tag)]
         use_max = sort in ("max", "all")  # base만 기본금리, 나머지는 최고금리
 
         today = date.today().strftime("%Y%m%d")
@@ -146,6 +153,9 @@ class ProductRecommendView(APIView):
                 continue
             # 2) 한도 필터 (적금=월 납입 한도, 예금=가입 한도)
             if product.max_limit is not None and amount > product.max_limit:
+                continue
+            # 2-1) 최소금액 필터 — 내 금액이 상품 최소가입금액에 못 미치면 제외
+            if product.min_limit is not None and amount < product.min_limit:
                 continue
             # 3) 연령 필터
             if not _age_ok(age, product.age_min, product.age_max):

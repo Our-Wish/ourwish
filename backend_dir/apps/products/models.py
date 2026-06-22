@@ -31,6 +31,9 @@ class Product(models.Model):
     join_member = models.CharField(max_length=500, blank=True)
     join_way = models.CharField(max_length=200, blank=True)
     max_limit = models.BigIntegerField(null=True, blank=True)  # 월 납입 한도 필터에 사용
+    # 최소 가입금액(원). FSS 원문엔 구조화 안 돼 있어 LLM이 etc_note 등에서 추출.
+    # NULL = 최소금액 정보 없음(하한 필터에서 안 거름).
+    min_limit = models.BigIntegerField(null=True, blank=True)
     maturity_interest = models.TextField(blank=True)
     etc_note = models.TextField(blank=True)
     special_condition_raw = models.TextField(blank=True)  # 우대조건 전문(파싱 없이 노출)
@@ -38,7 +41,12 @@ class Product(models.Model):
     tag_salary_transfer = models.BooleanField(default=False)  # 급여이체
     tag_auto_transfer = models.BooleanField(default=False)  # 자동이체
     tag_card_usage = models.BooleanField(default=False)  # 카드실적
-    tag_housing_subscription = models.BooleanField(default=False)  # 청약
+    tag_housing_subscription = models.BooleanField(default=False)  # 청약(적금)
+    # 예금 전용 태그 — 예금 우대조건 데이터 빈도 상위 4종(적금엔 안 쓰임).
+    tag_first_transaction = models.BooleanField(default=False)  # 첫거래/신규
+    tag_online_signup = models.BooleanField(default=False)  # 비대면(인터넷·모바일) 가입
+    tag_marketing_consent = models.BooleanField(default=False)  # 마케팅·알림 동의
+    tag_redeposit = models.BooleanField(default=False)  # 재예치/재가입
     # 가입 연령 제한(NULL=제한 없음). 나이 필터에 사용.
     age_min = models.IntegerField(null=True, blank=True)
     age_max = models.IntegerField(null=True, blank=True)

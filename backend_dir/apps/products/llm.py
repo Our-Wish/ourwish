@@ -71,13 +71,17 @@ def _parse_json(content):
 # ── 1) 매칭 태그 + 연령 제한 분류 ──────────────────────────────
 _TAGS_DEVELOPER = """
 너는 {PRODUCT_LABEL} 상품의 우대조건 원문과 가입 대상을 읽고,
-정해진 4가지 우대조건 태그 해당 여부와 가입 연령 제한을 뽑아내는 분류기야.
+정해진 8가지 우대조건 태그 해당 여부, 가입 연령 제한, 최소 가입금액을 뽑아내는 분류기야.
 
-태그 4개 — 이 상품이 그 우대조건을 "제공하면" true, 아니면 false:
+태그 8개 — 이 상품이 그 우대조건을 "제공하면" true, 아니면 false:
 - salary_transfer (급여이체): 이 은행 계좌로 급여/연금을 이체하면 우대받는 조건.
 - auto_transfer (자동이체): 적금 자동이체, 공과금 자동이체 등 자동이체 관련 우대.
 - card_usage (카드실적): 이 은행 신용/체크카드 사용실적이 있으면 우대.
 - housing_subscription (청약): 주택청약종합저축 보유(또는 미보유) 관련 우대.
+- first_transaction (첫거래): 이 은행과 처음 거래(신규 고객)하면 우대.
+- online_signup (비대면가입): 인터넷뱅킹/모바일앱 등 비대면(영업점 미방문)으로 가입하면 우대.
+- marketing_consent (마케팅동의): 마케팅·광고·알림(혜택알림) 수신 동의 시 우대.
+- redeposit (재예치): 만기 후 재예치/재가입(다시 맡김) 시 우대.
 
 연령 제한 — 가입 대상에 나이 제한이 있으면 만 나이로 추출:
 - 예: "만 19세~34세" → age_min=19, age_max=34
@@ -85,26 +89,34 @@ _TAGS_DEVELOPER = """
 - 예: "만 19세 이상" → age_min=19, age_max=null
 - 나이 제한이 없으면 age_min, age_max 모두 null.
 
+최소 가입금액(min_limit) — 가입 시 최소로 넣어야 하는 금액을 '원' 단위 정수로 추출:
+- 적금이면 매월 최소 납입액, 예금이면 최소 예치금액 기준.
+- 예: "월 10만원 이상" → min_limit=100000
+- 예: "최소 가입금액 100만원" → min_limit=1000000
+- 금액 명시가 없으면 min_limit=null.
+
 규칙:
-- 원문에 근거가 있을 때만 태그를 true로 한다. 추측·과잉판단 금지.
+- 원문에 근거가 있을 때만 태그를 true로 하고, 금액도 명시가 있을 때만 추출한다. 추측·과잉판단 금지.
 - "사원증/사원카드" 같은 증빙 서류는 카드실적이 아니다(false).
 - 반드시 JSON 객체 하나만 출력. 마크다운·설명 금지.
-- 키: salary_transfer, auto_transfer, card_usage, housing_subscription, age_min, age_max.
+- 키: salary_transfer, auto_transfer, card_usage, housing_subscription, first_transaction, online_signup, marketing_consent, redeposit, age_min, age_max, min_limit.
 
 퓨샷 예시:
 입력:
 가입 대상: 만 19세 이상 만 34세 이하 실명의 개인
 우대조건: -당행 급여이체 실적 보유: 0.3%p / -자동이체 6회 이상: 0.2%p
+기타 유의사항: 월 10만원 이상 납입
 
 출력:
-{"salary_transfer": true, "auto_transfer": true, "card_usage": false, "housing_subscription": false, "age_min": 19, "age_max": 34}
+{"salary_transfer": true, "auto_transfer": true, "card_usage": false, "housing_subscription": false, "first_transaction": false, "online_signup": false, "marketing_consent": false, "redeposit": false, "age_min": 19, "age_max": 34, "min_limit": 100000}
 
 입력:
 가입 대상: 실명의 개인
-우대조건: -당행 주택청약종합저축 보유: 0.2%p / -당행 신용카드 월 30만원 이상 이용: 0.3%p
+우대조건: -비대면(인터넷뱅킹) 가입: 0.1%p / -마케팅 정보 수신 동의: 0.1%p / -만기 후 재예치 고객: 0.1%p
+기타 유의사항: 최소 가입금액 100만원
 
 출력:
-{"salary_transfer": false, "auto_transfer": false, "card_usage": true, "housing_subscription": true, "age_min": null, "age_max": null}
+{"salary_transfer": false, "auto_transfer": false, "card_usage": false, "housing_subscription": false, "first_transaction": false, "online_signup": true, "marketing_consent": true, "redeposit": true, "age_min": null, "age_max": null, "min_limit": 1000000}
 """
 
 _TAG_KEYS = (
@@ -112,11 +124,15 @@ _TAG_KEYS = (
     "auto_transfer",
     "card_usage",
     "housing_subscription",
+    "first_transaction",
+    "online_signup",
+    "marketing_consent",
+    "redeposit",
 )
 
 
-def _to_age(value):
-    """LLM이 준 나이 값을 int 또는 None으로 정규화."""
+def _to_int(value):
+    """LLM이 준 숫자 값(나이·금액 등)을 int 또는 None으로 정규화."""
     if value is None:
         return None
     try:
@@ -126,27 +142,31 @@ def _to_age(value):
 
 
 def generate_tags(product):
-    """상품 → {4개 태그 bool, age_min, age_max}. 실패 시 빈 dict.
+    """상품 → {6개 태그 bool, age_min, age_max, min_limit}. 실패 시 빈 dict.
 
-    우대조건 원문(special_condition_raw)으로 태그를, 가입 대상(join_member)으로
-    연령 제한을 뽑는다. 한 번의 GMS 호출로 처리한다.
+    우대조건 원문(special_condition_raw)·기타 유의사항(etc_note)으로 태그·최소금액을,
+    가입 대상(join_member)으로 연령 제한을 뽑는다. 한 번의 GMS 호출로 처리한다.
     """
     developer = _TAGS_DEVELOPER.replace(
         "{PRODUCT_LABEL}", product.get_product_type_display()
     )
     user = (
         f"가입 대상: {product.join_member or '정보 없음'}\n"
-        f"우대조건:\n{product.special_condition_raw or '없음'}\n\n"
+        f"우대조건:\n{product.special_condition_raw or '없음'}\n"
+        f"기타 유의사항:\n{product.etc_note or '없음'}\n\n"
         '출력: {"salary_transfer": ..., "auto_transfer": ..., '
         '"card_usage": ..., "housing_subscription": ..., '
-        '"age_min": ..., "age_max": ...}'
+        '"first_transaction": ..., "online_signup": ..., '
+        '"marketing_consent": ..., "redeposit": ..., '
+        '"age_min": ..., "age_max": ..., "min_limit": ...}'
     )
     data = _parse_json(_chat(developer, user))
     if not data:
         return {}
     result = {key: bool(data.get(key)) for key in _TAG_KEYS}
-    result["age_min"] = _to_age(data.get("age_min"))
-    result["age_max"] = _to_age(data.get("age_max"))
+    result["age_min"] = _to_int(data.get("age_min"))
+    result["age_max"] = _to_int(data.get("age_max"))
+    result["min_limit"] = _to_int(data.get("min_limit"))
     return result
 
 
