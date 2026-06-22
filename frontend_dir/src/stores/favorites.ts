@@ -6,6 +6,7 @@ export interface Favorite {
   bank_name: string
   bank_type: string
   product_name: string
+  product_type: 'DEPOSIT' | 'SAVINGS'
   base_rate: number
   max_rate: number
   expected_payout: number

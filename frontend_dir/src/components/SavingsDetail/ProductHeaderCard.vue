@@ -104,8 +104,15 @@
     </div>
   </div>
 
-  <CalcModal
-    v-if="showCalc"
+  <DepositCalcModal
+    v-if="showCalc && product.productType === 'deposit'"
+    :base-rate="product.baseRate"
+    :max-rate="product.maxRate"
+    :bonus-rate="bonusRate"
+    @close="showCalc = false"
+  />
+  <SavingsCalcModal
+    v-if="showCalc && product.productType === 'savings'"
     :base-rate="product.baseRate"
     :max-rate="product.maxRate"
     :bonus-rate="bonusRate"
@@ -116,12 +123,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ProductDetail } from '@/types/product'
-import CalcModal from './CalcModal.vue'
+import DepositCalcModal from './DepositCalcModal.vue'
+import SavingsCalcModal from './SavingsCalcModal.vue'
 
 defineProps<{
   product: Pick<
     ProductDetail,
-    'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags'
+    'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags' | 'productType'
   >
   isFavorite: boolean
   bonusRate: number

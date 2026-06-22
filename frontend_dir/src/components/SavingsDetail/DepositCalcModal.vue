@@ -12,18 +12,18 @@
 
         <div class="space-y-4">
           <div>
-            <p class="mb-2 text-sm font-semibold text-slate-500">매달 넣을 금액 (만원)</p>
+            <p class="mb-2 text-sm font-semibold text-slate-500">예치 금액 (만원)</p>
             <input
               v-model.number="calcAmount"
               type="number"
               min="1"
               class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base focus:border-blue-400 focus:outline-none"
-              placeholder="예: 30"
+              placeholder="예: 1000"
             />
           </div>
 
           <div>
-            <p class="mb-2 text-sm font-semibold text-slate-500">저축 기간</p>
+            <p class="mb-2 text-sm font-semibold text-slate-500">예치 기간</p>
             <div class="flex gap-2">
               <button
                 v-for="m in [6, 12, 24, 36]"
@@ -57,7 +57,6 @@
                   기본 금리 {{ baseRate }}%
                 </button>
                 <button
-                  v-if="bonusRate > 0"
                   @click="calcRate = maxRate"
                   class="rounded-xl px-2 py-0.5 text-xs font-medium transition"
                   :class="
@@ -91,14 +90,12 @@
             {{ totalAmount.toLocaleString() }}만원
           </p>
           <div class="mt-3 flex items-center gap-2 text-sm text-slate-500">
-            <span>원금 {{ principal.toLocaleString() }}만원</span>
+            <span>원금 {{ calcAmount.toLocaleString() }}만원</span>
             <span class="text-slate-300">|</span>
-            <span
-              >세후 이자
-              <span class="font-semibold text-blue-500"
-                >+{{ afterTaxInterest.toLocaleString() }}만원</span
-              ></span
-            >
+            <span>
+              세후 이자
+              <span class="font-semibold text-blue-500">+{{ afterTaxInterest.toLocaleString() }}만원</span>
+            </span>
           </div>
         </div>
 
@@ -122,16 +119,13 @@ defineEmits<{ close: [] }>()
 
 const goalStore = useGoalStore()
 
-const calcAmount = ref(goalStore.monthlyAmount || 30)
+const calcAmount = ref(1000)
 const calcPeriod = ref(goalStore.period || 12)
-const calcRate = ref(props.maxRate)
+const calcRate = ref(props.maxRate || 3.5)
 
-const principal = computed(() => calcAmount.value * calcPeriod.value)
 const afterTaxInterest = computed(() => {
-  const interest =
-    ((calcAmount.value * calcPeriod.value * (calcPeriod.value + 1)) / 2) *
-    (calcRate.value / 100 / 12)
+  const interest = calcAmount.value * (calcRate.value / 100) * (calcPeriod.value / 12)
   return Math.round(interest * (1 - 0.154))
 })
-const totalAmount = computed(() => principal.value + afterTaxInterest.value)
+const totalAmount = computed(() => calcAmount.value + afterTaxInterest.value)
 </script>

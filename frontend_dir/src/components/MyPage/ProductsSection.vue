@@ -77,8 +77,12 @@ const activeTab = ref<'deposit' | 'savings'>('deposit')
 const deletingId = ref<number | null>(null)
 
 const displayProducts = computed(() => {
-  if (activeTab.value === 'deposit') return []
-  return savingsStore.enrollments.map((item) => ({
+  const filtered = savingsStore.enrollments.filter((item) =>
+    activeTab.value === 'deposit'
+      ? item.product_type === 'DEPOSIT'
+      : item.product_type === 'SAVINGS',
+  )
+  return filtered.map((item) => ({
     id: item.enrollment_id,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
