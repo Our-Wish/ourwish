@@ -6,6 +6,7 @@ import SavingsDetailView from '@/views/SavingsDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
+import VideoSearchView from '@/views/VideoSearchView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/goldsilver',
       name: 'goldsilver',
       component: GoldSilverView,
+    },
+    {
+      path: '/videosearch',
+      name: 'videosearch',
+      component: VideoSearchView,
     },
   ],
 })
