@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.goals",
     "apps.enrollments",
     "apps.favorites",
+    "apps.community",
 ]
 
 MIDDLEWARE = [
