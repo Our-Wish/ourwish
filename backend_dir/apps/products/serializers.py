@@ -30,6 +30,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="id", read_only=True)
     bank_name = serializers.CharField(source="bank.bank_name", read_only=True)
     bank_type = serializers.CharField(source="bank.bank_type", read_only=True)
+    product_type = serializers.CharField(read_only=True)  # "SAVINGS"(적금) / "DEPOSIT"(예금)
     base_rate = serializers.SerializerMethodField()
     max_rate = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
@@ -42,6 +43,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "product_id",
             "bank_name",
             "bank_type",
+            "product_type",
             "product_name",
             # FSS 원문 5필드(문자열 그대로 노출)
             "join_member",
@@ -99,3 +101,7 @@ class RecommendQuerySerializer(serializers.Serializer):
     """
 
     sort = serializers.ChoiceField(choices=["base", "max", "all"], default="base")
+    # 적금(SAVINGS, 기본값) / 예금(DEPOSIT) — 추천 대상 상품군 선택.
+    product_type = serializers.ChoiceField(
+        choices=["SAVINGS", "DEPOSIT"], default="SAVINGS"
+    )

@@ -14,7 +14,7 @@ from apps.favorites.models import Favorite
 from .llm import stream_chat_reply
 from .models import Product
 from .serializers import ProductDetailSerializer, RecommendQuerySerializer
-from .services import calculate_after_tax_payout
+from .services import calculate_after_tax_payout, calculate_deposit_after_tax_payout
 
 # 유저 프로필(SearchProfile)의 우대조건 플래그 ↔ 상품 태그 필드 매핑.
 _TAG_FIELDS = ["salary_transfer", "auto_transfer", "card_usage", "housing_subscription"]
@@ -35,6 +35,7 @@ RecommendItemSerializer = inline_serializer(
         "product_id": serializers.IntegerField(),
         "bank_name": serializers.CharField(),
         "bank_type": serializers.CharField(),
+        "product_type": serializers.CharField(),
         "product_name": serializers.CharField(),
         "save_term": serializers.IntegerField(),
         "base_rate": serializers.FloatField(),
@@ -98,6 +99,8 @@ class ProductRecommendView(APIView):
         query = RecommendQuerySerializer(data=request.query_params)
         query.is_valid(raise_exception=True)
         sort = query.validated_data["sort"]
+        product_type = query.validated_data["product_type"]
+        is_deposit = product_type == Product.ProductType.DEPOSIT
 
         # 저장된 조회 프로필을 읽어 필터 재료로 쓴다. 없으면 추천 불가.
         profile = getattr(request.user, "search_profile", None)
@@ -108,7 +111,16 @@ class ProductRecommendView(APIView):
             )
 
         term = profile.save_term
-        monthly = profile.monthly_amount
+        # 적금=월 납입액으로, 예금=한 번에 넣는 예치금액으로 추천 계산을 한다.
+        if is_deposit:
+            amount = profile.deposit_amount
+            if amount is None:
+                return Response(
+                    {"detail": "예치금액을 먼저 입력해주세요."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            amount = profile.monthly_amount
         age = _calc_age(profile.birth_date)
         # 유저가 T로 답한 우대조건 태그 목록.
         wanted = [tag for tag in _TAG_FIELDS if getattr(profile, tag)]
@@ -118,6 +130,7 @@ class ProductRecommendView(APIView):
         products = (
             Product.objects.select_related("bank")
             .prefetch_related("options")
+            .filter(product_type=product_type)
             .filter(
                 Q(dcls_end_day__isnull=True)
                 | Q(dcls_end_day="")
@@ -131,8 +144,8 @@ class ProductRecommendView(APIView):
             options = [o for o in product.options.all() if o.save_term == term]
             if not options:
                 continue
-            # 2) 월 납입 한도 필터
-            if product.max_limit is not None and monthly > product.max_limit:
+            # 2) 한도 필터 (적금=월 납입 한도, 예금=가입 한도)
+            if product.max_limit is not None and amount > product.max_limit:
                 continue
             # 3) 연령 필터
             if not _age_ok(age, product.age_min, product.age_max):
@@ -159,9 +172,14 @@ class ProductRecommendView(APIView):
                     if use_max and option.max_rate is not None
                     else option.base_rate
                 )
-                payout = calculate_after_tax_payout(
-                    monthly, term, rate, option.intr_rate_type
-                )
+                if is_deposit:
+                    payout = calculate_deposit_after_tax_payout(
+                        amount, term, rate, option.intr_rate_type
+                    )
+                else:
+                    payout = calculate_after_tax_payout(
+                        amount, term, rate, option.intr_rate_type
+                    )
                 if best_payout is None or payout > best_payout:
                     best_payout = payout
                     best_option = option
@@ -182,6 +200,7 @@ class ProductRecommendView(APIView):
             "product_id": product.id,
             "bank_name": product.bank.bank_name,
             "bank_type": product.bank.bank_type,
+            "product_type": product.product_type,
             "product_name": product.product_name,
             "save_term": option.save_term,
             "base_rate": float(option.base_rate),
