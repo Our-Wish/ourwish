@@ -73,7 +73,7 @@ import { bankColorMap } from '@/constants/bankColors'
 import EnrolledProductCard from '@/components/MyPage/EnrolledProductCard.vue'
 
 const savingsStore = useSavingsStore()
-const activeTab = ref<'deposit' | 'savings'>('savings')
+const activeTab = ref<'deposit' | 'savings'>('deposit')
 const deletingId = ref<number | null>(null)
 
 const displayProducts = computed(() => {

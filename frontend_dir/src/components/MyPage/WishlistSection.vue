@@ -102,7 +102,7 @@ import { bankColorMap } from '@/constants/bankColors'
 const router = useRouter()
 
 const favoritesStore = useFavoritesStore()
-const activeTab = ref<'deposit' | 'savings'>('savings')
+const activeTab = ref<'deposit' | 'savings'>('deposit')
 const deletingId = ref<number | null>(null)
 
 const displayProducts = computed(() => {
