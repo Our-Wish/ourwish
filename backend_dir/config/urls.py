@@ -36,6 +36,7 @@ urlpatterns = [
         SearchProfileView.as_view(),
         name="search_profile",
     ),
+    path("api/v1/community/", include("apps.community.urls")),
     # ---- API 문서 (drf-spectacular) ----
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
