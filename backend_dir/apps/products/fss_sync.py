@@ -25,8 +25,13 @@ TAG_FIELDS = [
     "tag_auto_transfer",
     "tag_card_usage",
     "tag_housing_subscription",
+    "tag_first_transaction",
+    "tag_online_signup",
+    "tag_marketing_consent",
+    "tag_redeposit",
     "age_min",
     "age_max",
+    "min_limit",
 ]
 
 
@@ -148,8 +153,13 @@ class FSSProductSync:
                     product.tag_auto_transfer = tags["auto_transfer"]
                     product.tag_card_usage = tags["card_usage"]
                     product.tag_housing_subscription = tags["housing_subscription"]
+                    product.tag_first_transaction = tags["first_transaction"]
+                    product.tag_online_signup = tags["online_signup"]
+                    product.tag_marketing_consent = tags["marketing_consent"]
+                    product.tag_redeposit = tags["redeposit"]
                     product.age_min = tags["age_min"]
                     product.age_max = tags["age_max"]
+                    product.min_limit = tags["min_limit"]
                     update_fields += TAG_FIELDS
             if do_summary:
                 summary = generate_ai_summary(product)

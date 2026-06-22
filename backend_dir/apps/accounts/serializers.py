@@ -53,11 +53,23 @@ class SearchProfileSerializer(serializers.ModelSerializer):
             "auto_transfer",
             "card_usage",
             "housing_subscription",
+            "first_transaction",
+            "online_signup",
+            "marketing_consent",
+            "redeposit",
         ]
 
     def validate_monthly_amount(self, value):
         if not (50_000 <= value <= 3_000_000):
             raise serializers.ValidationError(
                 "월 저축액은 5만원 이상 300만원 이하여야 합니다."
+            )
+        return value
+
+    def validate_deposit_amount(self, value):
+        # 예금은 거치식이라 한 번에 넣는 예치금액. 적금(5만~300만)보다 상한이 큼.
+        if value is not None and not (50_000 <= value <= 50_000_000):
+            raise serializers.ValidationError(
+                "예치금액은 5만원 이상 5000만원 이하여야 합니다."
             )
         return value

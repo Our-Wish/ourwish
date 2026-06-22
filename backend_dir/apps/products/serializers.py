@@ -15,13 +15,28 @@ class ProductOptionSerializer(serializers.ModelSerializer):
         fields = ["save_term", "intr_rate_type", "rsrv_type", "base_rate", "max_rate"]
 
 
-class ProductTagSerializer(serializers.Serializer):
-    """상품이 제공하는 매칭 태그 4개(문서화용)."""
+# 상품군별 노출 태그 — 추천 매칭 태그(views._SAVINGS/_DEPOSIT_TAG_FIELDS)와 동일 집합.
+_SAVINGS_TAGS = ("salary_transfer", "auto_transfer", "card_usage", "housing_subscription")
+_DEPOSIT_TAGS = ("first_transaction", "online_signup", "marketing_consent", "redeposit")
 
-    salary_transfer = serializers.BooleanField()
-    auto_transfer = serializers.BooleanField()
-    card_usage = serializers.BooleanField()
-    housing_subscription = serializers.BooleanField()
+
+class ProductTagSerializer(serializers.Serializer):
+    """상품이 제공하는 매칭 태그(문서화용). 상품군에 맞는 4개만 내려간다.
+
+    적금: salary_transfer·auto_transfer·card_usage·housing_subscription
+    예금: first_transaction·online_signup·marketing_consent·redeposit
+    """
+
+    # 적금 태그
+    salary_transfer = serializers.BooleanField(required=False)
+    auto_transfer = serializers.BooleanField(required=False)
+    card_usage = serializers.BooleanField(required=False)
+    housing_subscription = serializers.BooleanField(required=False)
+    # 예금 태그
+    first_transaction = serializers.BooleanField(required=False)
+    online_signup = serializers.BooleanField(required=False)
+    marketing_consent = serializers.BooleanField(required=False)
+    redeposit = serializers.BooleanField(required=False)
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -80,12 +95,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(ProductTagSerializer)
     def get_tags(self, obj):
-        return {
-            "salary_transfer": obj.tag_salary_transfer,
-            "auto_transfer": obj.tag_auto_transfer,
-            "card_usage": obj.tag_card_usage,
-            "housing_subscription": obj.tag_housing_subscription,
-        }
+        # 상품군에 맞는 태그만 내려준다(적금↔예금). 추천 매칭 태그와 동일한 집합.
+        keys = _DEPOSIT_TAGS if obj.product_type == Product.ProductType.DEPOSIT else _SAVINGS_TAGS
+        return {key: getattr(obj, f"tag_{key}") for key in keys}
 
     @extend_schema_field(serializers.BooleanField())
     def get_is_favorited(self, obj):
