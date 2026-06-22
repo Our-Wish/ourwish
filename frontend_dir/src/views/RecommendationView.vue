@@ -134,6 +134,7 @@ import { useGoalStore } from '@/stores/goal'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import BankFilterDropdown from '@/components/Recommendation/BankFilterDropdown.vue'
 import { bankColorMap } from '@/constants/bankColors'
+import { FIRST_TIER_BANKS } from '@/constants/banks'
 import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
 import { useAuthStore } from '@/stores/auth'
 import happyWish from '@/assets/img/wishes/happyWish.png'
@@ -147,12 +148,6 @@ const visibleCount = ref(6)
 const authStore = useAuthStore()
 const conditionChips = ref<string[]>([])
 
-const FIRST_TIER_BANKS = new Set([
-  '경남은행', '광주은행', '국민은행', '농협은행주식회사', '부산은행', '수협은행',
-  '신한은행', '아이엠뱅크', '우리은행', '전북은행', '제주은행',
-  '주식회사 카카오뱅크', '주식회사 케이뱅크', '주식회사 하나은행',
-  '중소기업은행', '토스뱅크 주식회사', '한국산업은행', '한국스탠다드차타드은행',
-])
 
 watch(selectedBanks, () => {
   visibleCount.value = 6
@@ -230,9 +225,8 @@ const fetchProducts = async () => {
   try {
     const { data } = await api.get('/api/v1/products/recommend/', {
       params: {
-        term: goalStore.period,
-        monthly_cap: goalStore.monthlyAmount * 10000,
         sort: currentSort.value,
+        product_type: 'SAVINGS',
       },
     })
     rawProducts.value = data.results
