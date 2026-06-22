@@ -54,38 +54,42 @@
             </p>
           </div>
 
-          <div class="relative mt-1">
-            <button
-              @click="showSortDropdown = !showSortDropdown"
-              class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-medium text-slate-700 transition hover:border-slate-300"
-            >
-              {{ currentSortLabel }}
-              <span class="text-slate-400">▼</span>
-            </button>
-
-            <div
-              v-if="showSortDropdown"
-              class="fixed inset-0 z-10"
-              @click="showSortDropdown = false"
-            />
-            <div
-              v-if="showSortDropdown"
-              class="absolute right-0 top-full z-20 mt-2 w-64 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-100"
-            >
+          <div class="flex flex-col items-end gap-2 mt-1">
+            <div class="relative">
               <button
-                v-for="opt in sortOptions"
-                :key="opt.apiSort"
-                @click="selectSort(opt)"
-                class="w-full px-5 py-3.5 text-left text-base font-medium transition"
-                :class="
-                  currentSort === opt.apiSort
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-slate-700 hover:bg-slate-50'
-                "
+                @click="showSortDropdown = !showSortDropdown"
+                class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-medium text-slate-700 transition hover:border-slate-300"
               >
-                {{ opt.label }}
+                {{ currentSortLabel }}
+                <span class="text-slate-400">▼</span>
               </button>
+
+              <div
+                v-if="showSortDropdown"
+                class="fixed inset-0 z-10"
+                @click="showSortDropdown = false"
+              />
+              <div
+                v-if="showSortDropdown"
+                class="absolute right-0 top-full z-20 mt-2 w-64 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-slate-100"
+              >
+                <button
+                  v-for="opt in sortOptions"
+                  :key="opt.apiSort"
+                  @click="selectSort(opt)"
+                  class="w-full px-5 py-3.5 text-left text-base font-medium transition"
+                  :class="
+                    currentSort === opt.apiSort
+                      ? 'bg-indigo-500 text-white'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  "
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
             </div>
+
+            <BankFilterDropdown v-model="selectedBanks" />
           </div>
         </div>
 
@@ -109,7 +113,7 @@
             />
           </div>
 
-          <div v-if="visibleCount < products.length" class="mt-10 text-center">
+          <div v-if="visibleCount < filteredProducts.length" class="mt-10 text-center">
             <button
               @click="visibleCount += 6"
               class="rounded-full px-12 py-3.5 text-base font-medium text-slate-500 transition hover:text-slate-800 cursor-pointer"
@@ -124,10 +128,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
+import BankFilterDropdown from '@/components/Recommendation/BankFilterDropdown.vue'
 import { bankColorMap } from '@/constants/bankColors'
 import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
 import { useAuthStore } from '@/stores/auth'
@@ -137,9 +142,21 @@ const goalStore = useGoalStore()
 const rawProducts = ref<any[]>([])
 const isLoading = ref(false)
 const showSortDropdown = ref(false)
+const selectedBanks = ref<string[]>([])
 const visibleCount = ref(6)
 const authStore = useAuthStore()
 const conditionChips = ref<string[]>([])
+
+const FIRST_TIER_BANKS = new Set([
+  '경남은행', '광주은행', '국민은행', '농협은행주식회사', '부산은행', '수협은행',
+  '신한은행', '아이엠뱅크', '우리은행', '전북은행', '제주은행',
+  '주식회사 카카오뱅크', '주식회사 케이뱅크', '주식회사 하나은행',
+  '중소기업은행', '토스뱅크 주식회사', '한국산업은행', '한국스탠다드차타드은행',
+])
+
+watch(selectedBanks, () => {
+  visibleCount.value = 6
+})
 
 type ApiSort = 'base' | 'max' | 'all'
 
@@ -181,7 +198,18 @@ const products = computed(() =>
   })),
 )
 
-const visibleProducts = computed(() => products.value.slice(0, visibleCount.value))
+const filteredProducts = computed(() => {
+  if (selectedBanks.value.length === 0) return products.value
+  return products.value.filter((p) =>
+    selectedBanks.value.some((key) => {
+      if (key === 'first_tier') return FIRST_TIER_BANKS.has(p.bankName)
+      if (key === 'savings') return p.bankName.includes('저축은행')
+      return p.bankName === key
+    }),
+  )
+})
+
+const visibleProducts = computed(() => filteredProducts.value.slice(0, visibleCount.value))
 
 
 const fetchProfile = async () => {
