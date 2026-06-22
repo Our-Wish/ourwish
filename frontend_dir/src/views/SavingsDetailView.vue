@@ -121,6 +121,7 @@ function buildProduct(data: any): ProductDetail {
     maxRate: matchedOption.max_rate ?? data.max_rate ?? 0,
     intr_rate_type: matchedOption.intr_rate_type ?? 'S',
     rsrv_type: matchedOption.rsrv_type ?? 'S',
+    productType: data.product_type === 'DEPOSIT' ? 'deposit' : 'savings',
     conditions: [
       { label: '가입 대상', value: data.join_member ? cleanText(data.join_member) : '-' },
       { label: '가입 방법', value: data.join_way ? cleanText(data.join_way) : '-' },

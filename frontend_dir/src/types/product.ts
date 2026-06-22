@@ -9,6 +9,7 @@ export type ProductDetail = {
   maxRate: number
   intr_rate_type: string
   rsrv_type: string
+  productType: 'deposit' | 'savings'
   conditions: Condition[]
   specialCondition: string
   aiSummaries: string[]
