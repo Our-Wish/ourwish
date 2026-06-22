@@ -1,27 +1,33 @@
 import { defineStore } from 'pinia'
+import api from '@/api/index'
 
-export type MySavingsProduct = {
-  id: number
-  bankName: string
-  bankColor: string
-  productName: string
-  dDay: number
-  currentAmount: number
-  maturityAmount: number
-  progress: number
-  nextPaymentDate: string
-  monthlyAmount: number
+export interface Enrollment {
+  enrollment_id: number
+  product_id: number
+  product_name: string
+  bank_name: string
+  is_filled: boolean
+  monthly_amount: number
+  rate: number
+  start_date: string
+  maturity_date: string
+  achievement_gauge: number
 }
 
 export const useSavingsStore = defineStore('savings', {
   state: () => ({
-    myProducts: [] as MySavingsProduct[],
+    enrollments: [] as Enrollment[],
+    isFetched: false,
   }),
   actions: {
-    addProduct(product: MySavingsProduct) {
-      if (!this.myProducts.find((p) => p.id === product.id)) {
-        this.myProducts.push(product)
-      }
+    async fetchEnrollments() {
+      if (this.isFetched) return
+      const { data } = await api.get('/api/v1/enrollments/')
+      this.enrollments = data
+      this.isFetched = true
+    },
+    removeEnrollment(enrollmentId: number) {
+      this.enrollments = this.enrollments.filter((e) => e.enrollment_id !== enrollmentId)
     },
   },
 })

@@ -1,0 +1,77 @@
+<template>
+  <div class="relative rounded-2xl bg-white p-5 ring-1 ring-slate-200">
+    <button
+      @click="emit('delete', id)"
+      class="absolute right-4 top-4 flex h-6 w-6 cursor-pointer items-center justify-center text-xs text-slate-400 hover:bg-slate-50"
+    >
+      ✕
+    </button>
+
+    <div class="flex items-start gap-3 pr-8">
+      <div
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
+        :style="{ backgroundColor: bankColor }"
+      >
+        {{ bankName[0] }}
+      </div>
+
+      <template v-if="isFilled">
+        <div class="flex-1">
+          <p class="text-xs text-slate-400">{{ bankName }}</p>
+          <div class="flex items-center gap-4">
+            <p class="text-lg font-bold text-slate-900">{{ productName }}</p>
+            <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <div
+                class="h-full rounded-full bg-blue-400 transition-all"
+                :style="{ width: `${progress}%` }"
+              />
+            </div>
+          </div>
+          <p class="mt-1 text-sm text-slate-400">
+            시작 날짜 : {{ startDate }} | 월 납입 금액 : {{ monthlyAmount }}만원 | 금리 :
+            {{ rate }}% | 만기일 : {{ maturityDate }}
+          </p>
+        </div>
+        <div class="shrink-0 text-right">
+          <p class="text-sm font-semibold text-red-400">{{ progress }}% 달성했어요 !</p>
+          <button class="mt-1 cursor-pointer text-sm text-slate-400 hover:text-slate-600">
+            정보 수정하기 →
+          </button>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="flex-1">
+          <p class="text-xs text-slate-400">{{ bankName }}</p>
+          <p class="text-lg font-bold text-slate-900">{{ productName }}</p>
+          <p class="mt-1 text-sm text-slate-400">
+            목표 금액과 기간을 입력해 달성률을 확인해보세요.
+          </p>
+        </div>
+        <button
+          class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
+        >
+          정보 입력하기
+        </button>
+      </template>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  id: number
+  bankName: string
+  bankColor: string
+  productName: string
+  productType: string
+  isFilled: boolean
+  progress: number
+  monthlyAmount: number
+  rate: number
+  startDate: string
+  maturityDate: string
+}>()
+
+const emit = defineEmits<{ delete: [id: number] }>()
+</script>
