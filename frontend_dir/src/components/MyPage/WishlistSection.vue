@@ -78,6 +78,7 @@
             </p>
           </div>
           <button
+            @click="router.push({ name: 'savings-detail', params: { id: product.id } })"
             class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
           >
             자세히 보기 →
@@ -94,8 +95,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useFavoritesStore } from '@/stores/favorites'
 import { bankColorMap } from '@/constants/bankColors'
+
+const router = useRouter()
 
 const favoritesStore = useFavoritesStore()
 const activeTab = ref<'deposit' | 'savings'>('savings')
