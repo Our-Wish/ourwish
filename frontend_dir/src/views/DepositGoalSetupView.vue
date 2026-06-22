@@ -180,10 +180,12 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/index'
+import { useGoalStore } from '@/stores/goal'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
 const router = useRouter()
+const goalStore = useGoalStore()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const depositAmount = ref(50)
@@ -275,6 +277,7 @@ const onNext = async () => {
         marketing_consent: ynAnswers.marketing_consent,
         redeposit: ynAnswers.redeposit,
       })
+      goalStore.setDepositGoal(selectedPeriod.value, depositAmount.value)
       router.push({ name: 'depositrecommendation' })
     } catch {
       alert('목표 저장에 실패했어요. 다시 시도해주세요.')

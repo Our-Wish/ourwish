@@ -230,9 +230,8 @@ const fetchProducts = async () => {
   try {
     const { data } = await api.get('/api/v1/products/recommend/', {
       params: {
-        term: goalStore.period,
-        monthly_cap: goalStore.monthlyAmount * 10000,
         sort: currentSort.value,
+        product_type: 'SAVINGS',
       },
     })
     rawProducts.value = data.results
