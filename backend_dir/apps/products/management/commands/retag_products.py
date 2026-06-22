@@ -38,6 +38,11 @@ class Command(BaseCommand):
             "--limit", type=int, default=0, help="처리할 최대 개수(0=전부)"
         )
         parser.add_argument(
+            "--only-missing",
+            action="store_true",
+            help="min_limit이 아직 비어(NULL) 있는 상품만 처리(중단 후 이어받기용)",
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="저장하지 않고 추출 결과만 출력(로컬 확인용)",
@@ -47,6 +52,9 @@ class Command(BaseCommand):
         qs = Product.objects.all().order_by("id")
         if opts["type"]:
             qs = qs.filter(product_type=opts["type"])
+        if opts["only_missing"]:
+            # 이미 min_limit이 채워진 상품은 건너뛴다 → GMS↔OpenAI 전환 시 이중 호출 방지.
+            qs = qs.filter(min_limit__isnull=True)
         if opts["limit"]:
             qs = qs[: opts["limit"]]
 
