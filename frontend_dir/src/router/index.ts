@@ -7,6 +7,7 @@ import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoSearchView from '@/views/VideoSearchView.vue'
+import VideoDetailView from '@/views/VideoDetailView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
 
@@ -53,6 +54,12 @@ const router = createRouter({
       path: '/videosearch',
       name: 'videosearch',
       component: VideoSearchView,
+    },
+    {
+      path: '/videos/:videoId',
+      name: 'video-detail',
+      component: VideoDetailView,
+      props: true,
     },
     {
       path: '/depositgoalsetup',
