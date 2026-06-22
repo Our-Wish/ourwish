@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "apps.enrollments",
     "apps.favorites",
     "apps.community",
+    "apps.videos",
 ]
 
 MIDDLEWARE = [
@@ -192,3 +193,6 @@ GMS_API_URL = os.environ.get(
     "GMS_API_URL", "https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions"
 )
 GMS_MODEL = os.environ.get("GMS_MODEL", "gpt-5-mini")
+
+# YouTube Data API v3 — 영상 검색/상세 프록시용. 키는 서버에만 둔다.
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
