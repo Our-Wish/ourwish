@@ -6,6 +6,7 @@ export interface Enrollment {
   product_id: number
   product_name: string
   bank_name: string
+  product_type: 'DEPOSIT' | 'SAVINGS'
   is_filled: boolean
   monthly_amount: number
   rate: number
