@@ -177,8 +177,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/api/index'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
@@ -188,6 +189,7 @@ const selectedPeriod = ref(12)
 const depositAmount = ref(50)
 const isLoading = ref(false)
 const birthDate = ref('')
+const savedProfile = ref<Record<string, unknown>>({})
 
 const periodOptions = [
   { value: 3, label: '3개월' },
@@ -199,32 +201,49 @@ const periodOptions = [
 
 const ynQuestions = [
   {
-    key: 'first_deal',
+    key: 'first_transaction',
     label: '2. 해당 은행과 첫 거래이신가요?',
     desc: '첫 거래 고객 우대금리를 확인해요.',
   },
   {
-    key: 'non_face',
+    key: 'online_signup',
     label: '3. 비대면으로 가입하실 수 있나요?',
-    desc: '비대면 가입 우대 혜택을 확인해요.',
+    desc: '비대면 가입 전용 상품을 추천해드려요.',
   },
   {
-    key: 'marketing',
+    key: 'marketing_consent',
     label: '4. 마케팅 정보 수신에 동의하실 수 있나요?',
     desc: '마케팅 동의 우대금리 적용 여부를 확인해요.',
   },
   {
-    key: 'renewal',
+    key: 'redeposit',
     label: '5. 만기 후 재예치하실 계획이 있으신가요?',
     desc: '재예치 우대 혜택이 있는 상품을 확인해요.',
   },
 ]
 
 const ynAnswers = reactive<Record<string, boolean | null>>({
-  first_deal: null,
-  non_face: null,
-  marketing: null,
-  renewal: null,
+  first_transaction: null,
+  online_signup: null,
+  marketing_consent: null,
+  redeposit: null,
+})
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/api/v1/search-profile/')
+    console.log('[deposit prefill]', data)
+    savedProfile.value = data
+    if (data.save_term) selectedPeriod.value = data.save_term
+    if (data.deposit_amount) depositAmount.value = data.deposit_amount / 10000
+    if (data.birth_date) birthDate.value = data.birth_date
+    if (data.first_transaction !== undefined) ynAnswers.first_transaction = data.first_transaction
+    if (data.online_signup !== undefined) ynAnswers.online_signup = data.online_signup
+    if (data.marketing_consent !== undefined) ynAnswers.marketing_consent = data.marketing_consent
+    if (data.redeposit !== undefined) ynAnswers.redeposit = data.redeposit
+  } catch (e) {
+    console.error('[deposit prefill error]', e)
+  }
 })
 
 const afterTaxInterest = computed(() => {
@@ -246,7 +265,16 @@ const onNext = async () => {
 
     isLoading.value = true
     try {
-      // TODO: 예금 전용 API 연동
+      await api.put('/api/v1/search-profile/', {
+        ...savedProfile.value,
+        save_term: selectedPeriod.value,
+        deposit_amount: depositAmount.value * 10000,
+        birth_date: birthDate.value,
+        first_transaction: ynAnswers.first_transaction,
+        online_signup: ynAnswers.online_signup,
+        marketing_consent: ynAnswers.marketing_consent,
+        redeposit: ynAnswers.redeposit,
+      })
       router.push({ name: 'depositrecommendation' })
     } catch {
       alert('목표 저장에 실패했어요. 다시 시도해주세요.')
