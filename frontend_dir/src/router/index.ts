@@ -8,6 +8,7 @@ import CommunityView from '@/views/CommunityView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoSearchView from '@/views/VideoSearchView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
+import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,11 @@ const router = createRouter({
       path: '/depositgoalsetup',
       name: 'depositgoalsetup',
       component: DepositGoalSetupView,
+    },
+    {
+      path: '/depositrecommendation',
+      name: 'depositrecommendation',
+      component: DepositRecommendationView,
     },
   ],
 })
