@@ -55,7 +55,10 @@
       <div class="w-px bg-slate-200" />
 
       <main class="flex-1 px-14 pt-2">
-        <p class="text-slate-400">준비 중입니다.</p>
+        <ProductsSection v-if="activeMenu === 'products'" />
+        <WishlistSection v-if="activeMenu === 'wishlist'" />
+        <VideosSection v-if="activeMenu === 'videos'" />
+        <PostsSection v-if="activeMenu === 'posts'" />
       </main>
     </div>
   </div>
@@ -65,6 +68,10 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import achieveWish from '@/assets/img/wishes/achieveWish.png'
+import ProductsSection from '@/components/MyPage/ProductsSection.vue'
+import WishlistSection from '@/components/MyPage/WishlistSection.vue'
+import VideosSection from '@/components/MyPage/VideosSection.vue'
+import PostsSection from '@/components/MyPage/PostsSection.vue'
 
 const authStore = useAuthStore()
 const activeMenu = ref<'products' | 'wishlist' | 'videos' | 'posts'>('products')
