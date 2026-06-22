@@ -33,10 +33,10 @@
 
       <div class="mt-12 flex gap-4">
         <button
-          @click="goToMyPage"
+          @click="goDepositStart"
           class="rounded-2xl border border-slate-300/70 bg-white/70 px-12 py-4 text-base font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white active:scale-95"
         >
-          나의 적금 관리
+          예금 추천받기
         </button>
 
         <button
@@ -68,9 +68,9 @@ const onStart = () => {
   }
 }
 
-const goToMyPage = () => {
+const goDepositStart = () => {
   if (isAuthenticated.value) {
-    router.push({ name: 'mypage' })
+    router.push({ name: 'depositgoalsetup' })
   } else {
     authStore.openLoginModal()
   }

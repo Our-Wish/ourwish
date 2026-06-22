@@ -7,6 +7,7 @@ import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoSearchView from '@/views/VideoSearchView.vue'
+import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +52,11 @@ const router = createRouter({
       path: '/videosearch',
       name: 'videosearch',
       component: VideoSearchView,
+    },
+    {
+      path: '/depositgoalsetup',
+      name: 'depositgoalsetup',
+      component: DepositGoalSetupView,
     },
   ],
 })
