@@ -45,7 +45,7 @@
           <p class="text-xs text-slate-400">{{ bankName }}•{{ productType }}</p>
           <p class="text-lg font-bold text-slate-900">{{ productName }}</p>
           <p class="mt-1 text-sm text-slate-400">
-            몇 가지 정보를 입력하면 목표 달성률을 확인할 수 있어요 !
+            목표 금액과 기간을 입력해 달성률을 확인해보세요.
           </p>
         </div>
         <button
