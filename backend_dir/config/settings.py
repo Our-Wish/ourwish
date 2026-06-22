@@ -153,8 +153,8 @@ REST_FRAMEWORK = {
 
 # drf-spectacular (Swagger/OpenAPI 문서)
 SPECTACULAR_SETTINGS = {
-    "TITLE": "모아(Moa) API",
-    "DESCRIPTION": "사회초년생을 위한 적금 추천·관리 서비스 백엔드 API",
+    "TITLE": "OURWISH API",
+    "DESCRIPTION": "사회초년생을 위한 적금과 예금 추천·관리 서비스 백엔드 API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,  # /schema/ 응답에 메타 스키마 항목 숨김
 }
@@ -169,8 +169,8 @@ SIMPLE_JWT = {
 
 # CORS — 브라우저(프론트)에서 API를 부를 수 있는 출처 목록
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",      # Vue 개발 서버
-    "https://our-wish.site",      # 운영 프론트(Vercel)
+    "http://localhost:5173",  # Vue 개발 서버
+    "https://our-wish.site",  # 운영 프론트(Vercel)
     "https://www.our-wish.site",
 ]
 
