@@ -206,7 +206,7 @@ const ynQuestions = [
   {
     key: 'non_face',
     label: '3. 비대면으로 가입하실 수 있나요?',
-    desc: '비대면 가입 전용 상품을 추천해드려요.',
+    desc: '비대면 가입 우대 혜택을 확인해요.',
   },
   {
     key: 'marketing',
