@@ -5,6 +5,7 @@ import RecommendationView from '@/views/RecommendationView.vue'
 import SavingsDetailView from '@/views/SavingsDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
+import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoSearchView from '@/views/VideoSearchView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
@@ -43,6 +44,11 @@ const router = createRouter({
       path: '/community',
       name: 'community',
       component: CommunityView,
+    },
+    {
+      path: '/community/:id',
+      name: 'community-post-detail',
+      component: CommunityPostDetailView,
     },
     {
       path: '/goldsilver',
