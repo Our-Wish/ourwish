@@ -161,7 +161,7 @@ onMounted(async () => {
       },
       {
         location: center,
-        radius: 5000,
+
         sort: window.kakao.maps.services.SortBy.DISTANCE,
       },
     )
