@@ -24,12 +24,42 @@
         >
           적금 추천받기
         </RouterLink>
-        <RouterLink
-          to="/financelounge"
-          class="rounded-2xl px-4 py-2 text-base font-semibold text-slate-700 transition hover:font-semibold hover:text-blue-800"
+        <!-- 금융라운지 드롭다운 -->
+        <div
+          class="relative"
+          @mouseenter="loungeDropdownOpen = true"
+          @mouseleave="loungeDropdownOpen = false"
         >
-          금융라운지
-        </RouterLink>
+          <RouterLink
+            to="/financelounge"
+            class="block rounded-2xl px-4 py-2 text-base font-semibold text-slate-700 transition hover:font-semibold hover:text-blue-800"
+          >
+            금융라운지
+          </RouterLink>
+          <div
+            v-if="loungeDropdownOpen"
+            class="absolute left-0 top-full w-36 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-slate-200"
+          >
+            <RouterLink
+              to="/financelounge?tab=video"
+              class="block px-4 py-3 text-base text-slate-700 transition hover:bg-slate-50"
+            >
+              금융TV
+            </RouterLink>
+            <RouterLink
+              to="/financelounge?tab=goldsilver"
+              class="block px-4 py-3 text-base text-slate-700 transition hover:bg-slate-50"
+            >
+              금/은 시세
+            </RouterLink>
+            <RouterLink
+              to="/financelounge?tab=community"
+              class="block px-4 py-3 text-base text-slate-700 transition hover:bg-slate-50"
+            >
+              커뮤니티
+            </RouterLink>
+          </div>
+        </div>
         <RouterLink
           to="/mypage"
           class="rounded-2xl px-4 py-2 text-base font-semibold text-slate-700 transition hover:font-semibold hover:text-blue-800"
@@ -99,6 +129,8 @@ const isHome = computed(() => route.path === '/')
 const dropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 const showEditProfile = ref(false)
+
+const loungeDropdownOpen = ref(false)
 
 const openEditProfile = () => {
   dropdownOpen.value = false
