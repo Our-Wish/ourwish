@@ -73,14 +73,17 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
 const route = useRoute()
+const router = useRouter()
 const isHome = computed(() => route.path === '/')
 
 const logout = () => {
   authStore.logout()
+  // 보호 페이지에 머무르지 않도록 메인으로 이동
+  router.push('/')
 }
 </script>
