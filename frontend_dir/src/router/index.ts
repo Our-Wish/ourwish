@@ -9,7 +9,6 @@ import CommunityView from '@/views/CommunityView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
-import VideoSearchView from '@/views/VideoSearchView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
@@ -74,11 +73,6 @@ const router = createRouter({
       path: '/goldsilver',
       name: 'goldsilver',
       component: GoldSilverView,
-    },
-    {
-      path: '/videosearch',
-      name: 'videosearch',
-      component: VideoSearchView,
     },
     {
       path: '/videos/:videoId',
