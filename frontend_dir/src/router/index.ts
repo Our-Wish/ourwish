@@ -5,14 +5,12 @@ import GoalSetupView from '@/views/GoalSetupView.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import SavingsDetailView from '@/views/SavingsDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
-import CommunityView from '@/views/CommunityView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
-import GoldSilverView from '@/views/GoldSilverView.vue'
-import VideoSearchView from '@/views/VideoSearchView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
+import FinanceLoungeView from '@/views/FinanceLoungeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,11 +44,6 @@ const router = createRouter({
       component: MyPageView,
     },
     {
-      path: '/community',
-      name: 'community',
-      component: CommunityView,
-    },
-    {
       // 글쓰기 — :id보다 먼저 둬서 'write'가 상세로 잡히지 않게 한다
       path: '/community/write',
       name: 'community-write',
@@ -70,16 +63,6 @@ const router = createRouter({
       props: true,
     },
     {
-      path: '/goldsilver',
-      name: 'goldsilver',
-      component: GoldSilverView,
-    },
-    {
-      path: '/videosearch',
-      name: 'videosearch',
-      component: VideoSearchView,
-    },
-    {
       path: '/videos/:videoId',
       name: 'video-detail',
       component: VideoDetailView,
@@ -94,6 +77,11 @@ const router = createRouter({
       path: '/depositrecommendation',
       name: 'depositrecommendation',
       component: DepositRecommendationView,
+    },
+    {
+      path: '/financelounge',
+      name: 'financelounge',
+      component: FinanceLoungeView,
     },
   ],
 })
