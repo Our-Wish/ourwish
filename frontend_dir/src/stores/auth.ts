@@ -67,6 +67,11 @@ export const useAuthStore = defineStore('auth', {
       this.user = data.member
       sessionStorage.setItem('auth_user', JSON.stringify(data.member))
     },
+    updateUser(partial: Partial<AuthUser>) {
+      if (!this.user) return
+      this.user = { ...this.user, ...partial }
+      sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+    },
     async signup(payload: { login_id: string; password: string; nickname: string }) {
       const { data } = await api.post('/api/v1/accounts/signup/', payload)
       this.setToken(data.access, data.refresh)
