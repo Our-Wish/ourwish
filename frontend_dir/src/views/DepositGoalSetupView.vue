@@ -65,7 +65,7 @@
                     type="range"
                     :min="5"
                     :max="5000"
-                    :step="10"
+                    :step="5"
                     class="w-full accent-blue-600"
                   />
                   <div class="mt-2 flex justify-between text-sm text-slate-400">
