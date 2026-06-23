@@ -33,8 +33,13 @@
             </div>
           </div>
           <p class="mt-1 text-sm text-slate-400">
-            시작 날짜 : {{ startDate }} | 월 납입 금액 : {{ monthlyAmount }}만원 | 금리 :
-            {{ rate }}% | 만기일 : {{ maturityDate }}
+            시작 날짜 : {{ startDate }} |
+            {{
+              productType === 'SAVINGS'
+                ? `월 납입 금액 : ${monthlyAmount}만원`
+                : `예치 금액 : ${depositAmount}만원`
+            }}
+            | 금리 : {{ rate }}% | 만기일 : {{ maturityDate }}
           </p>
         </div>
         <div class="shrink-0 text-right">
@@ -75,7 +80,13 @@
       :enrollment-id="id"
       :product-name="productName"
       :product-type="productType"
-      :initial-data="{ monthly_amount: monthlyAmount, rate, start_date: startDate, maturity_date: maturityDate }"
+      :initial-data="{
+        monthly_amount: monthlyAmount,
+        deposit_amount: depositAmount,
+        rate,
+        start_date: startDate,
+        maturity_date: maturityDate,
+      }"
       @close="showModal = false"
       @updated="onUpdated"
     />

@@ -91,6 +91,7 @@ const displayProducts = computed(() => {
     productName: item.product_name,
     isFilled: item.is_filled,
     monthlyAmount: item.monthly_amount,
+    depositAmount: item.deposit_amount,
     rate: item.rate,
     startDate: item.start_date,
     maturityDate: item.maturity_date,

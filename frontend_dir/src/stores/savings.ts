@@ -9,6 +9,7 @@ export interface Enrollment {
   product_type: 'DEPOSIT' | 'SAVINGS'
   is_filled: boolean
   monthly_amount: number
+  deposit_amount: number
   rate: number
   start_date: string
   maturity_date: string

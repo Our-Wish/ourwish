@@ -10,6 +10,7 @@ export type EnrolledProductCardProps = {
   isFilled: boolean
   progress: number
   monthlyAmount: number
+  depositAmount: number
   rate: number
   startDate: string
   maturityDate: string
