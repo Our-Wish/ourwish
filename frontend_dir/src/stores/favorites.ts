@@ -21,7 +21,6 @@ export const useFavoritesStore = defineStore('favorites', {
     async fetchFavorites() {
       if (this.isFetched) return
       const { data } = await api.get('/api/v1/favorites/')
-      console.log('favorites:', data)
       this.favorites = data
       this.isFetched = true
     },
