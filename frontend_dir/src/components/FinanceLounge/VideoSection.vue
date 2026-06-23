@@ -36,16 +36,29 @@
       </button>
     </form>
 
-    <div class="mt-4 flex flex-wrap items-center gap-2">
-      <span class="text-sm text-slate-500">추천 키워드</span>
-      <button
-        v-for="kw in keywords"
-        :key="kw"
-        @click="runSearch(kw)"
-        class="rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
-      >
-        #{{ kw }}
-      </button>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm text-slate-500">추천 키워드</span>
+        <button
+          v-for="kw in keywords"
+          :key="kw"
+          @click="runSearch(kw)"
+          class="rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
+        >
+          #{{ kw }}
+        </button>
+      </div>
+      <div class="inline-flex rounded-full bg-slate-100 p-1">
+        <button
+          v-for="opt in orderOptions"
+          :key="opt.value"
+          @click="changeOrder(opt.value)"
+          class="rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          :class="order === opt.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
     </div>
 
     <div class="mt-8">
@@ -85,12 +98,18 @@ interface VideoItem {
 }
 
 const keywords = ['파킹통장', '우대금리', '청년도약계좌']
+const orderOptions = [
+  { label: '정확도순', value: 'relevance' },
+  { label: '최신순', value: 'date' },
+  { label: '조회수순', value: 'viewCount' },
+]
 
 const query = ref('')
 const results = ref<VideoItem[]>([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
 const lastKeyword = ref('')
+const order = ref('relevance')
 
 async function runSearch(keyword: string) {
   const q = keyword.trim()
@@ -98,7 +117,9 @@ async function runSearch(keyword: string) {
   isLoading.value = true
   hasSearched.value = true
   try {
-    const { data } = await api.get('/api/v1/videos/search/', { params: { q } })
+    const { data } = await api.get('/api/v1/videos/search/', {
+      params: { q, max_results: 9, order: order.value },
+    })
     results.value = data.map((item: any) => ({
       videoId: item.video_id,
       title: decodeHtmlEntities(item.title),
@@ -112,6 +133,11 @@ async function runSearch(keyword: string) {
   } finally {
     isLoading.value = false
   }
+}
+
+function changeOrder(value: string) {
+  order.value = value
+  if (lastKeyword.value) runSearch(lastKeyword.value)
 }
 
 function search() {
