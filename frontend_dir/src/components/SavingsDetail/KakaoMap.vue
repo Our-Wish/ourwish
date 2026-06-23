@@ -1,6 +1,15 @@
 <template>
   <div>
-    <div ref="mapRef" class="h-45 w-full overflow-hidden rounded-xl"></div>
+    <div class="relative">
+      <div ref="mapRef" class="h-45 w-full overflow-hidden rounded-xl"></div>
+      <button
+        v-if="!isLocating"
+        @click="recenter"
+        class="absolute bottom-2 right-2 z-10 rounded-full bg-white px-2.5 py-1 text-xs text-slate-600 shadow"
+      >
+        내 위치로
+      </button>
+    </div>
 
     <div v-if="isLocating" class="py-3 text-center text-sm text-slate-400">위치를 불러오는 중...</div>
 
@@ -33,12 +42,20 @@ const mapRef = ref<HTMLDivElement | null>(null)
 const isLocating = ref(true)
 const places = ref<any[]>([])
 const showAll = ref(false)
+const mapInstance = ref<any>(null)
+const userCenter = ref<any>(null)
 
 const visiblePlaces = computed(() => (showAll.value ? places.value : places.value.slice(0, 2)))
 
 declare global {
   interface Window {
     kakao: any
+  }
+}
+
+function recenter() {
+  if (mapInstance.value && userCenter.value) {
+    mapInstance.value.setCenter(userCenter.value)
   }
 }
 
@@ -98,13 +115,22 @@ onMounted(async () => {
     if (!mapRef.value) return
 
     const center = new window.kakao.maps.LatLng(lat, lng)
+    userCenter.value = center
 
     const map = new window.kakao.maps.Map(mapRef.value, {
       center,
       level: 4,
     })
+    mapInstance.value = map
 
-    new window.kakao.maps.Marker({ position: center, map })
+    // 현재 위치 파란 점
+    new window.kakao.maps.CustomOverlay({
+      position: center,
+      content:
+        '<div style="width:14px;height:14px;background:#3b82f6;border:2.5px solid white;border-radius:50%;box-shadow:0 0 0 2px #3b82f6;"></div>',
+      zIndex: 10,
+      map,
+    })
 
     const ps = new window.kakao.maps.services.Places()
     ps.keywordSearch(
