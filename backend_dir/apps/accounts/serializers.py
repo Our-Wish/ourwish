@@ -37,7 +37,20 @@ class LoginSerializer(serializers.Serializer):
 
         data["member"] = member
         return data
-    
+
+
+class NicknameUpdateSerializer(serializers.Serializer):
+    """회원 정보 수정 — 받는 값이 닉네임뿐이라 닉네임만 다룬다."""
+
+    nickname = serializers.CharField(max_length=50)
+
+    def validate_nickname(self, value):
+        # 공백만 입력하는 경우를 막는다(CharField는 양끝 공백을 자동으로 떼지만 빈 문자열은 통과).
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("닉네임을 입력해 주세요.")
+        return value
+
 
 class SearchProfileSerializer(serializers.ModelSerializer):
     """조회/추천 프로필(STEP01+02). 회원당 1개. prefill 조회 + 저장/수정에 사용."""
