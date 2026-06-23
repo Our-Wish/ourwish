@@ -84,6 +84,7 @@ const displayProducts = computed(() => {
   )
   return filtered.map((item) => ({
     id: item.enrollment_id,
+    productId: item.product_id,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,

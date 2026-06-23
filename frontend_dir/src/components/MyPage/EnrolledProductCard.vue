@@ -19,7 +19,12 @@
         <div class="flex-1">
           <p class="text-xs text-slate-400">{{ bankName }}</p>
           <div class="flex items-center gap-4">
-            <p class="text-lg font-bold text-slate-900">{{ trimProductName(productName) }}</p>
+            <button
+              @click="router.push({ name: 'savings-detail', params: { id: productId } })"
+              class="cursor-pointer text-lg pt-0.5 font-bold text-slate-900 hover:text-blue-700"
+            >
+              {{ trimProductName(productName) }}
+            </button>
             <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
               <div
                 class="h-full rounded-full bg-blue-400 transition-all"
@@ -43,7 +48,12 @@
       <template v-else>
         <div class="flex-1">
           <p class="text-xs text-slate-400">{{ bankName }}</p>
-          <p class="text-lg font-bold text-slate-900">{{ trimProductName(productName) }}</p>
+          <button
+            @click="router.push({ name: 'savings-detail', params: { id: productId } })"
+            class="cursor-pointer text-lg font-bold text-slate-900 hover:text-blue-700"
+          >
+            {{ trimProductName(productName) }}
+          </button>
           <p class="mt-1 text-sm text-slate-400">
             목표 금액과 기간을 입력해 달성률을 확인해보세요.
           </p>
@@ -60,9 +70,13 @@
 
 <script setup lang="ts">
 import { trimProductName } from '@/utils/product'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 defineProps<{
   id: number
+  productId: number
   bankName: string
   bankColor: string
   productName: string
