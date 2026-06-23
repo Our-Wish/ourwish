@@ -34,14 +34,14 @@
       <div class="mt-12 flex gap-4">
         <button
           @click="goDepositStart"
-          class="rounded-2xl border border-slate-300/70 bg-white/70 px-12 py-4 text-base font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white active:scale-95"
+          class="rounded-2xl bg-slate-900 opacity-75 px-12 py-4 text-base font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-95"
         >
           예금 추천받기
         </button>
 
         <button
           @click="onStart"
-          class="rounded-2xl bg-slate-900 px-12 py-4 text-base font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-95"
+          class="rounded-2xl bg-slate-900 opacity-75 px-12 py-4 text-base font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-95"
         >
           적금 추천받기
         </button>
