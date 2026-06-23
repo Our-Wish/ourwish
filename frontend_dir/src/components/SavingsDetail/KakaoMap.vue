@@ -29,8 +29,8 @@
           rel="noopener noreferrer"
           class="block py-2.5 hover:opacity-70"
         >
-          <p class="font-medium text-slate-800">{{ place.place_name }}</p>
-          <p class="text-sm text-slate-500">{{ place.address_name }}</p>
+          <p class="font-medium ml-1 text-slate-800">{{ place.place_name }}</p>
+          <p class="text-sm ml-1 text-slate-500">{{ place.address_name }}</p>
         </a>
       </div>
       <p v-else class="mt-3 text-sm text-slate-400">근처 영업점 정보를 불러올 수 없어요.</p>
