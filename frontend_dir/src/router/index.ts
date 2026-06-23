@@ -13,6 +13,7 @@ import VideoSearchView from '@/views/VideoSearchView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
+import FinanceLoungeView from '@/views/FinanceLoungeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -94,6 +95,11 @@ const router = createRouter({
       path: '/depositrecommendation',
       name: 'depositrecommendation',
       component: DepositRecommendationView,
+    },
+    {
+      path: '/financelounge',
+      name: 'financelounge',
+      component: FinanceLoungeView,
     },
   ],
 })
