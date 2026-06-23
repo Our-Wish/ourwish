@@ -8,7 +8,6 @@ import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
-import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
 import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
 import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
@@ -68,11 +67,6 @@ const router = createRouter({
       name: 'community-post-detail',
       component: CommunityPostDetailView,
       props: true,
-    },
-    {
-      path: '/goldsilver',
-      name: 'goldsilver',
-      component: GoldSilverView,
     },
     {
       path: '/videos/:videoId',
