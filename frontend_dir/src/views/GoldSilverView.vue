@@ -123,7 +123,10 @@
             {{ currentAsset.label }} 가격 추이
             <span class="font-normal text-slate-400">(USD / oz)</span>
           </p>
-          <div v-if="filtered.length === 0" class="py-16 text-center text-sm text-slate-400">
+          <div v-if="isInvalidRange" class="py-16 text-center text-sm text-rose-400">
+            시작일이 종료일보다 늦어요. 다시 선택해 주세요.
+          </div>
+          <div v-else-if="filtered.length === 0" class="py-16 text-center text-sm text-slate-400">
             선택한 기간에 데이터가 없어요.
           </div>
           <div v-else class="h-80">
@@ -172,6 +175,11 @@ const currentAsset = computed(
 const allPoints = computed(() => series.value[asset.value])
 const dataMinDate = computed(() => allPoints.value[0]?.date ?? '')
 const dataMaxDate = computed(() => allPoints.value[allPoints.value.length - 1]?.date ?? '')
+
+// 시작일이 종료일보다 늦으면 잘못된 범위 (타이핑으로 min/max 우회한 경우 대비)
+const isInvalidRange = computed(
+  () => Boolean(startDate.value) && Boolean(endDate.value) && startDate.value > endDate.value,
+)
 
 // 시작일/종료일로 필터, 비어 있으면 전체 기간
 const filtered = computed(() =>
