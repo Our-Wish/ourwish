@@ -37,10 +37,15 @@
             <td class="py-4 pl-6 pr-3 text-base text-slate-300">{{ post.id }}</td>
             <td class="py-4 pr-3">
               <div class="flex items-center gap-1 overflow-hidden">
-                <span class="min-w-0 truncate text-base font-semibold text-slate-800 group-hover:text-blue-600">
+                <span
+                  class="min-w-0 truncate text-base font-semibold text-slate-800 group-hover:text-blue-600"
+                >
                   {{ post.title }}
                 </span>
-                <span v-if="post.commentCount > 0" class="shrink-0 text-sm font-medium text-blue-400">
+                <span
+                  v-if="post.commentCount > 0"
+                  class="shrink-0 text-sm font-medium text-blue-400"
+                >
                   [{{ post.commentCount }}]
                 </span>
               </div>

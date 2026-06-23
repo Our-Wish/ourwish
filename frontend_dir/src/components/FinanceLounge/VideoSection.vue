@@ -1,5 +1,9 @@
 <template>
   <div>
+    <h1 class="text-4xl font-extrabold text-slate-900">금융 TV</h1>
+    <p class="my-3 text-base font-light text-slate-400">
+      예·적금 상품, 금리, 우대조건까지 어렵게 느껴지는 금융 정보를 짧은 영상으로 확인하세요.
+    </p>
     <form
       class="flex items-center gap-3 rounded-2xl bg-white px-7 py-5 shadow-sm ring-1 ring-slate-200/70 transition focus-within:ring-2 focus-within:ring-indigo-200"
       @submit.prevent="search"
