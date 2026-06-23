@@ -15,6 +15,7 @@ class VideoSearchView(APIView):
     @extend_schema(
         parameters=[
             OpenApiParameter("q", str, description="검색어", required=True),
+            OpenApiParameter("order", str, description="정렬 기준 (relevance|date|viewCount)"),
         ],
         responses=VideoSearchItemSerializer(many=True),
         summary="YouTube 영상 검색 (#149)",
@@ -25,8 +26,10 @@ class VideoSearchView(APIView):
         if not query:
             raise ValidationError({"q": "검색어를 입력해 주세요."})
 
+        order = request.query_params.get("order", "relevance")
+
         try:
-            results = search_videos(query)
+            results = search_videos(query, order=order)
         except YouTubeError as e:
             # YouTube 쪽 실패는 우리 서버 잘못이 아니므로 502로 구분해 알린다.
             return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)

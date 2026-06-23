@@ -34,7 +34,10 @@ def _error_message(res):
         return f"YouTube API 오류 (HTTP {res.status_code})"
 
 
-def search_videos(query, max_results=12):
+VALID_ORDERS = {"relevance", "date", "viewCount", "rating"}
+
+
+def search_videos(query, max_results=9, order="relevance"):
     """검색어로 영상 목록을 가져와, 화면에 필요한 필드만 정리해 리스트로 반환."""
     params = {
         "key": settings.YOUTUBE_API_KEY,
@@ -42,6 +45,7 @@ def search_videos(query, max_results=12):
         "part": "snippet",  # 제목·채널·썸네일 등 메타데이터
         "type": "video",  # 채널/재생목록 제외, 영상만
         "maxResults": max_results,
+        "order": order if order in VALID_ORDERS else "relevance",
         "regionCode": "KR",
         "relevanceLanguage": "ko",
     }
