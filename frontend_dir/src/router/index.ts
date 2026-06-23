@@ -6,6 +6,7 @@ import SavingsDetailView from '@/views/SavingsDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import CommunityView from '@/views/CommunityView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
+import CommunityWriteView from '@/views/CommunityWriteView.vue'
 import GoldSilverView from '@/views/GoldSilverView.vue'
 import VideoSearchView from '@/views/VideoSearchView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
@@ -47,9 +48,23 @@ const router = createRouter({
       component: CommunityView,
     },
     {
+      // 글쓰기 — :id보다 먼저 둬서 'write'가 상세로 잡히지 않게 한다
+      path: '/community/write',
+      name: 'community-write',
+      component: CommunityWriteView,
+    },
+    {
+      // 글 수정 — 같은 컴포넌트를 props.id로 작성/수정 겸용
+      path: '/community/:id/edit',
+      name: 'community-edit',
+      component: CommunityWriteView,
+      props: true,
+    },
+    {
       path: '/community/:id',
       name: 'community-post-detail',
       component: CommunityPostDetailView,
+      props: true,
     },
     {
       path: '/goldsilver',
