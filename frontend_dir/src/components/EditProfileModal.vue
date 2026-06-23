@@ -6,35 +6,35 @@
     >
       <button
         @click="emit('close')"
-        class="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+        class="absolute text-2xl cursor-pointer right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition hover:font-semibold hover:text-slate-900"
         aria-label="닫기"
       >
         ×
       </button>
 
-      <h1 class="text-4xl font-bold text-slate-950">회원정보 수정</h1>
-      <p class="mt-3 text-base text-slate-500">닉네임을 변경할 수 있어요.</p>
+      <h1 class="text-2xl font-bold text-slate-950">프로필 수정</h1>
+      <p class="mt-2 text-sm font-light text-slate-500">
+        OURWISH에서 사용할 닉네임을 입력해주세요.
+      </p>
 
       <form @submit.prevent="onSubmit" class="mt-8 space-y-4">
         <div>
-          <label class="mb-1.5 block text-base font-medium text-slate-700">닉네임</label>
           <input
             v-model="nickname"
             type="text"
-            placeholder="새 닉네임 입력"
+            placeholder="새 닉네임을 입력해주세요."
             class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
-        <p v-if="errorMessage" class="text-base text-red-500">{{ errorMessage }}</p>
-        <p v-if="successMessage" class="text-base text-blue-500">{{ successMessage }}</p>
+        <p v-if="errorMessage" class="text-sm ml-2 text-red-500">{{ errorMessage }}</p>
 
         <button
           type="submit"
-          class="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="loading"
         >
-          {{ loading ? '저장 중...' : '저장' }}
+          {{ loading ? '저장 중' : '변경사항 저장' }}
         </button>
       </form>
     </div>
