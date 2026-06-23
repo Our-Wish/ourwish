@@ -11,9 +11,15 @@
       </button>
     </div>
 
-    <div v-if="isLocating" class="py-3 text-center text-sm text-slate-400">위치를 불러오는 중...</div>
+    <div v-if="isLocating" class="py-3 text-center text-sm text-slate-400">
+      위치를 불러오는 중...
+    </div>
 
     <template v-else>
+      <p class="mt-2 text-xs leading-relaxed text-slate-400">
+        📍 현재 위치를 기준으로 가까운 영업점을 안내하고 있어요.<br />
+        Wi-Fi 환경이나 기기 설정에 따라 위치가 실제 위치와 다를 수 있습니다.
+      </p>
       <div v-if="places.length" class="mt-3 divide-y divide-slate-100">
         <div v-for="place in visiblePlaces" :key="place.id" class="py-2.5">
           <p class="font-medium text-slate-800">{{ place.place_name }}</p>
@@ -27,7 +33,7 @@
         @click="showAll = !showAll"
         class="mt-2 w-full py-1 text-sm text-blue-500"
       >
-        더 많은 지점 보기 ▽
+        {{ showAll ? '간단히 표시 △' : '더 많은 지점 보기 ▽' }}
       </button>
     </template>
   </div>
