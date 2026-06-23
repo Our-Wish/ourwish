@@ -120,22 +120,28 @@ function buildChart() {
       labels: filteredItems.value.map((i) => i.label),
       datasets: [
         {
-          label: '기준금리',
+          label: '기본금리',
           data: filteredItems.value.map((i) => i.baseRate),
-          backgroundColor: 'rgba(148, 163, 184, 0.7)',
-          borderRadius: 6,
+          backgroundColor: 'rgba(148, 163, 184, 0.45)',
+          borderRadius: 2,
+          barPercentage: 0.7,
+          categoryPercentage: 0.6,
         },
         {
           label: '최고금리',
           data: filteredItems.value.map((i) => i.maxRate),
-          backgroundColor: 'rgba(99, 102, 241, 0.7)',
-          borderRadius: 6,
+          backgroundColor: 'rgba(129, 140, 248, 0.65)',
+          borderRadius: 2,
+          barPercentage: 0.7,
+          categoryPercentage: 0.6,
         },
         {
           label: '내 가입금리',
           data: filteredItems.value.map((i) => i.myRate),
-          backgroundColor: 'rgba(59, 130, 246, 0.85)',
-          borderRadius: 6,
+          backgroundColor: 'rgba(37, 99, 235, 0.85)',
+          borderRadius: 2,
+          barPercentage: 0.7,
+          categoryPercentage: 0.6,
         },
       ],
     },
@@ -143,7 +149,7 @@ function buildChart() {
       responsive: true,
       plugins: {
         legend: {
-          labels: { font: { size: 14 } },
+          labels: { font: { size: 12 } },
         },
         tooltip: {
           callbacks: {
