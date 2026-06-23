@@ -43,9 +43,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import VideoSection from '@/components/FinanceLounge/VideoSection.vue'
 import GoldSilverSection from '@/components/FinanceLounge/GoldSilverSection.vue'
 import CommunitySection from '@/components/FinanceLounge/CommunitySection.vue'
 
-const activeMenu = ref<'video' | 'goldsilver' | 'community'>('video')
+type Menu = 'video' | 'goldsilver' | 'community'
+const route = useRoute()
+const validTabs: Menu[] = ['video', 'goldsilver', 'community']
+const queryTab = route.query.tab as string
+const activeMenu = ref<Menu>(validTabs.includes(queryTab as Menu) ? (queryTab as Menu) : 'video')
 </script>

@@ -1,16 +1,17 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-24 pb-16">
     <div class="mx-auto max-w-3xl px-4">
-      <!-- 뒤로 -->
       <button
         class="mb-5 inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-800"
-        @click="router.push({ name: 'community' })"
+        @click="router.push('/financelounge?tab=community')"
       >
         ← 목록
       </button>
 
       <!-- 로딩 -->
-      <div v-if="isLoading" class="mt-20 text-center text-base text-slate-400">불러오는 중...</div>
+      <div v-if="isLoading" class="mt-20 text-center text-base text-slate-400">
+        불러오는 중입니다.
+      </div>
 
       <!-- 없음 -->
       <div v-else-if="notFound" class="mt-20 text-center">
@@ -216,7 +217,7 @@ async function onDeletePost() {
   if (!confirm('이 글을 삭제할까요?')) return
   try {
     await api.delete(`/api/v1/community/posts/${post.value.id}/`)
-    router.replace({ name: 'community' })
+    router.replace('/financelounge?tab=community')
   } catch {
     alert('삭제에 실패했어요.')
   }
