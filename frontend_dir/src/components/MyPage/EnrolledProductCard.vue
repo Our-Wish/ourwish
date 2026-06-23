@@ -49,7 +49,7 @@
               @click="showModal = true"
               class="shrink-0 cursor-pointer text-sm text-slate-400 hover:text-slate-600"
             >
-              정보 수정하기 →
+              정보 수정하기
             </button>
           </div>
         </div>
@@ -64,16 +64,18 @@
           >
             {{ trimProductName(productName) }}
           </button>
-          <p class="mt-1 text-sm text-slate-400">
-            목표 금액과 기간을 입력해 달성률을 확인해보세요.
-          </p>
+          <div class="flex justify-between">
+            <p class="mt-1 text-sm text-slate-400">
+              목표 금액과 기간을 입력해 달성률을 확인해보세요.
+            </p>
+            <button
+              @click="showModal = true"
+              class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
+            >
+              정보 입력하기
+            </button>
+          </div>
         </div>
-        <button
-          @click="showModal = true"
-          class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
-        >
-          정보 입력하기
-        </button>
       </template>
     </div>
 
