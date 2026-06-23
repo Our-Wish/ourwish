@@ -95,7 +95,14 @@ const displayProducts = computed(() => {
     rate: item.rate,
     startDate: item.start_date,
     maturityDate: item.maturity_date,
-    progress: item.achievement_gauge,
+    progress: (() => {
+      if (!item.start_date || !item.maturity_date) return 0
+      const today = Date.now()
+      const start = new Date(item.start_date).getTime()
+      const end = new Date(item.maturity_date).getTime()
+      if (end <= start) return 0
+      return Math.min(100, Math.max(0, Math.round(((today - start) / (end - start)) * 100)))
+    })(),
   }))
 })
 

@@ -30,8 +30,8 @@
                 <p class="text-sm font-semibold text-red-400">{{ progress }}% 달성했어요 !</p>
               </div> -->
               <div
-                class="h-full rounded-full bg-blue-400 transition-all"
-                :style="{ width: `${progress}%` }"
+                class="h-full rounded-full transition-all"
+                :style="{ width: `${progress}%`, background: '#3B82F6' }"
               />
             </div>
           </div>
