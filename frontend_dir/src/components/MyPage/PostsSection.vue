@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <!-- 본문이 너무 넓으면 제목이 안 잘리므로, 커뮤니티처럼 읽기 좋은 폭으로 제한한다 -->
+  <div class="max-w-4xl">
     <h1 class="text-4xl font-extrabold text-slate-900">작성한 글</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       커뮤니티에 남긴 내 글을 한곳에서 모아보세요.
@@ -21,15 +22,17 @@
         class="group cursor-pointer rounded-2xl bg-white p-5 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:ring-blue-200"
         @click="goDetail(post.id)"
       >
-        <div class="flex items-center gap-1.5 overflow-hidden">
-          <span class="min-w-0 truncate text-lg font-bold text-slate-900 group-hover:text-blue-600">
+        <div class="flex items-center gap-2">
+          <span
+            class="min-w-0 flex-1 truncate text-lg font-bold text-slate-900 group-hover:text-blue-600"
+          >
             {{ post.title }}
           </span>
           <span v-if="post.commentCount > 0" class="shrink-0 text-sm font-medium text-blue-400">
             [{{ post.commentCount }}]
           </span>
+          <span class="shrink-0 text-sm text-slate-400">{{ post.createdAt }}</span>
         </div>
-        <p class="mt-1 text-sm text-slate-400">{{ post.createdAt }}</p>
       </div>
     </div>
   </div>
