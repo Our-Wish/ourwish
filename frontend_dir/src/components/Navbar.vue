@@ -35,11 +35,18 @@
         >
           예금 추천받기
         </RouterLink>
+
         <RouterLink
           to="/goalsetup"
           class="rounded-2xl px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100 hover:font-semibold"
         >
           적금 추천받기
+        </RouterLink>
+        <RouterLink
+          to="/financelounge"
+          class="rounded-2xl px-4 py-2 text-base font-semibold text-slate-700 transition hover:font-semibold hover:text-blue-800"
+        >
+          금융라운지
         </RouterLink>
         <RouterLink
           to="/mypage"

@@ -33,7 +33,7 @@
       <div class="w-px bg-slate-200" />
 
       <main class="flex-1 px-14 pt-2">
-        <div v-if="activeMenu === 'video'">금융TV 영역</div>
+        <VideoSection v-if="activeMenu === 'video'" />
         <div v-if="activeMenu === 'goldsilver'">금/은 시세 영역</div>
         <div v-if="activeMenu === 'community'">커뮤니티 영역</div>
       </main>
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import VideoSection from '@/components/FinanceLounge/VideoSection.vue'
 
 const activeMenu = ref<'video' | 'goldsilver' | 'community'>('video')
 </script>
