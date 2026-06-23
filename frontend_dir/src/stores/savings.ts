@@ -27,6 +27,9 @@ export const useSavingsStore = defineStore('savings', {
       this.enrollments = data
       this.isFetched = true
     },
+    addEnrollment(enrollment: Enrollment) {
+      this.enrollments.push(enrollment)
+    },
     removeEnrollment(enrollmentId: number) {
       this.enrollments = this.enrollments.filter((e) => e.enrollment_id !== enrollmentId)
     },
