@@ -26,30 +26,32 @@
               {{ trimProductName(productName) }}
             </button>
             <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <!-- <div class="shrink-0 text-right">
+                <p class="text-sm font-semibold text-red-400">{{ progress }}% 달성했어요 !</p>
+              </div> -->
               <div
                 class="h-full rounded-full bg-blue-400 transition-all"
                 :style="{ width: `${progress}%` }"
               />
             </div>
           </div>
-          <p class="mt-1 text-sm text-slate-400">
-            시작 날짜 : {{ startDate }} |
-            {{
-              productType === 'SAVINGS'
-                ? `월 납입 금액 : ${monthlyAmount}만원`
-                : `예치 금액 : ${depositAmount}만원`
-            }}
-            | 금리 : {{ rate }}% | 만기일 : {{ maturityDate }}
-          </p>
-        </div>
-        <div class="shrink-0 text-right">
-          <p class="text-sm font-semibold text-red-400">{{ progress }}% 달성했어요 !</p>
-          <button
-            @click="showModal = true"
-            class="mt-1 cursor-pointer text-sm text-slate-400 hover:text-slate-600"
-          >
-            정보 수정하기 →
-          </button>
+          <div class="flex justify-between">
+            <p class="mt-1 text-sm text-slate-400">
+              시작 날짜 : {{ startDate }} |
+              {{
+                productType === 'SAVINGS'
+                  ? `월 납입 금액 : ${monthlyAmount}만원`
+                  : `예치 금액 : ${depositAmount}만원`
+              }}
+              | 금리 : {{ rate }}% | 만기일 : {{ maturityDate }}
+            </p>
+            <button
+              @click="showModal = true"
+              class="shrink-0 cursor-pointer text-sm text-slate-400 hover:text-slate-600"
+            >
+              정보 수정하기 →
+            </button>
+          </div>
         </div>
       </template>
 
