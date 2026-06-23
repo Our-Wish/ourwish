@@ -21,7 +21,9 @@
       <template v-else-if="post">
         <!-- 글 본문 -->
         <article class="rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-100">
-          <h1 class="text-2xl font-bold leading-snug text-slate-900">{{ post.title }}</h1>
+          <h1 class="text-2xl font-bold leading-snug break-words text-slate-900">
+            {{ post.title }}
+          </h1>
           <div class="mt-3 flex items-center justify-between">
             <div class="flex items-center gap-2 text-sm">
               <span class="font-semibold text-slate-700">{{ post.authorNickname }}</span>
@@ -46,7 +48,7 @@
             </div>
           </div>
           <p
-            class="mt-6 border-t border-slate-100 pt-6 text-base leading-relaxed whitespace-pre-line text-slate-700"
+            class="mt-6 border-t border-slate-100 pt-6 text-base leading-relaxed break-words whitespace-pre-line text-slate-700"
           >
             {{ post.content }}
           </p>
