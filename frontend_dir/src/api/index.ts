@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
@@ -22,10 +23,11 @@ if (initialToken) {
   api.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`
 }
 
-// 세션 만료 시: 토큰 정리 후, 보호 페이지에 있으면 메인으로 돌려보낸다
+// 세션 만료 시: 스토어 상태(token/user)까지 비워 네비가 로그인 상태로 남지 않게 한 뒤,
+// 보호 페이지에 있으면 메인으로 돌려보낸다
 function forceLogout() {
-  setAuthToken(null)
-  sessionStorage.removeItem('refresh_token')
+  // Pinia 스토어를 통해 token/user/sessionStorage를 한 번에 정리한다
+  useAuthStore().logout()
   if (router.currentRoute.value.meta.public !== true) {
     router.replace('/')
   }
