@@ -5,7 +5,6 @@ import GoalSetupView from '@/views/GoalSetupView.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
 import SavingsDetailView from '@/views/SavingsDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
-import CommunityView from '@/views/CommunityView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
@@ -43,11 +42,6 @@ const router = createRouter({
       path: '/mypage',
       name: 'mypage',
       component: MyPageView,
-    },
-    {
-      path: '/community',
-      name: 'community',
-      component: CommunityView,
     },
     {
       // 글쓰기 — :id보다 먼저 둬서 'write'가 상세로 잡히지 않게 한다

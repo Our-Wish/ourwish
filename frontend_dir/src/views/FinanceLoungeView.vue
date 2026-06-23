@@ -35,7 +35,7 @@
       <main class="flex-1 px-14 pt-2">
         <VideoSection v-if="activeMenu === 'video'" />
         <GoldSilverSection v-if="activeMenu === 'goldsilver'" />
-        <div v-if="activeMenu === 'community'">커뮤니티 영역</div>
+        <CommunitySection v-if="activeMenu === 'community'" />
       </main>
     </div>
   </div>
@@ -45,6 +45,7 @@
 import { ref } from 'vue'
 import VideoSection from '@/components/FinanceLounge/VideoSection.vue'
 import GoldSilverSection from '@/components/FinanceLounge/GoldSilverSection.vue'
+import CommunitySection from '@/components/FinanceLounge/CommunitySection.vue'
 
 const activeMenu = ref<'video' | 'goldsilver' | 'community'>('video')
 </script>
