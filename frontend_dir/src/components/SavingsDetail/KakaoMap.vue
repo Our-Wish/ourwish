@@ -17,8 +17,8 @@
 
     <template v-else>
       <p class="mt-2 text-xs leading-relaxed text-slate-400">
-        📍 현재 위치를 기준으로 가까운 영업점을 안내하고 있어요.<br />
-        Wi-Fi 환경이나 기기 설정에 따라 위치가 실제 위치와 다를 수 있습니다.
+        📍 현재 위치를 기준으로 가까운 영업점을 안내해 드리고 있어요.<br />
+        Wi-Fi 환경이나 기기 설정에 따라 위치에 다소 오차가 발생할 수 있습니다.
       </p>
       <div v-if="places.length" class="mt-3 divide-y divide-slate-100">
         <a
@@ -36,29 +36,31 @@
       <p v-else class="mt-3 text-sm text-slate-400">근처 영업점 정보를 불러올 수 없어요.</p>
 
       <button
-        v-if="places.length > 2"
-        @click="showAll = !showAll"
-        class="mt-2 w-full py-1 text-sm text-blue-500"
+        @click="showModal = true"
+        class="mt-2 w-full py-1 text-sm text-blue-500 hover:cursor-pointer hover:text-blue-300"
       >
-        {{ showAll ? '간단히 표시 △' : '더 많은 지점 보기 ▽' }}
+        더 많은 영업점 보기
       </button>
     </template>
+
+    <BranchMapModal v-if="showModal" :bank-name="bankName" @close="showModal = false" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import BranchMapModal from '@/components/SavingsDetail/BranchMapModal.vue'
 
 const props = defineProps<{ bankName: string }>()
 
 const mapRef = ref<HTMLDivElement | null>(null)
 const isLocating = ref(true)
 const places = ref<any[]>([])
-const showAll = ref(false)
+const showModal = ref(false)
 const mapInstance = ref<any>(null)
 const userCenter = ref<any>(null)
 
-const visiblePlaces = computed(() => (showAll.value ? places.value : places.value.slice(0, 2)))
+const visiblePlaces = computed(() => places.value.slice(0, 3))
 
 declare global {
   interface Window {

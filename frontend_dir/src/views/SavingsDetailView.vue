@@ -47,7 +47,7 @@
 
         <div class="w-2/5 space-y-4">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="mb-3 text-base font-bold text-slate-900">근처 영업점 찾기</p>
+            <p class="mb-3 text-base font-bold text-slate-900">주변 영업점 찾기</p>
             <KakaoMap :bank-name="product.bankName" />
           </div>
 
