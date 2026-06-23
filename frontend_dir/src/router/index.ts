@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import HomeView from '@/views/HomeView.vue'
 import GoalSetupView from '@/views/GoalSetupView.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
@@ -18,9 +19,11 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
   routes: [
     {
+      // 메인(랜딩)만 비로그인 허용
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { public: true },
     },
     {
       path: '/GoalSetup',
@@ -93,6 +96,15 @@ const router = createRouter({
       component: DepositRecommendationView,
     },
   ],
+})
+
+// 전역 가드: public이 아닌 페이지는 로그인 필수
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+  if (!to.meta.public && !authStore.isAuthenticated) {
+    authStore.openLoginModal()
+    return { name: 'home' }
+  }
 })
 
 export default router
