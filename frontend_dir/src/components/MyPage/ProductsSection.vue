@@ -55,8 +55,8 @@
         v-for="product in displayProducts"
         :key="product.id"
         v-bind="product"
-        :product-type="activeTab === 'savings' ? '적금' : '예금'"
         @delete="deletingId = $event"
+        @updated="savingsStore.updateEnrollment($event)"
       />
 
       <div v-if="displayProducts.length === 0" class="py-20 text-center text-base text-slate-300">
@@ -84,15 +84,25 @@ const displayProducts = computed(() => {
   )
   return filtered.map((item) => ({
     id: item.enrollment_id,
+    productId: item.product_id,
+    productType: item.product_type,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
     isFilled: item.is_filled,
     monthlyAmount: item.monthly_amount,
+    depositAmount: item.deposit_amount,
     rate: item.rate,
     startDate: item.start_date,
     maturityDate: item.maturity_date,
-    progress: item.achievement_gauge,
+    progress: (() => {
+      if (!item.start_date || !item.maturity_date) return 0
+      const today = Date.now()
+      const start = new Date(item.start_date).getTime()
+      const end = new Date(item.maturity_date).getTime()
+      if (end <= start) return 0
+      return Math.min(100, Math.max(0, Math.round(((today - start) / (end - start)) * 100)))
+    })(),
   }))
 })
 

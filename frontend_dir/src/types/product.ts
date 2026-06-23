@@ -1,5 +1,21 @@
 export type Condition = { label: string; value: string }
 
+export type EnrolledProductCardProps = {
+  id: number
+  productId: number
+  bankName: string
+  bankColor: string
+  productName: string
+  productType: 'DEPOSIT' | 'SAVINGS'
+  isFilled: boolean
+  progress: number
+  monthlyAmount: number
+  depositAmount: number
+  rate: number
+  startDate: string
+  maturityDate: string
+}
+
 export type ProductDetail = {
   id: number
   bankName: string

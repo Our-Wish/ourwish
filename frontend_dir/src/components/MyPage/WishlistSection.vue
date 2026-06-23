@@ -72,17 +72,17 @@
           </div>
           <div class="flex-1">
             <p class="text-xs text-slate-400">{{ product.bankName }}</p>
-            <p class="text-lg font-bold text-slate-900">{{ product.productName }}</p>
+            <button
+              @click="router.push({ name: 'savings-detail', params: { id: product.id } })"
+              class="cursor-pointer text-lg pt-0.5 font-bold text-slate-900 hover:text-blue-700"
+            >
+              {{ product.productName }}
+            </button>
+            <p class="text-lg font-bold text-slate-900"></p>
             <p class="mt-1 text-sm text-slate-400">
               기본 금리 {{ product.baseRate }}% | 최고 금리 {{ product.maxRate }}%
             </p>
           </div>
-          <button
-            @click="router.push({ name: 'savings-detail', params: { id: product.id } })"
-            class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
-          >
-            자세히 보기 →
-          </button>
         </div>
       </div>
 
