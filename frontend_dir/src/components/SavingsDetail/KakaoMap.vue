@@ -21,10 +21,17 @@
         Wi-Fi 환경이나 기기 설정에 따라 위치가 실제 위치와 다를 수 있습니다.
       </p>
       <div v-if="places.length" class="mt-3 divide-y divide-slate-100">
-        <div v-for="place in visiblePlaces" :key="place.id" class="py-2.5">
+        <a
+          v-for="place in visiblePlaces"
+          :key="place.id"
+          :href="`https://map.kakao.com/link/map/${place.place_name},${place.y},${place.x}`"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block py-2.5 hover:opacity-70"
+        >
           <p class="font-medium text-slate-800">{{ place.place_name }}</p>
           <p class="text-sm text-slate-500">{{ place.address_name }}</p>
-        </div>
+        </a>
       </div>
       <p v-else class="mt-3 text-sm text-slate-400">근처 영업점 정보를 불러올 수 없어요.</p>
 
