@@ -83,11 +83,13 @@ import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
 import ProductBasicInfo from '@/components/SavingsDetail/ProductBasicInfo.vue'
 import KakaoMap from '@/components/SavingsDetail/KakaoMap.vue'
 import { useSavingsStore } from '@/stores/savings'
+import { useFavoritesStore } from '@/stores/favorites'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
 const savingsStore = useSavingsStore()
+const favoritesStore = useFavoritesStore()
 
 const productId = computed(() => Number(route.params.id))
 
@@ -170,8 +172,10 @@ async function toggleFavorite() {
   try {
     if (isFavorite.value) {
       await api.delete(`/api/v1/favorites/${product.value.id}/`)
+      favoritesStore.removeFavorite(product.value.id)
     } else {
-      await api.post('/api/v1/favorites/', { product_id: product.value.id })
+      const { data } = await api.post('/api/v1/favorites/', { product_id: product.value.id })
+      favoritesStore.addFavorite(data)
     }
     isFavorite.value = !isFavorite.value
     alert(isFavorite.value ? '관심 상품에 추가했어요.' : '관심 상품에서 제거됐어요.')

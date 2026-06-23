@@ -25,6 +25,9 @@ export const useFavoritesStore = defineStore('favorites', {
       this.favorites = data
       this.isFetched = true
     },
+    addFavorite(favorite: Favorite) {
+      this.favorites.push(favorite)
+    },
     removeFavorite(productId: number) {
       this.favorites = this.favorites.filter((f) => f.product_id !== productId)
     },
