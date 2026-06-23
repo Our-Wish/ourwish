@@ -71,23 +71,11 @@
 <script setup lang="ts">
 import { trimProductName } from '@/utils/product'
 import { useRouter } from 'vue-router'
+import type { EnrolledProductCardProps } from '@/types/product'
 
 const router = useRouter()
 
-defineProps<{
-  id: number
-  productId: number
-  bankName: string
-  bankColor: string
-  productName: string
-  productType: string
-  isFilled: boolean
-  progress: number
-  monthlyAmount: number
-  rate: number
-  startDate: string
-  maturityDate: string
-}>()
+defineProps<EnrolledProductCardProps>()
 
 const emit = defineEmits<{ delete: [id: number] }>()
 </script>

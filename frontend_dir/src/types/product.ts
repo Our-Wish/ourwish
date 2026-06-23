@@ -1,5 +1,20 @@
 export type Condition = { label: string; value: string }
 
+export type EnrolledProductCardProps = {
+  id: number
+  productId: number
+  bankName: string
+  bankColor: string
+  productName: string
+  productType: string
+  isFilled: boolean
+  progress: number
+  monthlyAmount: number
+  rate: number
+  startDate: string
+  maturityDate: string
+}
+
 export type ProductDetail = {
   id: number
   bankName: string
