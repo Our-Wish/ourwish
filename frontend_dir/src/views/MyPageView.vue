@@ -13,6 +13,15 @@
             >
               나의 금융상품
             </button>
+            <button
+              @click="activeMenu = 'marketRate'"
+              class="w-full text-left cursor-pointer px-3 py-2.5 rounded-xl text-base font-semibold transition"
+              :class="
+                activeMenu === 'marketRate' ? 'text-blue-600' : 'text-slate-700 hover:bg-slate-100'
+              "
+            >
+              시장 금리 비교
+            </button>
 
             <button
               @click="activeMenu = 'wishlist'"
@@ -59,6 +68,7 @@
         <WishlistSection v-if="activeMenu === 'wishlist'" />
         <VideosSection v-if="activeMenu === 'videos'" />
         <PostsSection v-if="activeMenu === 'posts'" />
+        <MarketRate v-if="activeMenu === 'marketRate'" />
       </main>
     </div>
   </div>
@@ -72,8 +82,9 @@ import ProductsSection from '@/components/MyPage/ProductsSection.vue'
 import WishlistSection from '@/components/MyPage/WishlistSection.vue'
 import VideosSection from '@/components/MyPage/VideosSection.vue'
 import PostsSection from '@/components/MyPage/PostsSection.vue'
+import MarketRate from '@/components/MyPage/MarketRate.vue'
 
 const authStore = useAuthStore()
-const activeMenu = ref<'products' | 'wishlist' | 'videos' | 'posts'>('products')
+const activeMenu = ref<'products' | 'wishlist' | 'videos' | 'posts' | 'marketRate'>('products')
 const productTab = ref<'deposit' | 'savings'>('savings')
 </script>
