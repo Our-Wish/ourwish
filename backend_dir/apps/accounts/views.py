@@ -15,6 +15,7 @@ from .models import Member, SearchProfile
 from .serializers import (
     SignupSerializer,
     LoginSerializer,
+    NicknameUpdateSerializer,
     SearchProfileSerializer,
 )
 
@@ -156,6 +157,58 @@ class TokenRefreshView(APIView):
             return Response({"access": str(refresh.access_token)})
         except TokenError as e:
             raise InvalidToken(e.args[0])
+
+
+# 내 정보 응답(문서용) — 토큰 응답의 member 부분과 동일한 모양.
+MemberMeResponseSerializer = inline_serializer(
+    name="MemberMe",
+    fields={
+        "id": serializers.IntegerField(),
+        "login_id": serializers.CharField(),
+        "nickname": serializers.CharField(),
+    },
+)
+
+
+class MemberMeView(APIView):
+    """로그인한 회원 본인. GET=내 정보 조회, PATCH=닉네임 수정."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={200: MemberMeResponseSerializer},
+        summary="내 정보 조회",
+    )
+    def get(self, request):
+        member = request.user
+        return Response(
+            {
+                "id": member.id,
+                "login_id": member.login_id,
+                "nickname": member.nickname,
+            }
+        )
+
+    @extend_schema(
+        request=NicknameUpdateSerializer,
+        responses={200: MemberMeResponseSerializer},
+        summary="닉네임 수정",
+    )
+    def patch(self, request):
+        serializer = NicknameUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        member = request.user
+        member.nickname = serializer.validated_data["nickname"]
+        # 닉네임만 바뀌므로 해당 컬럼(+auto_now인 updated_at)만 저장한다.
+        member.save(update_fields=["nickname", "updated_at"])
+        return Response(
+            {
+                "id": member.id,
+                "login_id": member.login_id,
+                "nickname": member.nickname,
+            }
+        )
 
 
 class SearchProfileView(APIView):

@@ -10,8 +10,8 @@ from apps.products.services import (
     calculate_after_tax_payout,
     calculate_deposit_after_tax_payout,
 )
-from .models import Favorite
-from .serializers import FavoriteCreateSerializer
+from .models import Favorite, VideoFavorite
+from .serializers import FavoriteCreateSerializer, VideoFavoriteSerializer
 
 # 찜 목록 한 건의 모양(문서용) — 추천 카드와 동일.
 FavoriteItemSerializer = inline_serializer(
@@ -163,4 +163,50 @@ class FavoriteDeleteView(APIView):
         ).delete()
         if not deleted:
             raise NotFound("찜한 상품이 아닙니다.")
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class VideoFavoriteListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={200: VideoFavoriteSerializer(many=True)},
+        summary="내 영상 찜 목록",
+    )
+    def get(self, request):
+        favorites = VideoFavorite.objects.filter(member=request.user).order_by(
+            "-created_at"
+        )
+        return Response(VideoFavoriteSerializer(favorites, many=True).data)
+
+    @extend_schema(
+        request=VideoFavoriteSerializer,
+        responses={201: VideoFavoriteSerializer},
+        summary="영상 찜 등록 (이미 찜했으면 그대로 유지)",
+    )
+    def post(self, request):
+        serializer = VideoFavoriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # (member, video_id) unique — 이미 찜했으면 기존 것을 그대로 두고 새로 안 만든다.
+        favorite, _ = VideoFavorite.objects.get_or_create(
+            member=request.user,
+            video_id=serializer.validated_data["video_id"],
+            defaults=serializer.validated_data,
+        )
+        return Response(
+            VideoFavoriteSerializer(favorite).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class VideoFavoriteDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={204: None}, summary="영상 찜 해제")
+    def delete(self, request, video_id):
+        deleted, _ = VideoFavorite.objects.filter(
+            member=request.user, video_id=video_id
+        ).delete()
+        if not deleted:
+            raise NotFound("찜한 영상이 아닙니다.")
         return Response(status=status.HTTP_204_NO_CONTENT)
