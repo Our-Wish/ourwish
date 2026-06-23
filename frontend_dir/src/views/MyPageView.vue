@@ -20,7 +20,7 @@
                 activeMenu === 'marketRate' ? 'text-blue-600' : 'text-slate-700 hover:bg-slate-100'
               "
             >
-              시장 금리 비교
+              가입 상품 금리 비교
             </button>
 
             <button
