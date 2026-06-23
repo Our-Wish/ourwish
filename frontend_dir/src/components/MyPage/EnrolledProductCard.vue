@@ -39,7 +39,10 @@
         </div>
         <div class="shrink-0 text-right">
           <p class="text-sm font-semibold text-red-400">{{ progress }}% 달성했어요 !</p>
-          <button class="mt-1 cursor-pointer text-sm text-slate-400 hover:text-slate-600">
+          <button
+            @click="showModal = true"
+            class="mt-1 cursor-pointer text-sm text-slate-400 hover:text-slate-600"
+          >
             정보 수정하기 →
           </button>
         </div>
@@ -59,23 +62,45 @@
           </p>
         </div>
         <button
+          @click="showModal = true"
           class="shrink-0 self-end cursor-pointer text-sm text-slate-400 hover:text-slate-600"
         >
           정보 입력하기
         </button>
       </template>
     </div>
+
+    <EnrollmentModal
+      v-if="showModal"
+      :enrollment-id="id"
+      :product-name="productName"
+      :product-type="productType"
+      :initial-data="{ monthly_amount: monthlyAmount, rate, start_date: startDate, maturity_date: maturityDate }"
+      @close="showModal = false"
+      @updated="onUpdated"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { trimProductName } from '@/utils/product'
 import { useRouter } from 'vue-router'
 import type { EnrolledProductCardProps } from '@/types/product'
+import EnrollmentModal from '@/components/MyPage/EnrollmentModal.vue'
 
 const router = useRouter()
 
 defineProps<EnrolledProductCardProps>()
 
-const emit = defineEmits<{ delete: [id: number] }>()
+const emit = defineEmits<{
+  delete: [id: number]
+  updated: [data: any]
+}>()
+
+const showModal = ref(false)
+
+function onUpdated(data: any) {
+  emit('updated', data)
+}
 </script>

@@ -6,7 +6,7 @@ export type EnrolledProductCardProps = {
   bankName: string
   bankColor: string
   productName: string
-  productType: string
+  productType: 'DEPOSIT' | 'SAVINGS'
   isFilled: boolean
   progress: number
   monthlyAmount: number
