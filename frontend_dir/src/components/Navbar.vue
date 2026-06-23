@@ -11,59 +11,57 @@
       >
 
       <div class="flex items-center gap-4">
-        <template v-if="!isAuthenticated">
-          <button
-            class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
-            @click="authStore.openLoginModal()"
-          >
-            로그인
-          </button>
-        </template>
+        <RouterLink
+          to="/videosearch"
+          class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
+        >
+          금융TV
+        </RouterLink>
+        <RouterLink
+          to="/goldsilver"
+          class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
+        >
+          금/은 시세
+        </RouterLink>
+        <RouterLink
+          to="/community"
+          class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
+        >
+          커뮤니티
+        </RouterLink>
+        <RouterLink
+          to="/depositgoalsetup"
+          class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
+        >
+          예금 추천받기
+        </RouterLink>
+        <RouterLink
+          to="/goalsetup"
+          class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
+        >
+          적금 추천받기
+        </RouterLink>
+        <RouterLink
+          to="/mypage"
+          class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          마이페이지
+        </RouterLink>
 
-        <template v-else>
-          <RouterLink
-            to="/videosearch"
-            class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
-          >
-            금융TV
-          </RouterLink>
-          <RouterLink
-            to="/goldsilver"
-            class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
-          >
-            금/은 시세
-          </RouterLink>
-          <RouterLink
-            to="/community"
-            class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
-          >
-            커뮤니티
-          </RouterLink>
-          <RouterLink
-            to="/depositgoalsetup"
-            class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
-          >
-            예금 추천받기
-          </RouterLink>
-          <RouterLink
-            to="/goalsetup"
-            class="rounded-full px-4 py-2 text-base font-normal text-slate-700 transition hover:bg-slate-100"
-          >
-            적금 추천받기
-          </RouterLink>
-          <RouterLink
-            to="/mypage"
-            class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            마이페이지
-          </RouterLink>
-          <button
-            class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
-            @click="logout"
-          >
-            로그아웃
-          </button>
-        </template>
+        <button
+          v-if="!isAuthenticated"
+          class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+          @click="authStore.openLoginModal()"
+        >
+          로그인
+        </button>
+        <button
+          v-else
+          class="rounded-full px-4 py-2 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+          @click="logout"
+        >
+          로그아웃
+        </button>
       </div>
     </div>
   </nav>
