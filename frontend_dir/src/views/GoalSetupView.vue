@@ -57,8 +57,14 @@
             <div>
               <p class="mb-4 text-lg font-medium text-slate-700">2. 월 저축 금액</p>
               <div class="rounded-2xl border border-slate-200 bg-white/70 px-6 py-5">
-                <div class="flex items-center justify-between">
-                  <p class="text-2xl font-extrabold text-slate-900">{{ monthlyAmount }}만원</p>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="monthlyAmount"
+                    type="text"
+                    inputmode="numeric"
+                    class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-2xl font-extrabold text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  />
+                  <span class="text-2xl font-extrabold text-slate-900">만원</span>
                 </div>
                 <div class="mt-4">
                   <input
