@@ -1,6 +1,5 @@
 <template>
   <div class="rounded-3xl bg-[#111827] p-6 text-white">
-    <!-- 목표 없음 상태 -->
     <template v-if="!goalStore.targetAmount && !isEditing">
       <p class="text-lg font-semibold text-slate-300">목표 금액을 설정해보세요</p>
       <p class="mt-1.5 text-base text-slate-400">진행률과 만기 수령액을 한눈에 확인할 수 있어요.</p>
@@ -12,7 +11,6 @@
       </button>
     </template>
 
-    <!-- 인라인 입력 상태 -->
     <template v-else-if="isEditing">
       <p class="text-base text-slate-400">최종 목표 금액을 입력해주세요</p>
       <div class="mt-4 flex items-center gap-2">
