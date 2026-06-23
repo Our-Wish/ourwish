@@ -57,6 +57,15 @@ import { useSavingsStore } from '@/stores/savings'
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
+function trimProductName(name: string): string {
+  const keywords = ['예금', '적금']
+  for (const kw of keywords) {
+    const idx = name.indexOf(kw)
+    if (idx !== -1) return name.slice(0, idx + kw.length)
+  }
+  return name
+}
+
 interface RateItem {
   label: string
   baseRate: number
@@ -87,7 +96,7 @@ async function loadData() {
         const { data } = await api.get(`/api/v1/products/${e.product_id}/`)
         const option = data.options?.[0] ?? {}
         return {
-          label: `${e.bank_name} · ${e.product_name}`,
+          label: `${e.bank_name} · ${trimProductName(e.product_name)}`,
           baseRate: +(option.base_rate ?? data.base_rate ?? 0),
           maxRate: +(option.max_rate ?? data.max_rate ?? 0),
           myRate: +e.rate,
