@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1 class="text-4xl font-extrabold text-slate-900">찜한 영상 관리</h1>
+    <h1 class="text-4xl font-extrabold text-slate-900">찜한 영상</h1>
     <p class="mt-3 text-base font-light text-slate-400">
-      예·적금 공부에 도움이 됐던 영상을 다시 꺼내보세요.
+      관심 있게 저장한 금융 영상을 한곳에서 확인해보세요.
     </p>
 
     <!-- 로딩 -->

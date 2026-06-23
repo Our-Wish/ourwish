@@ -24,7 +24,6 @@
         >
           적금 추천받기
         </RouterLink>
-        <!-- 금융라운지 드롭다운 -->
         <div
           class="relative"
           @mouseenter="loungeDropdownOpen = true"
@@ -60,7 +59,6 @@
             </RouterLink>
           </div>
         </div>
-        <!-- 마이페이지 드롭다운 -->
         <div
           class="relative"
           @mouseenter="mypageDropdownOpen = true"
