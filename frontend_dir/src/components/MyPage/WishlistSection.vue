@@ -98,6 +98,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFavoritesStore } from '@/stores/favorites'
 import { bankColorMap } from '@/constants/bankColors'
+import { trimProductName } from '@/utils/product'
 
 const router = useRouter()
 
@@ -115,7 +116,7 @@ const displayProducts = computed(() => {
     id: item.product_id,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
-    productName: item.product_name,
+    productName: trimProductName(item.product_name),
     bankType: item.bank_type,
     baseRate: item.base_rate,
     maxRate: item.max_rate,

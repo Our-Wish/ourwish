@@ -28,7 +28,7 @@
         </div>
         <div>
           <p class="text-sm text-slate-400">{{ bankName }} · 적금</p>
-          <p class="mt-1 text-base font-bold text-slate-900">{{ productName }}</p>
+          <p class="mt-1 text-base font-bold text-slate-900">{{ trimProductName(productName) }}</p>
         </div>
       </div>
       <div class="shrink-0 text-right">
@@ -68,6 +68,7 @@ const props = defineProps<{
 }>()
 
 import { TAG_LABELS } from '@/constants/tagLabels'
+import { trimProductName } from '@/utils/product'
 
 const conditionLabel = (tag: string) => TAG_LABELS[tag] ?? tag
 

@@ -10,7 +10,7 @@
         </div>
         <div>
           <p class="text-xs text-slate-400">{{ bankName }}</p>
-          <p class="text-base font-bold text-slate-900">{{ productName }}</p>
+          <p class="text-base font-bold text-slate-900">{{ trimProductName(productName) }}</p>
         </div>
       </div>
       <span class="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-500">
@@ -36,6 +36,8 @@
 </template>
 
 <script setup lang="ts">
+import { trimProductName } from '@/utils/product'
+
 defineProps<{
   bankInitial: string
   bankColor: string
