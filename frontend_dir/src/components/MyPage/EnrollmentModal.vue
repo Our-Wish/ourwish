@@ -5,8 +5,10 @@
       @click.self="emit('close')"
     >
       <div class="w-full max-w-md rounded-2xl bg-white p-7 shadow-xl">
-        <h2 class="text-xl font-bold text-slate-900">가입 정보 입력</h2>
-        <p class="mt-1 text-sm text-slate-400">{{ productName }}</p>
+        <h2 class="text-xl font-bold text-slate-900">가입 정보 등록</h2>
+        <p class="mt-2 text-sm text-slate-400">
+          나의 적금 정보를 등록하고 목표 달성 현황을 간편하게 관리해보세요 :)
+        </p>
 
         <div class="mt-6 space-y-4">
           <div>
