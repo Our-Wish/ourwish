@@ -1,6 +1,14 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pb-20 pt-8">
     <div class="mx-auto max-w-6xl px-6">
+      <!-- 헤더 -->
+      <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-slate-800">OURWISH 금융TV</h1>
+        <p class="mt-3 text-base text-slate-500">
+          상품 설명만으로 어려웠던 금융 정보를<br />짧고 쉬운 영상으로 확인해보세요.
+        </p>
+      </div>
+
       <!-- 검색바 -->
       <form
         class="mx-auto flex max-w-4xl items-center gap-3 rounded-2xl bg-white px-7 py-5 shadow-sm ring-1 ring-slate-200/70 transition focus-within:ring-2 focus-within:ring-indigo-200"
@@ -9,7 +17,7 @@
         <input
           v-model="query"
           type="text"
-          placeholder="예·적금 정보를 영상으로 알아보세요"
+          placeholder="궁금한 예·적금 키워드를 입력해보세요"
           class="flex-1 bg-transparent text-lg text-slate-700 placeholder:text-slate-400 focus:outline-none"
         />
         <button
@@ -33,21 +41,35 @@
           </svg>
         </button>
       </form>
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <span class="text-sm text-slate-500">추천 키워드</span>
+        <button
+          class="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
+        >
+          #파킹통장
+        </button>
+        <button
+          class="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
+        >
+          #우대금리
+        </button>
+        <button
+          class="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
+        >
+          #청년도약계좌
+        </button>
+      </div>
 
-      <!-- 결과 영역 -->
       <div class="mt-12">
-        <!-- 로딩 -->
         <div v-if="isLoading" class="mt-16 text-center text-base text-slate-400">
-          불러오는 중...
+          영상을 불러오는 중입니다. 잠시만 기다려주세요 !
         </div>
 
-        <!-- 결과 없음 안내 -->
         <div v-else-if="hasSearched && results.length === 0" class="mt-20 text-center">
           <p class="text-lg font-semibold text-slate-500">검색 결과가 없어요</p>
           <p class="mt-2 text-sm text-slate-400">다른 키워드로 다시 검색해 보세요.</p>
         </div>
 
-        <!-- 결과 그리드 -->
         <div v-else>
           <p v-if="lastKeyword" class="mb-5 text-sm text-slate-400">
             <span class="font-semibold text-slate-600">'{{ lastKeyword }}'</span> 검색 결과
