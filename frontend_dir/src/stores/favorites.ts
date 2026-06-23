@@ -25,7 +25,10 @@ export const useFavoritesStore = defineStore('favorites', {
       this.favorites = data
       this.isFetched = true
     },
-    removeFavorite(productId: number) {
+    // 서버에서 먼저 지운 뒤(성공해야) 로컬 목록에서도 제거한다.
+    // (로컬만 지우면 서버 DB엔 남아 새로고침/재로그인 시 되살아난다)
+    async removeFavorite(productId: number) {
+      await api.delete(`/api/v1/favorites/${productId}/`)
       this.favorites = this.favorites.filter((f) => f.product_id !== productId)
     },
   },

@@ -126,9 +126,14 @@ const displayProducts = computed(() => {
 
 onMounted(() => favoritesStore.fetchFavorites())
 
-function confirmDelete() {
+async function confirmDelete() {
   if (deletingId.value === null) return
-  favoritesStore.removeFavorite(deletingId.value)
-  deletingId.value = null
+  try {
+    await favoritesStore.removeFavorite(deletingId.value)
+  } catch {
+    alert('찜 해제에 실패했어요.')
+  } finally {
+    deletingId.value = null
+  }
 }
 </script>
