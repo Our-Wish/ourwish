@@ -47,8 +47,8 @@
 
         <div class="w-2/5 space-y-4">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="text-base font-bold text-slate-900">근처 영업점 찾기</p>
-            추후 연결 예정
+            <p class="mb-4 ml-1 text-xl font-semibold text-slate-900">주변 영업점 찾기</p>
+            <KakaoMap :bank-name="product.bankName" />
           </div>
 
           <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -81,6 +81,7 @@ import { BANK_URL_MAP } from '@/constants/bankUrls'
 import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
 import ProductBasicInfo from '@/components/SavingsDetail/ProductBasicInfo.vue'
+import KakaoMap from '@/components/SavingsDetail/KakaoMap.vue'
 
 const router = useRouter()
 const route = useRoute()
