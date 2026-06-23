@@ -47,7 +47,7 @@
 
         <div class="w-2/5 space-y-4">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
-            <p class="mb-4 ml-1 text-xl font-semibold text-slate-900">주변 영업점 찾기</p>
+            <p class="mb-4 ml-1 text-xl font-semibold text-slate-00">주변 영업점 찾기</p>
             <KakaoMap :bank-name="product.bankName" />
           </div>
 
@@ -82,10 +82,12 @@ import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/SavingsDetail/ProductHeaderCard.vue'
 import ProductBasicInfo from '@/components/SavingsDetail/ProductBasicInfo.vue'
 import KakaoMap from '@/components/SavingsDetail/KakaoMap.vue'
+import { useSavingsStore } from '@/stores/savings'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
+const savingsStore = useSavingsStore()
 
 const productId = computed(() => Number(route.params.id))
 
@@ -181,7 +183,8 @@ async function toggleFavorite() {
 async function selectProduct() {
   if (!product.value) return
   try {
-    await api.post('/api/v1/enrollments/', { product_id: product.value.id })
+    const { data } = await api.post('/api/v1/enrollments/', { product_id: product.value.id })
+    savingsStore.addEnrollment(data)
     router.push({ name: 'mypage' })
   } catch (err: any) {
     if (err?.response?.status === 409) {
