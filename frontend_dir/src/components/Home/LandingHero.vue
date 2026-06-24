@@ -12,12 +12,12 @@
     <img
       :src="mainImg"
       aria-hidden="true"
-      class="pointer-events-none absolute top-10 left-8 w-120 rotate-[-18deg] opacity-60 drop-shadow-2xl"
+      class="pointer-events-none absolute top-10 left-8 w-120 rotate-[-18deg] opacity-35 drop-shadow-2xl"
     />
     <img
       :src="mainImg"
       aria-hidden="true"
-      class="pointer-events-none absolute bottom-4 right-12 w-md rotate-15 opacity-55 drop-shadow-2xl"
+      class="pointer-events-none absolute bottom-4 right-12 w-md rotate-15 opacity-30 drop-shadow-2xl"
     />
 
     <div class="relative z-10 flex flex-col items-center px-8 text-center">
