@@ -3,58 +3,64 @@
     <div class="mx-auto max-w-3xl px-4">
       <!-- 뒤로 -->
       <button
-        class="mb-5 inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+        class="mb-6 inline-flex items-center gap-1 text-sm font-bold text-slate-500 transition hover:text-slate-800"
         @click="goBack"
       >
-        ← 뒤로
+        ← 목록
       </button>
 
-      <h1 class="mb-6 text-2xl font-bold tracking-tight text-slate-900">
-        {{ isEdit ? '글 수정' : '글쓰기' }}
-      </h1>
+      <div class="mb-8">
+        <h1 class="text-4xl font-extrabold text-slate-900">
+          {{ isEdit ? '글 수정' : '글쓰기' }}
+        </h1>
+        <p class="my-3 text-base font-light text-slate-400">
+          금융 정보와 궁금한 점을 자유롭게 공유해보세요.
+        </p>
+      </div>
 
       <div v-if="isLoading" class="mt-20 text-center text-base text-slate-400">불러오는 중...</div>
 
       <form
         v-else
-        class="space-y-5 rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-100"
+        class="rounded-[2rem] bg-white/90 p-8 shadow-sm ring-1 ring-slate-100"
         @submit.prevent="onSubmit"
       >
         <!-- 제목 -->
-        <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-600">제목</label>
+        <div class="mb-6">
+          <label class="mb-2 block text-sm font-extrabold text-slate-700">제목</label>
           <input
             v-model="title"
             type="text"
             maxlength="100"
             placeholder="제목을 입력하세요"
-            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base text-slate-800 transition outline-none placeholder:text-slate-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-5 py-4 text-base font-semibold text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100"
           />
         </div>
 
         <!-- 본문 -->
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-600">내용</label>
+          <label class="mb-2 block text-sm font-extrabold text-slate-700">내용</label>
           <textarea
             v-model="content"
-            rows="12"
+            rows="13"
             placeholder="내용을 입력하세요"
-            class="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-base leading-relaxed text-slate-800 transition outline-none placeholder:text-slate-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            class="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/60 px-5 py-4 text-base leading-relaxed text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100"
           ></textarea>
         </div>
 
-        <div class="flex justify-end gap-2 pt-2">
+        <div class="mt-8 flex justify-end gap-2 border-t border-slate-100 pt-6">
           <button
             type="button"
-            class="rounded-full px-5 py-2.5 text-base font-semibold text-slate-500 transition hover:bg-slate-100"
+            class="rounded-full px-5 py-2.5 text-sm font-bold text-slate-500 transition hover:bg-slate-100"
             @click="goBack"
           >
             취소
           </button>
+
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="rounded-full bg-blue-500 px-6 py-2.5 text-base font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-600 active:scale-95 disabled:opacity-50"
+            class="rounded-full bg-slate-900 px-7 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:opacity-50"
           >
             {{ isSubmitting ? '저장 중...' : isEdit ? '수정 완료' : '등록' }}
           </button>
