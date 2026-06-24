@@ -1,6 +1,6 @@
 <template>
   <div class="bg-[linear-gradient(to_bottom,#cfe0f2_0%,#e4eff9_80%,#f7fbff_100%)]">
-    <div class="mx-auto max-w-5xl px-8 pt-32 pb-20 text-center">
+    <div class="mx-auto max-w-5xl px-8 pt-28 pb-20 text-center">
       <h2 class="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl">
         예·적금 찾기부터 관리까지<br />
         OURWISH가 쉽게 도와드려요
@@ -16,7 +16,7 @@
       v-for="(feature, i) in features"
       :key="feature.label"
       :ref="(el) => observe(el, i)"
-      class="mx-auto max-w-5xl px-8 py-24 flex items-center gap-16 transition-all duration-700 ease-out"
+      class="mx-auto max-w-5xl px-8 py-20 flex items-center gap-16 transition-all duration-700 ease-out"
       :class="[
         i % 2 === 0 ? 'flex-row' : 'flex-row-reverse',
         visible.has(i) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
@@ -118,7 +118,7 @@ const features = [
   },
   {
     label: 'LOUNGE',
-    title: '금융 정보도\n함께 둘러봐요',
+    title: '금융 정보도 함께 둘러봐요',
     description:
       '금융라운지에서 영상, 커뮤니티, 금융 시세까지\n한 번에 확인할 수 있어요.\n혼자 고민하지 않아도 괜찮아요.',
     img: happyWish,
