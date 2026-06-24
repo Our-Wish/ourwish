@@ -27,7 +27,7 @@
           {{ bankInitial }}
         </div>
         <div>
-          <p class="text-sm text-slate-400">{{ bankName }} · 적금</p>
+          <p class="text-sm text-slate-400">{{ bankName }} · {{ productType }}</p>
           <p class="mt-1 text-base font-bold text-slate-900">{{ trimProductName(productName) }}</p>
         </div>
       </div>
@@ -61,6 +61,7 @@ const props = defineProps<{
   bankName: string
   bankColor: string
   productName: string
+  productType: string
   amount: number
   maxRate: number
   baseRate: number

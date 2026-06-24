@@ -106,6 +106,7 @@
               :bank-name="product.bankName"
               :bank-color="product.bankColor"
               :product-name="product.productName"
+              :product-type="product.productType"
               :amount="product.amount"
               :max-rate="product.maxRate"
               :base-rate="product.baseRate"
@@ -186,6 +187,7 @@ const products = computed(() =>
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
+    productType: '적금',
     baseRate: item.base_rate,
     maxRate: item.max_rate,
     amount: Math.round(item.expected_payout / 10000),
