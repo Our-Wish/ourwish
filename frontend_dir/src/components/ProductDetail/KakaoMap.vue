@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import BranchMapModal from '@/components/SavingsDetail/BranchMapModal.vue'
+import BranchMapModal from '@/components/ProductDetail/BranchMapModal.vue'
 
 const props = defineProps<{ bankName: string }>()
 
