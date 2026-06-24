@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-[linear-gradient(to_bottom,#ddecfc_0%,#e4eff9_80%,#f7fbff_100%)]">
+  <div class="bg-[linear-gradient(to_bottom,#cfe0f2_0%,#e4eff9_80%,#f7fbff_100%)]">
     <div class="mx-auto max-w-5xl px-8 pt-32 pb-20 text-center">
       <h2 class="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl">
         예·적금 찾기부터 관리까지<br />
-        아워위시가 쉽게 도와드려요
+        OURWISH가 쉽게 도와드려요
       </h2>
 
       <p class="mt-8 text-xl leading-relaxed text-slate-500">

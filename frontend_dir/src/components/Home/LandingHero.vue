@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative -mt-16 flex min-h-180 w-full items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-[#e4eef8] to-[#cfe0f2]"
+    class="relative -mt-16 flex min-h-180 w-full items-center justify-center overflow-hidden bg-linear-to-b from-slate-50 via-[#e4eef8] to-[#cfe0f2]"
   >
     <div
       class="pointer-events-none absolute top-0 left-1/3 h-96 w-96 rounded-full bg-sky-300/25 blur-3xl"
