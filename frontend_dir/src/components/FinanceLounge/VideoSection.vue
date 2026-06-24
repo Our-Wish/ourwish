@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import api from '@/api'
 import VideoCard from '@/components/Video/VideoCard.vue'
 import { decodeHtmlEntities } from '@/utils/decodeHtml'
@@ -149,4 +149,7 @@ function search() {
   runSearch(query.value)
 }
 
+onMounted(() => {
+  runSearch('예적금')
+})
 </script>
