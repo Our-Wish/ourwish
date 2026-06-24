@@ -121,7 +121,9 @@
                   <p class="text-base font-semibold text-slate-800">
                     1. 현재 나이가 어떻게 되시나요 ?
                   </p>
-                  <p class="mt-1 text-sm text-slate-400">연령 제한 상품을 확인할 수 있어요.</p>
+                  <p class="mt-1 text-sm text-slate-400">
+                    나이에 따라 가입 가능한 상품을 확인할 때 활용해요.
+                  </p>
                 </div>
                 <input
                   v-model="birthDate"
@@ -211,22 +213,22 @@ const ynQuestions = [
   {
     key: 'first_transaction',
     label: '2. 해당 은행과 첫 거래이신가요?',
-    desc: '첫 거래 고객 우대금리를 확인해요.',
+    desc: '첫 거래 고객 우대금리 적용 여부를 확인할 때 활용해요.',
   },
   {
     key: 'online_signup',
     label: '3. 비대면으로 가입하실 수 있나요?',
-    desc: '비대면 가입 전용 상품을 추천해드려요.',
+    desc: '비대면 가입 우대조건을 확인할 때 활용해요.',
   },
   {
     key: 'marketing_consent',
     label: '4. 마케팅 정보 수신에 동의하실 수 있나요?',
-    desc: '마케팅 동의 우대금리 적용 여부를 확인해요.',
+    desc: '마케팅 동의 우대금리 적용 여부를 확인할 때 활용해요.',
   },
   {
     key: 'redeposit',
     label: '5. 만기 후 재예치하실 계획이 있으신가요?',
-    desc: '재예치 우대 혜택이 있는 상품을 확인해요.',
+    desc: '재예치 우대조건을 확인할 때 활용해요.',
   },
 ]
 
