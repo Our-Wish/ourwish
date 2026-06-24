@@ -51,8 +51,11 @@
           <div>
             <h1 class="text-4xl font-extrabold text-slate-900">추천 상품 목록</h1>
             <p class="mt-3 text-base font-light text-slate-400">
-              입력한 조건을 바탕으로 추천 상품을 정리했어요. <br />상품별 우대조건 충족 여부에 따라
               예상 세후 수령액은 달라질 수 있으며, 수령액이 높은 순으로 정렬됩니다.
+
+              <br />
+              우대금리순 선택 시, 선택한 우대조건을 모두 충족하는 상품의 예상 수령액 기준으로
+              정렬됩니다.
             </p>
           </div>
 
@@ -151,7 +154,6 @@ const selectedBanks = ref<string[]>([])
 const visibleCount = ref(6)
 const conditionChips = ref<string[]>([])
 
-
 watch(selectedBanks, () => {
   visibleCount.value = 6
 })
@@ -167,7 +169,7 @@ interface SortOption {
 const sortOptions: SortOption[] = [
   { apiSort: 'max', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
   { apiSort: 'base', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
-  { apiSort: 'all', label: '예상 수령액 높은 순', shortLabel: '우대 금리 순' },
+  { apiSort: 'all', label: '내 조건 기준 수령액순', shortLabel: '우대 금리 순' },
 ]
 
 const currentSort = ref<ApiSort>('max')
