@@ -103,7 +103,14 @@
         </div>
 
         <div v-else>
-          <div class="mt-6 grid grid-cols-2 gap-4">
+          <div
+            v-if="filteredProducts.length === 0"
+            class="mt-16 text-center text-base text-slate-400"
+          >
+            해당 조건을 모두 만족하는 상품이 없습니다.
+          </div>
+
+          <div v-else class="mt-6 grid grid-cols-2 gap-4">
             <ProductCard
               v-for="product in visibleProducts"
               :key="product.id"
