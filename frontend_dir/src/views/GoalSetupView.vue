@@ -98,7 +98,8 @@
                 >
               </div>
               <p class="mt-2 text-sm text-slate-400">
-                * 예상 수령액은 평균 금리(연 4.0%)를 기준으로 계산된 참고용 금액입니다.
+                * 예상 수령액은 평균 금리(연 {{ marketRates.savingsAvg }}%)를 기준으로 계산된 참고용
+                금액입니다.
               </p>
             </div>
           </div>
@@ -186,6 +187,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
+import { useMarketRatesStore } from '@/stores/marketRates'
 import api from '@/api/index'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
@@ -197,6 +199,7 @@ const monthlyAmount = ref(50)
 const isLoading = ref(false)
 const birthDate = ref('')
 const goalStore = useGoalStore()
+const marketRates = useMarketRatesStore()
 
 const periodOptions = [
   { value: 3, label: '3개월' },
@@ -236,6 +239,8 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
   housing: null,
 })
 
+onMounted(() => marketRates.fetchMarketRates())
+
 onMounted(async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
@@ -251,8 +256,11 @@ onMounted(async () => {
 
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
 const afterTaxInterest = computed(() => {
+  // 평균 금리는 한국은행 정기적금 수신금리(연 %). 적금은 매달 적립되는 단리 구조.
+  const annualRate = marketRates.savingsAvg / 100
   const interest =
-    ((monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) * (0.04 / 12)
+    ((monthlyAmount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) *
+    (annualRate / 12)
   return Math.round(interest * (1 - 0.154))
 })
 const totalAmount = computed(() => principal.value + afterTaxInterest.value)

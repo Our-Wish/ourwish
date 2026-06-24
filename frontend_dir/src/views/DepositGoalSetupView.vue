@@ -97,8 +97,8 @@
                 >
               </div>
               <p class="mt-2 text-sm text-slate-400">
-                * 예상 수령액은 평균 금리(연 3.5%)를 기준으로 계산한 참고용 금액입니다.<br />실제
-                수령액은 상품별 금리와 우대조건에 따라 달라질 수 있습니다.
+                * 예상 수령액은 평균 금리(연 {{ marketRates.depositAvg }}%)를 기준으로 계산한 참고용
+                금액입니다.<br />실제 수령액은 상품별 금리와 우대조건에 따라 달라질 수 있습니다.
               </p>
             </div>
           </div>
@@ -187,11 +187,13 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
+import { useMarketRatesStore } from '@/stores/marketRates'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
 const router = useRouter()
 const goalStore = useGoalStore()
+const marketRates = useMarketRatesStore()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const depositAmount = ref(50)
@@ -237,6 +239,8 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
   redeposit: null,
 })
 
+onMounted(() => marketRates.fetchMarketRates())
+
 onMounted(async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
@@ -255,7 +259,9 @@ onMounted(async () => {
 })
 
 const afterTaxInterest = computed(() => {
-  const interest = depositAmount.value * 0.035 * (selectedPeriod.value / 12)
+  // 평균 금리는 한국은행 정기예금 수신금리(연 %). 예금은 거치식 단리.
+  const annualRate = marketRates.depositAvg / 100
+  const interest = depositAmount.value * annualRate * (selectedPeriod.value / 12)
   return Math.round(interest * (1 - 0.154))
 })
 const totalAmount = computed(() => depositAmount.value + afterTaxInterest.value)
