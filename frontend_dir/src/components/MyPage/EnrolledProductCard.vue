@@ -20,7 +20,7 @@
           <p class="text-xs text-slate-400">{{ bankName }}</p>
           <div class="flex items-center gap-4">
             <button
-              @click="router.push({ name: 'savings-detail', params: { id: productId } })"
+              @click="router.push({ name: 'product-detail', params: { id: productId } })"
               class="cursor-pointer text-lg pt-0.5 font-bold text-slate-900 hover:text-blue-700"
             >
               {{ trimProductName(productName) }}
@@ -59,7 +59,7 @@
         <div class="flex-1">
           <p class="text-xs text-slate-400">{{ bankName }}</p>
           <button
-            @click="router.push({ name: 'savings-detail', params: { id: productId } })"
+            @click="router.push({ name: 'product-detail', params: { id: productId } })"
             class="cursor-pointer text-lg font-bold text-slate-900 hover:text-blue-700"
           >
             {{ trimProductName(productName) }}

@@ -47,8 +47,8 @@ const router = createRouter({
       props: { type: 'deposit' },
     },
     {
-      path: '/savings/:id',
-      name: 'savings-detail',
+      path: '/products/:id',
+      name: 'product-detail',
       component: SavingsDepositDetailView,
     },
     {

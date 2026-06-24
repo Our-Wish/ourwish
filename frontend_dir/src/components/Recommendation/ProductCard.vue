@@ -1,7 +1,7 @@
 <template>
   <div
     class="group flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-200/60"
-    @click="router.push({ name: 'savings-detail', params: { id: props.id } })"
+    @click="router.push({ name: 'product-detail', params: { id: props.id } })"
   >
     <div class="mb-3 flex flex-wrap gap-2">
       <template v-if="condition.length">

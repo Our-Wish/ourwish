@@ -73,7 +73,7 @@
           <div class="flex-1">
             <p class="text-xs text-slate-400">{{ product.bankName }}</p>
             <button
-              @click="router.push({ name: 'savings-detail', params: { id: product.id } })"
+              @click="router.push({ name: 'product-detail', params: { id: product.id } })"
               class="cursor-pointer text-lg pt-0.5 font-bold text-slate-900 hover:text-blue-700"
             >
               {{ product.productName }}
