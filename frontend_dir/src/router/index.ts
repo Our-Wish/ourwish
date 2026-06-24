@@ -8,8 +8,6 @@ import MyPageView from '@/views/MyPageView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
-import DepositGoalSetupView from '@/views/DepositGoalSetupView.vue'
-import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
 import FinanceLoungeView from '@/views/FinanceLoungeView.vue'
 
 const router = createRouter({
@@ -26,12 +24,14 @@ const router = createRouter({
       path: '/GoalSetup',
       name: 'goalsetup',
       component: GoalSetupView,
+      props: { type: 'savings' },
       meta: { public: true },
     },
     {
       path: '/recommendation',
       name: 'recommendation',
       component: RecommendationView,
+      props: { type: 'savings' },
     },
     {
       path: '/savings/:id',
@@ -71,13 +71,15 @@ const router = createRouter({
     {
       path: '/depositgoalsetup',
       name: 'depositgoalsetup',
-      component: DepositGoalSetupView,
+      component: GoalSetupView,
+      props: { type: 'deposit' },
       meta: { public: true },
     },
     {
       path: '/depositrecommendation',
       name: 'depositrecommendation',
-      component: DepositRecommendationView,
+      component: RecommendationView,
+      props: { type: 'deposit' },
     },
     {
       path: '/financelounge',
