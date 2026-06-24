@@ -288,7 +288,7 @@ const onNext = async () => {
     isLoading.value = true
     try {
       await api.put('/api/v1/search-profile/', {
-        monthly_amount: savedProfile.value.monthly_amount ?? 0,
+        monthly_amount: savedProfile.value.monthly_amount ?? 500000,
         salary_transfer: savedProfile.value.salary_transfer ?? false,
         auto_transfer: savedProfile.value.auto_transfer ?? false,
         card_usage: savedProfile.value.card_usage ?? false,
