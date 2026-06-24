@@ -1,137 +1,126 @@
 <template>
   <div>
-    <h2 class="mb-1 text-xl font-bold text-slate-900">금 · 은 시세</h2>
-    <p class="mb-6 text-sm text-slate-500">대표적인 안전자산의 가격 흐름을 확인해 보세요.</p>
-
-    <!-- 인사이트 스트립 -->
-    <div
-      class="mb-6 flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <p class="text-sm leading-relaxed text-slate-600">
-        금·은 시세, 잘 보셨나요?<br class="hidden sm:block" />
-        안정적으로 목돈 모으는 <span class="font-semibold text-blue-600">예·적금</span>도 한번
-        알아볼까요?
-      </p>
-      <div class="flex shrink-0 gap-2">
-        <RouterLink
-          :to="{ name: 'depositgoalsetup' }"
-          class="rounded-full bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-600 active:scale-95"
-        >
-          예금 추천
-        </RouterLink>
-        <RouterLink
-          :to="{ name: 'goalsetup' }"
-          class="rounded-full bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-600 active:scale-95"
-        >
-          적금 추천
-        </RouterLink>
-      </div>
-    </div>
+    <h1 class="text-4xl font-extrabold text-slate-900">금 · 은 가격</h1>
+    <p class="my-3 text-base font-light text-slate-400">
+      대표 안전자산의 가격 흐름을 기간별로 확인해보세요.
+    </p>
 
     <div v-if="isLoading" class="mt-20 text-center text-base text-slate-400">불러오는 중...</div>
 
     <template v-else>
-      <!-- 컨트롤: 자산 토글 + 기간 선택 -->
-      <div
-        class="mb-5 flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-end sm:justify-between"
-      >
-        <div>
-          <span class="mb-1.5 block text-xs font-semibold text-slate-500">자산</span>
-          <div class="inline-flex rounded-full bg-slate-100 p-1">
-            <button
-              v-for="opt in assetOptions"
-              :key="opt.value"
-              class="rounded-full px-5 py-2 text-sm font-semibold transition"
-              :class="
-                asset === opt.value
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              "
-              @click="asset = opt.value"
-            >
-              {{ opt.label }}
-            </button>
+      <section class="mt-5 rounded-[2rem] bg-white/90 p-5 shadow-sm ring-1 ring-slate-100">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <span class="mb-2 ml-2 block text-sm font-extrabold text-slate-800">자산</span>
+
+            <div class="inline-flex rounded-full bg-slate-100 p-1">
+              <button
+                v-for="opt in assetOptions"
+                :key="opt.value"
+                class="rounded-full px-5 py-2 text-sm font-extrabold transition"
+                :class="
+                  asset === opt.value
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                "
+                @click="changeAsset(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <span class="mb-2 block text-sm font-extrabold text-slate-800">기간</span>
+
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="range in rangeOptions"
+                :key="range.value"
+                class="rounded-full px-4 py-2 text-sm font-extrabold transition"
+                :class="
+                  selectedRange === range.value
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
+                "
+                @click="selectRange(range.value)"
+              >
+                {{ range.label }}
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-end gap-3">
-          <label class="block">
-            <span class="mb-1.5 block text-xs font-semibold text-slate-500">시작일</span>
-            <input
-              v-model="startDate"
-              type="date"
-              :min="dataMinDate"
-              :max="endDate || dataMaxDate"
-              class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
-            />
-          </label>
-          <label class="block">
-            <span class="mb-1.5 block text-xs font-semibold text-slate-500">종료일</span>
-            <input
-              v-model="endDate"
-              type="date"
-              :min="startDate || dataMinDate"
-              :max="dataMaxDate"
-              class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
-            />
-          </label>
-          <button
-            v-if="startDate || endDate"
-            class="rounded-xl px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
-            @click="resetRange"
-          >
-            전체 기간
-          </button>
-        </div>
-      </div>
+        <div class="my-8 h-px bg-slate-100"></div>
 
-      <!-- 요약 카드 -->
-      <div class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <p class="text-xs font-medium text-slate-400">최근가</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">{{ formatPrice(stats.latest) }}</p>
-        </div>
-        <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <p class="text-xs font-medium text-slate-400">기간 변동률</p>
-          <p
-            class="mt-1 text-lg font-bold"
-            :class="
-              stats.changePct > 0
-                ? 'text-rose-500'
-                : stats.changePct < 0
-                  ? 'text-blue-500'
-                  : 'text-slate-900'
-            "
-          >
-            {{ formatPct(stats.changePct) }}
-          </p>
-        </div>
-        <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <p class="text-xs font-medium text-slate-400">기간 최고</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">{{ formatPrice(stats.high) }}</p>
-        </div>
-        <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <p class="text-xs font-medium text-slate-400">기간 최저</p>
-          <p class="mt-1 text-lg font-bold text-slate-900">{{ formatPrice(stats.low) }}</p>
-        </div>
-      </div>
+        <!-- 요약 지표 -->
+        <div class="grid grid-cols-2 gap-y-8 lg:grid-cols-4">
+          <div class="px-2 lg:border-r lg:border-slate-100 lg:pr-8">
+            <p class="text-sm font-extrabold text-slate-500">현재 가격</p>
+            <p class="mt-3 text-2xl font-extrabold text-slate-950">
+              {{ formatPrice(stats.latest) }}
+            </p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">USD / oz</p>
+          </div>
 
-      <!-- 차트 -->
-      <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-        <p class="mb-4 text-sm font-semibold text-slate-600">
-          {{ currentAsset.label }} 가격 추이
-          <span class="font-normal text-slate-400">(USD / oz)</span>
-        </p>
-        <div v-if="isInvalidRange" class="py-16 text-center text-sm text-rose-400">
-          시작일이 종료일보다 늦어요. 다시 선택해 주세요.
+          <div class="px-2 lg:border-r lg:border-slate-100 lg:px-8">
+            <p class="text-sm font-extrabold text-slate-500">선택 기간 변동률</p>
+            <p
+              class="mt-3 text-2xl font-extrabold"
+              :class="
+                stats.changePct > 0
+                  ? 'text-rose-500'
+                  : stats.changePct < 0
+                    ? 'text-blue-500'
+                    : 'text-slate-950'
+              "
+            >
+              {{ formatPct(stats.changePct) }}
+            </p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">
+              {{ stats.changePct > 0 ? '상승' : stats.changePct < 0 ? '하락' : '변동 없음' }}
+            </p>
+          </div>
+
+          <div class="px-2 lg:border-r lg:border-slate-100 lg:px-8">
+            <p class="text-sm font-extrabold text-slate-500">기간 최고가</p>
+            <p class="mt-3 text-2xl font-extrabold text-slate-950">
+              {{ formatPrice(stats.high) }}
+            </p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">선택 기간 기준</p>
+          </div>
+
+          <div class="px-2 lg:pl-8">
+            <p class="text-sm font-extrabold text-slate-500">기간 최저가</p>
+            <p class="mt-3 text-2xl font-extrabold text-slate-950">
+              {{ formatPrice(stats.low) }}
+            </p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">선택 기간 기준</p>
+          </div>
         </div>
-        <div v-else-if="filtered.length === 0" class="py-16 text-center text-sm text-slate-400">
+      </section>
+
+      <!-- 차트 박스 -->
+      <section class="mt-7 rounded-[2rem] bg-white/90 p-8 shadow-sm ring-1 ring-slate-100">
+        <div class="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xl font-extrabold text-slate-900">{{ currentAsset.label }} 가격 추이</p>
+            <p class="mt-2 text-sm font-semibold text-slate-400">
+              선택한 기간의 가격 변화를 USD/oz 기준으로 확인해보세요.
+            </p>
+          </div>
+
+          <span class="mt-1 text-sm font-bold text-slate-400">(USD / oz)</span>
+        </div>
+
+        <div v-if="filtered.length === 0" class="py-16 text-center text-sm text-slate-400">
           선택한 기간에 데이터가 없어요.
         </div>
+
         <div v-else class="h-80">
           <Line :data="chartData" :options="chartOptions" />
         </div>
-      </div>
+      </section>
     </template>
   </div>
 </template>
@@ -154,29 +143,39 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 
 type PricePoint = { date: string; close: number }
 type AssetKey = 'gold' | 'silver'
+type RangeKey = '1m' | '3m' | '6m' | '1y' | 'all'
 
 const assetOptions: { value: AssetKey; label: string; color: string }[] = [
   { value: 'gold', label: '금', color: '#D4A017' },
   { value: 'silver', label: '은', color: '#94A3B8' },
 ]
 
+const rangeOptions: { value: RangeKey; label: string }[] = [
+  { value: '1m', label: '1개월' },
+  { value: '3m', label: '3개월' },
+  { value: '6m', label: '6개월' },
+  { value: '1y', label: '1년' },
+  { value: 'all', label: '전체' },
+]
+
 const asset = ref<AssetKey>('gold')
+const selectedRange = ref<RangeKey>('all')
 const startDate = ref('')
 const endDate = ref('')
 const isLoading = ref(true)
-const series = ref<Record<AssetKey, PricePoint[]>>({ gold: [], silver: [] })
+
+const series = ref<Record<AssetKey, PricePoint[]>>({
+  gold: [],
+  silver: [],
+})
 
 const currentAsset = computed(
   () => assetOptions.find((o) => o.value === asset.value) ?? assetOptions[0]!,
 )
 
 const allPoints = computed(() => series.value[asset.value])
-const dataMinDate = computed(() => allPoints.value[0]?.date ?? '')
-const dataMaxDate = computed(() => allPoints.value[allPoints.value.length - 1]?.date ?? '')
 
-const isInvalidRange = computed(
-  () => Boolean(startDate.value) && Boolean(endDate.value) && startDate.value > endDate.value,
-)
+const dataMaxDate = computed(() => allPoints.value[allPoints.value.length - 1]?.date ?? '')
 
 const filtered = computed(() =>
   allPoints.value.filter((p) => {
@@ -188,10 +187,14 @@ const filtered = computed(() =>
 
 const stats = computed(() => {
   const pts = filtered.value
-  if (pts.length === 0) return { latest: null, changePct: 0, high: null, low: null }
+  if (pts.length === 0) {
+    return { latest: null, changePct: 0, high: null, low: null }
+  }
+
   const closes = pts.map((p) => p.close)
   const first = closes[0] ?? 0
   const latest = closes[closes.length - 1] ?? 0
+
   return {
     latest,
     changePct: first ? ((latest - first) / first) * 100 : 0,
@@ -207,7 +210,7 @@ const chartData = computed<ChartData<'line'>>(() => ({
       label: currentAsset.value.label,
       data: filtered.value.map((p) => p.close),
       borderColor: currentAsset.value.color,
-      backgroundColor: currentAsset.value.color + '22',
+      backgroundColor: `${currentAsset.value.color}22`,
       borderWidth: 2,
       pointRadius: filtered.value.length <= 60 ? 3 : 0,
       pointHoverRadius: 5,
@@ -225,35 +228,76 @@ const chartOptions: ChartOptions<'line'> = {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx) => `${formatPrice(ctx.parsed.y ?? null)}`,
+        label: (ctx) => formatPrice(ctx.parsed.y ?? null),
       },
     },
   },
   scales: {
     x: {
       grid: { display: false },
-      ticks: { maxTicksLimit: 8, color: '#94A3B8', font: { size: 11 } },
+      ticks: {
+        maxTicksLimit: 8,
+        color: '#94A3B8',
+        font: { size: 11 },
+      },
     },
     y: {
       grid: { color: '#F1F5F9' },
-      ticks: { color: '#94A3B8', font: { size: 11 } },
+      ticks: {
+        color: '#94A3B8',
+        font: { size: 11 },
+      },
     },
   },
 }
 
+function changeAsset(value: AssetKey) {
+  asset.value = value
+  selectRange(selectedRange.value)
+}
+
+function selectRange(range: RangeKey) {
+  selectedRange.value = range
+
+  endDate.value = dataMaxDate.value
+
+  if (range === 'all') {
+    startDate.value = ''
+    endDate.value = ''
+    return
+  }
+
+  startDate.value = getPastDate(dataMaxDate.value, range)
+}
+
+function getPastDate(baseDate: string, range: RangeKey): string {
+  if (!baseDate) return ''
+
+  const date = new Date(baseDate)
+
+  if (range === '1m') date.setMonth(date.getMonth() - 1)
+  if (range === '3m') date.setMonth(date.getMonth() - 3)
+  if (range === '6m') date.setMonth(date.getMonth() - 6)
+  if (range === '1y') date.setFullYear(date.getFullYear() - 1)
+
+  return date.toISOString().slice(0, 10)
+}
+
 function formatPrice(v: number | null): string {
   if (v === null) return '-'
-  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  return (
+    '$' +
+    v.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  )
 }
 
 function formatPct(v: number): string {
   const sign = v > 0 ? '+' : ''
   return `${sign}${v.toFixed(2)}%`
-}
-
-function resetRange() {
-  startDate.value = ''
-  endDate.value = ''
 }
 
 onMounted(async () => {
@@ -262,6 +306,7 @@ onMounted(async () => {
       fetch('/data/gold.json').then((r) => r.json()),
       fetch('/data/silver.json').then((r) => r.json()),
     ])
+
     series.value = { gold, silver }
   } catch {
     series.value = { gold: [], silver: [] }
