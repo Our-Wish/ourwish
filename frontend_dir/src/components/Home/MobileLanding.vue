@@ -52,7 +52,7 @@
             </h3>
 
             <p
-              class="mt-2 text-sm font-normal leading-6 text-slate-500"
+              class="mt-2 text-xs font-normal leading-6 text-slate-500"
               v-html="feature.shortDesc"
             />
           </div>
@@ -69,9 +69,9 @@
       />
 
       <div class="relative z-10">
-        <h2 class="text-2xl font-semibold leading-snug tracking-[-0.03em] text-slate-900">
+        <h2 class="text-xl font-semibold leading-snug tracking-[-0.03em] text-slate-900">
           복잡한 금융을 더 쉽게 —<br />여러분의 Wish를 이루는 그날까지<br />
-          아워위시가 함께할게요.
+          OURWISH가 함께할게요.
         </h2>
       </div>
     </section>
