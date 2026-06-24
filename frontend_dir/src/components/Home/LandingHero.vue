@@ -22,12 +22,12 @@
 
     <div class="relative z-10 flex flex-col items-center px-8 text-center">
       <h1
-        class="text-[10rem] font-bold leading-none tracking-[-0.08em] bg-gradient-to-r from-[#111827] via-[#123A73] to-[#023b90] bg-clip-text text-transparent"
+        class="text-[9rem] font-bold leading-none tracking-[-0.08em] bg-gradient-to-r from-[#111827] via-[#123A73] to-[#023b90] bg-clip-text text-transparent"
       >
         OURWISH
       </h1>
       <p class="mt-3 text-3xl font-normal text-slate-800">
-        쉽고, 간단하게, 나에게 맞는 적금을 찾다 —
+        쉽고, 간단하게, 나에게 맞는 예·적금을 찾다 —
       </p>
 
       <div class="mt-12 flex gap-4">
