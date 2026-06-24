@@ -8,7 +8,6 @@ import MyPageView from '@/views/MyPageView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
 import VideoDetailView from '@/views/VideoDetailView.vue'
-import DepositRecommendationView from '@/views/DepositRecommendationView.vue'
 import FinanceLoungeView from '@/views/FinanceLoungeView.vue'
 
 const router = createRouter({
@@ -32,6 +31,7 @@ const router = createRouter({
       path: '/recommendation',
       name: 'recommendation',
       component: RecommendationView,
+      props: { type: 'savings' },
     },
     {
       path: '/savings/:id',
@@ -78,7 +78,8 @@ const router = createRouter({
     {
       path: '/depositrecommendation',
       name: 'depositrecommendation',
-      component: DepositRecommendationView,
+      component: RecommendationView,
+      props: { type: 'deposit' },
     },
     {
       path: '/financelounge',

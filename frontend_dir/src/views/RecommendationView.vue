@@ -8,17 +8,15 @@
         </p>
 
         <div class="mt-4 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-          <p class="text-xs font-semibold text-slate-400">저축 플랜</p>
+          <p class="text-xs font-semibold text-slate-400">{{ config.planLabel }}</p>
           <div class="mt-2 space-y-1.5">
             <div class="flex justify-between">
-              <span class="text-sm text-slate-500">저축기간</span>
-              <span class="text-sm font-bold text-slate-800">{{ goalStore.period }}개월</span>
+              <span class="text-sm text-slate-500">{{ config.periodLabel }}</span>
+              <span class="text-sm font-bold text-slate-800">{{ config.period }}개월</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-slate-500">월 저축 금액</span>
-              <span class="text-sm font-bold text-slate-800"
-                >{{ goalStore.monthlyAmount }}만원</span
-              >
+              <span class="text-sm text-slate-500">{{ config.amountLabel }}</span>
+              <span class="text-sm font-bold text-slate-800">{{ config.goalAmount }}만원</span>
             </div>
           </div>
 
@@ -50,7 +48,6 @@
             <h1 class="text-4xl font-extrabold text-slate-900">추천 상품 목록</h1>
             <p class="mt-3 text-base font-light text-slate-400">
               예상 세후 수령액은 달라질 수 있으며, 수령액이 높은 순으로 정렬됩니다.
-
               <br />
               우대금리순 선택 시, 선택한 우대조건을 모두 충족하는 상품의 예상 수령액 기준으로
               정렬됩니다.
@@ -142,26 +139,27 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
+import { useAuthStore } from '@/stores/auth'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import BankFilterDropdown from '@/components/Recommendation/BankFilterDropdown.vue'
 import { bankColorMap } from '@/constants/bankColors'
 import { FIRST_TIER_BANKS } from '@/constants/banks'
 import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
-import { useAuthStore } from '@/stores/auth'
 import happyWish from '@/assets/img/wishes/happyWish.png'
 
+const props = defineProps<{ type: 'savings' | 'deposit' }>()
+const isSavings = computed(() => props.type === 'savings')
+
 const goalStore = useGoalStore()
+const authStore = useAuthStore()
 const rawProducts = ref<any[]>([])
 const isLoading = ref(false)
 const showSortDropdown = ref(false)
 const selectedBanks = ref<string[]>([])
 const visibleCount = ref(6)
-const authStore = useAuthStore()
 const conditionChips = ref<string[]>([])
 
-watch(selectedBanks, () => {
-  visibleCount.value = 6
-})
+watch(selectedBanks, () => { visibleCount.value = 6 })
 
 type ApiSort = 'base' | 'max' | 'all'
 
@@ -174,12 +172,10 @@ interface SortOption {
 const sortOptions: SortOption[] = [
   { apiSort: 'max', label: '최고 금리 수령액순', shortLabel: '최고 금리 순' },
   { apiSort: 'base', label: '기본 금리 수령액순', shortLabel: '기본 금리 순' },
-
   { apiSort: 'all', label: '내 조건 기준 수령액순', shortLabel: '우대 금리 순' },
 ]
 
 const currentSort = ref<ApiSort>('max')
-
 const currentSortLabel = computed(
   () => sortOptions.find((o) => o.apiSort === currentSort.value)?.shortLabel ?? '기본 금리 순',
 )
@@ -190,13 +186,44 @@ function selectSort(opt: SortOption) {
   fetchProducts()
 }
 
+const savingsConditionKeys: (keyof typeof CONDITION_LABELS)[] = [
+  'birth_date', 'salary_transfer', 'auto_transfer', 'card_usage', 'housing_subscription',
+]
+const depositConditionKeys: (keyof typeof CONDITION_LABELS)[] = [
+  'birth_date', 'first_transaction', 'online_signup', 'marketing_consent', 'redeposit',
+]
+
+const config = computed(() =>
+  isSavings.value
+    ? {
+        planLabel: '저축 플랜',
+        periodLabel: '저축기간',
+        amountLabel: '월 저축 금액',
+        period: goalStore.period,
+        goalAmount: goalStore.monthlyAmount,
+        productType: 'SAVINGS' as const,
+        productTypeLabel: '적금',
+        conditionKeys: savingsConditionKeys,
+      }
+    : {
+        planLabel: '예치 플랜',
+        periodLabel: '예치 기간',
+        amountLabel: '예치 금액',
+        period: goalStore.depositPeriod,
+        goalAmount: goalStore.depositAmount,
+        productType: 'DEPOSIT' as const,
+        productTypeLabel: '예금',
+        conditionKeys: depositConditionKeys,
+      },
+)
+
 const products = computed(() =>
   rawProducts.value.map((item: any) => ({
     id: item.product_id,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
-    productType: '적금',
+    productType: config.value.productTypeLabel,
     baseRate: item.base_rate,
     maxRate: item.max_rate,
     amount: Math.round(item.expected_payout / 10000),
@@ -221,11 +248,9 @@ const fetchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
     const chips: string[] = []
-    if (data.birth_date) chips.push(CONDITION_LABELS['birth_date']!)
-    if (data.salary_transfer) chips.push(CONDITION_LABELS['salary_transfer']!)
-    if (data.auto_transfer) chips.push(CONDITION_LABELS['auto_transfer']!)
-    if (data.card_usage) chips.push(CONDITION_LABELS['card_usage']!)
-    if (data.housing_subscription) chips.push(CONDITION_LABELS['housing_subscription']!)
+    for (const key of config.value.conditionKeys) {
+      if (data[key]) chips.push(CONDITION_LABELS[key]!)
+    }
     conditionChips.value = chips
   } catch {}
 }
@@ -234,10 +259,7 @@ const fetchProducts = async () => {
   isLoading.value = true
   try {
     const { data } = await api.get('/api/v1/products/recommend/', {
-      params: {
-        sort: currentSort.value,
-        product_type: 'SAVINGS',
-      },
+      params: { sort: currentSort.value, product_type: config.value.productType },
     })
     rawProducts.value = data.results
   } catch {
