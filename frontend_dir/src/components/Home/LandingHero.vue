@@ -50,30 +50,13 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
 import mainImg from '@/assets/img/main/mainImg2.png'
 import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
 
-const authStore = useAuthStore()
 const router = useRouter()
-const { isAuthenticated } = storeToRefs(authStore)
 
-const onStart = () => {
-  if (isAuthenticated.value) {
-    router.push({ name: 'goalsetup' })
-  } else {
-    authStore.openLoginModal()
-  }
-}
-
-const goDepositStart = () => {
-  if (isAuthenticated.value) {
-    router.push({ name: 'depositgoalsetup' })
-  } else {
-    authStore.openLoginModal()
-  }
-}
+const onStart = () => router.push({ name: 'goalsetup' })
+const goDepositStart = () => router.push({ name: 'depositgoalsetup' })
 </script>
 
 <style scoped></style>
