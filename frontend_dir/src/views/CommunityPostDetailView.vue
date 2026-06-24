@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pt-24 pb-24">
+  <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-24 pb-24">
     <main class="mx-auto max-w-4xl px-8">
       <div class="mb-8 flex justify-end">
         <button
