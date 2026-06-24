@@ -1,12 +1,14 @@
 <template>
-  <div class="bg-linear-to-b from-[#cfe0f2] via-[#e4eff9] to-white">
-    <div class="mx-auto max-w-5xl px-8 pt-16 pb-16 text-center">
-      <h2 class="text-5xl font-extrabold tracking-tight text-slate-900 leading-tight sm:text-6xl">
-        예·적금 찾기부터 관리까지<br />아워위시가 쉽게 도와드려요
+  <div class="bg-linear-to-b from-[#ddecfc] via-[#e4eff9] to-white">
+    <div class="mx-auto max-w-5xl px-8 pt-32 pb-20 text-center">
+      <h2 class="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl">
+        예·적금 찾기부터 관리까지<br />
+        아워위시가 쉽게 도와드려요
       </h2>
-      <p class="mt-6 text-xl text-slate-500 leading-relaxed">
+
+      <p class="mt-8 text-xl leading-relaxed text-slate-500">
         조건 입력, 상품 추천, 금리 비교, AI 설명, 가입 상품 관리까지<br />
-        복잡한 금융 생활을 한곳에서 확인해보세요.
+        복잡한 금융 생활을 한곳에서 한눈에 확인해보세요.
       </p>
     </div>
 
@@ -14,7 +16,7 @@
       v-for="(feature, i) in features"
       :key="feature.label"
       :ref="(el) => observe(el, i)"
-      class="mx-auto max-w-6xl px-8 py-24 flex items-center gap-16 transition-all duration-700 ease-out"
+      class="mx-auto max-w-5xl px-8 py-24 flex items-center gap-16 transition-all duration-700 ease-out"
       :class="[
         i % 2 === 0 ? 'flex-row' : 'flex-row-reverse',
         visible.has(i) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
@@ -34,7 +36,7 @@
         </p>
       </div>
       <div class="shrink-0 w-72 flex items-center justify-center">
-        <img :src="feature.img" :alt="feature.title" class="w-full drop-shadow-xl" />
+        <img :src="feature.img" :alt="feature.title" class="w-full drop-shadow-xl mr-10" />
       </div>
     </div>
 
@@ -58,7 +60,7 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 import hiWish from '@/assets/img/wishes/hiWish.png'
-import questionWish from '@/assets/img/wishes/questionWish.png'
+import fightingWish from '@/assets/img/wishes/fightingWish.png'
 import wonderWish from '@/assets/img/wishes/wonderWish.png'
 import memoWish from '@/assets/img/wishes/memoWish.png'
 import achieveWish from '@/assets/img/wishes/achieveWish.png'
@@ -68,23 +70,23 @@ import wishFamily from '@/assets/img/wishes/wishFamily.png'
 const features = [
   {
     label: 'START',
-    title: '조건만 입력하면\n바로 시작해요',
+    title: '몇 가지 조건만 입력해보세요.',
     description:
-      '조건을 입력하면 나에게 맞는 상품을 바로 찾아줘요.\n적금 추천부터 금리 비교, 예상 수령액, 상품 상세 정보까지\n복잡한 금융 정보를 아워위시에서 한 번에 확인해보세요.',
+      '상품 유형과 기간, 금액을 입력하고\n내게 적용될 수 있는 우대조건을 체크해보세요.\n아워위시가 내 조건에 맞는 예·적금 상품과\n 예상 수령액을 함께 보여드려요.   ',
     img: hiWish,
     labelColor: 'text-emerald-500',
   },
   {
     label: 'MATCH',
-    title: '맞는 상품만\n골라줘요',
+    title: '맞는 상품만 골라줘요',
     description:
       '나이, 가입 금액, 기간, 우대조건까지 고려해\n내 조건에 맞는 상품만 추천해줘요.\n은행별로 직접 찾아보지 않아도 괜찮아요.',
-    img: questionWish,
+    img: achieveWish,
     labelColor: 'text-blue-500',
   },
   {
     label: 'COMPARE',
-    title: '금리와 수령액까지\n비교해요',
+    title: '금리와 수령액까지 비교해요',
     description:
       '기본금리와 최고금리뿐 아니라 세후 예상 수령액까지\n한눈에 비교할 수 있어요.\n상품 상세 정보와 가입 조건도 함께 확인해요.',
     img: wonderWish,
@@ -95,7 +97,7 @@ const features = [
     title: '어려운 설명은\nAI가 쉽게 풀어줘요',
     description:
       '복잡한 우대조건과 낯선 금융 용어도 AI가 쉬운 말로 정리해줘요.\n궁금한 점은 챗봇에게 바로 물어볼 수 있어요.',
-    img: memoWish,
+    img: fightingWish,
     labelColor: 'text-purple-500',
   },
   {
@@ -103,7 +105,7 @@ const features = [
     title: '가입한 상품을\n한눈에 관리해요',
     description:
       '가입한 예·적금 상품부터 찜한 상품, 작성한 글까지\n마이페이지에서 한 번에 확인할 수 있어요.\n목표 달성률과 금리 비교도 함께 보여줘요.',
-    img: achieveWish,
+    img: fightingWish,
     labelColor: 'text-amber-500',
   },
   {
