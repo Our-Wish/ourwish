@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
@@ -244,7 +244,7 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
 
 onMounted(() => marketRates.fetchMarketRates())
 
-onMounted(async () => {
+const fetchSearchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
     if (data.save_term) selectedPeriod.value = data.save_term
@@ -255,7 +255,9 @@ onMounted(async () => {
     if (data.card_usage !== undefined) ynAnswers.card = data.card_usage
     if (data.housing_subscription !== undefined) ynAnswers.housing = data.housing_subscription
   } catch {}
-})
+}
+
+watch(() => authStore.isAuthenticated, (isAuth) => { if (isAuth) fetchSearchProfile() }, { immediate: true })
 
 const principal = computed(() => monthlyAmount.value * selectedPeriod.value)
 const afterTaxInterest = computed(() => {
