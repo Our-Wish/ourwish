@@ -1,6 +1,16 @@
 <template>
+  <!-- 모바일 안내 -->
+  <div class="flex md:hidden min-h-screen flex-col items-center justify-center gap-6 bg-linear-to-b from-slate-50 to-[#cfe0f2] px-8 text-center">
+    <img :src="wonderWish" class="w-40 drop-shadow-xl" />
+    <p class="text-2xl font-bold text-slate-800">모바일은 아직이에요 🥲</p>
+    <p class="text-base text-slate-500 leading-relaxed">
+      PC 환경에서 더 잘 보여요!<br />
+      데스크탑으로 접속해 주세요 💻
+    </p>
+  </div>
+
   <section
-    class="relative -mt-16 flex min-h-180 w-full items-center justify-center overflow-hidden bg-linear-to-b from-slate-50 via-[#e4eef8] to-[#cfe0f2]"
+    class="relative -mt-16 hidden md:flex min-h-180 w-full items-center justify-center overflow-hidden bg-linear-to-b from-slate-50 via-[#e4eef8] to-[#cfe0f2]"
   >
     <div
       class="pointer-events-none absolute top-0 left-1/3 h-96 w-96 rounded-full bg-sky-300/25 blur-3xl"
@@ -51,6 +61,7 @@
 
 <script setup lang="ts">
 import mainImg from '@/assets/img/main/mainImg2.png'
+import wonderWish from '@/assets/img/wishes/wonderWish.png'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
