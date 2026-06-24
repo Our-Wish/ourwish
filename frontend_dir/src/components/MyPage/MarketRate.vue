@@ -3,7 +3,7 @@
     <h1 class="text-4xl font-extrabold text-slate-900">가입 상품 금리 비교</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       가입한 상품의 금리를 한눈에 비교해보세요.<br />
-      기본금리와 최고금리, 실제 적용 금리를 확인할 수 있어요.
+      기본·최고·내 가입금리를 한국은행 평균 금리(점선)와 함께 확인할 수 있어요.
     </p>
 
     <div class="mt-8 flex overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -51,9 +51,11 @@ import {
   LinearScale,
   Tooltip,
   Legend,
+  type Plugin,
 } from 'chart.js'
 import api from '@/api/index'
 import { useSavingsStore } from '@/stores/savings'
+import { useMarketRatesStore } from '@/stores/marketRates'
 import { trimProductName } from '@/utils/product'
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
@@ -67,6 +69,7 @@ interface RateItem {
 }
 
 const savingsStore = useSavingsStore()
+const marketRates = useMarketRatesStore()
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 const isLoading = ref(true)
 const activeTab = ref<'deposit' | 'savings'>('deposit')
@@ -107,8 +110,43 @@ async function loadData() {
 function buildChart() {
   if (!chartCanvas.value || filteredItems.value.length === 0) return
 
+  // 현재 탭에 맞는 한국은행 평균(연 %) — 예금 탭=정기예금, 적금 탭=정기적금
+  const avgRate = activeTab.value === 'deposit' ? marketRates.depositAvg : marketRates.savingsAvg
+  // ECOS 실패(폴백) 땐 '한국은행'이라 하면 거짓이므로 '시중 평균'으로 표기
+  const avgSource = marketRates.isFallback ? '시중 평균' : '한국은행 평균'
+  const avgAsOf =
+    !marketRates.isFallback && marketRates.asOf ? ` (${marketRates.asOf.replace('-', '.')})` : ''
+  const avgLabel = `${avgSource}${avgAsOf} ${avgRate}%`
+
   const allRates = filteredItems.value.flatMap((i) => [i.baseRate, i.maxRate, i.myRate])
-  const yMax = Math.max(...allRates) + 2
+  const yMax = Math.max(...allRates, avgRate) + 2
+
+  // 막대 위에 한국은행 평균 금리 가로 점선 + 라벨을 직접 그린다.
+  // (line 데이터셋은 상품이 1개면 선이 안 그려져, 플러그인으로 항상 보이게 한다)
+  const avgLinePlugin: Plugin<'bar'> = {
+    id: 'avgRateLine',
+    afterDatasetsDraw(chart) {
+      const yScale = chart.scales.y
+      if (!yScale) return
+      const y = yScale.getPixelForValue(avgRate)
+      const { left, right } = chart.chartArea
+      const ctx = chart.ctx
+      ctx.save()
+      ctx.beginPath()
+      ctx.setLineDash([6, 4])
+      ctx.lineWidth = 2
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.9)' // rose-500: 파란 막대와 대비
+      ctx.moveTo(left, y)
+      ctx.lineTo(right, y)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.fillStyle = 'rgba(225, 29, 72, 1)'
+      ctx.font = '600 12px sans-serif'
+      ctx.textAlign = 'right'
+      ctx.fillText(avgLabel, right - 6, y - 6)
+      ctx.restore()
+    },
+  }
 
   if (chartInstance) {
     chartInstance.destroy()
@@ -177,6 +215,7 @@ function buildChart() {
         },
       },
     },
+    plugins: [avgLinePlugin],
   })
 }
 
@@ -187,7 +226,8 @@ async function switchTab(tab: 'deposit' | 'savings') {
 }
 
 onMounted(async () => {
-  await loadData()
+  // 평균 금리도 받아와야 기준선을 그릴 수 있으므로 함께 기다린다.
+  await Promise.all([loadData(), marketRates.fetchMarketRates()])
   buildChart()
 })
 
