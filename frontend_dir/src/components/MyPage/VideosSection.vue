@@ -5,12 +5,10 @@
       관심 있게 저장한 금융 영상을 한곳에서 확인해보세요.
     </p>
 
-    <!-- 로딩 -->
     <div v-if="store.isLoading" class="mt-16 text-center text-base text-slate-400">
       불러오는 중...
     </div>
 
-    <!-- 빈 상태 -->
     <div
       v-else-if="store.favorites.length === 0"
       class="mt-20 text-center text-base text-slate-300"
@@ -18,7 +16,6 @@
       찜한 영상이 없어요.
     </div>
 
-    <!-- 그리드 -->
     <div v-else class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="video in store.favorites"
@@ -36,7 +33,6 @@
           />
         </div>
 
-        <!-- 제목·채널·찜 해제 -->
         <div class="flex flex-1 flex-col p-4">
           <p class="line-clamp-2 text-sm font-bold leading-snug text-slate-900">
             {{ decodeHtmlEntities(video.title) }}
@@ -45,7 +41,6 @@
             <p class="truncate text-xs font-medium text-slate-500">
               {{ decodeHtmlEntities(video.channel_name) }}
             </p>
-            <!-- 찜 해제 (영상 상세의 찜 버튼과 같은 토글 디자인) -->
             <button
               @click.stop="removeFavorite(video.video_id)"
               :disabled="removingId === video.video_id"
