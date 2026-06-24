@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import HomeView from '@/views/HomeView.vue'
 import GoalSetupView from '@/views/GoalSetupView.vue'
 import RecommendationView from '@/views/RecommendationView.vue'
-import SavingsDetailView from '@/views/SavingsDetailView.vue'
+import SavingsDepositDetailView from '@/views/SavingsDepositDetailView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import CommunityPostDetailView from '@/views/CommunityPostDetailView.vue'
 import CommunityWriteView from '@/views/CommunityWriteView.vue'
@@ -49,7 +49,7 @@ const router = createRouter({
     {
       path: '/savings/:id',
       name: 'savings-detail',
-      component: SavingsDetailView,
+      component: SavingsDepositDetailView,
     },
     {
       path: '/mypage',
