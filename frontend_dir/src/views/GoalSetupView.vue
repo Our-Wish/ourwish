@@ -122,9 +122,7 @@
                   <p class="text-base font-semibold text-slate-800">
                     1. 현재 나이가 어떻게 되시나요 ?
                   </p>
-                  <p class="mt-1 text-sm text-slate-400">
-                    청년 우대 상품이나 연령 제한 상품을 확인할 수 있어요.
-                  </p>
+                  <p class="mt-1 text-sm text-slate-400">연령 제한 상품을 확인할 수 있어요.</p>
                 </div>
                 <input
                   v-model="birthDate"
