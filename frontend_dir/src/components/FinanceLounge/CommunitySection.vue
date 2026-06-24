@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- 헤더 -->
     <div class="mb-6">
       <div class="flex items-end justify-between">
         <div>
