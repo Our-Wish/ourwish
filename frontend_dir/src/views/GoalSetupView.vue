@@ -98,8 +98,8 @@
                 >
               </div>
               <p class="mt-2 text-sm text-slate-400">
-                * 예상 수령액은 평균 금리(연 {{ marketRates.savingsAvg }}%)를 기준으로 계산된 참고용
-                금액입니다.
+                * 예상 수령액은 {{ rateCaption }}를 기준으로 한 참고용 금액이에요.<br />실제
+                수령액은 상품·우대조건에 따라 달라질 수 있어요.
               </p>
             </div>
           </div>
@@ -264,6 +264,13 @@ const afterTaxInterest = computed(() => {
   return Math.round(interest * (1 - 0.154))
 })
 const totalAmount = computed(() => principal.value + afterTaxInterest.value)
+
+// 실데이터면 한국은행 출처를 밝히고, 폴백이면 거짓이 안 되게 '시중 평균'으로 표기
+const rateCaption = computed(() =>
+  marketRates.isFallback
+    ? `시중 평균 금리(연 ${marketRates.savingsAvg}%)`
+    : `한국은행 정기적금 평균 금리(연 ${marketRates.savingsAvg}%, ${marketRates.asOf?.replace('-', '.')} 기준)`,
+)
 
 const onNext = async () => {
   if (step.value === 1) {
