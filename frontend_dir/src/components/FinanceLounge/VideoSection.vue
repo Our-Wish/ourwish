@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-4xl font-extrabold text-slate-900">금융 TV</h1>
     <p class="my-3 text-base font-light text-slate-400">
-      예·적금 상품, 금리, 우대조건까지 어렵게 느껴지는 금융 정보를 짧은 영상으로 확인하세요.
+      예·적금 상품, 금리, 우대조건까지 어려운 금융 정보를 영상으로 쉽게 확인해보세요.
     </p>
     <form
       class="flex items-center gap-3 rounded-2xl bg-white px-7 py-5 shadow-sm ring-1 ring-slate-200/70 transition focus-within:ring-2 focus-within:ring-indigo-200"
@@ -36,16 +36,33 @@
       </button>
     </form>
 
-    <div class="mt-4 flex flex-wrap items-center gap-2">
-      <span class="text-sm text-slate-500">추천 키워드</span>
-      <button
-        v-for="kw in keywords"
-        :key="kw"
-        @click="runSearch(kw)"
-        class="rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
-      >
-        #{{ kw }}
-      </button>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm font-semibold text-slate-500">추천 키워드</span>
+        <button
+          v-for="kw in keywords"
+          :key="kw"
+          @click="runSearch(kw)"
+          class="rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-600"
+        >
+          #{{ kw }}
+        </button>
+      </div>
+      <div class="inline-flex rounded-full bg-slate-100 p-1">
+        <button
+          v-for="opt in orderOptions"
+          :key="opt.value"
+          @click="changeOrder(opt.value)"
+          class="rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          :class="
+            order === opt.value
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          "
+        >
+          {{ opt.label }}
+        </button>
+      </div>
     </div>
 
     <div class="mt-8">
@@ -60,7 +77,8 @@
 
       <div v-else>
         <p v-if="lastKeyword" class="mb-4 text-sm text-slate-400">
-          <span class="font-semibold text-slate-600">'{{ lastKeyword }}'</span> 검색 결과
+          <span class="font-semibold text-slate-600">'{{ lastKeyword }}'</span> 관련 영상을
+          모아봤어요
         </p>
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <VideoCard v-for="v in results" :key="v.videoId" v-bind="v" />
@@ -84,13 +102,19 @@ interface VideoItem {
   publishedAt: string
 }
 
-const keywords = ['파킹통장', '우대금리', '청년도약계좌']
+const keywords = ['파킹통장', '우대금리', '청년도약계좌', '예금자보호']
+const orderOptions = [
+  { label: '정확도순', value: 'relevance' },
+  { label: '최신순', value: 'date' },
+  { label: '조회수순', value: 'viewCount' },
+]
 
 const query = ref('')
 const results = ref<VideoItem[]>([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
 const lastKeyword = ref('')
+const order = ref('relevance')
 
 async function runSearch(keyword: string) {
   const q = keyword.trim()
@@ -98,7 +122,9 @@ async function runSearch(keyword: string) {
   isLoading.value = true
   hasSearched.value = true
   try {
-    const { data } = await api.get('/api/v1/videos/search/', { params: { q } })
+    const { data } = await api.get('/api/v1/videos/search/', {
+      params: { q, max_results: 9, order: order.value },
+    })
     results.value = data.map((item: any) => ({
       videoId: item.video_id,
       title: decodeHtmlEntities(item.title),
@@ -112,6 +138,11 @@ async function runSearch(keyword: string) {
   } finally {
     isLoading.value = false
   }
+}
+
+function changeOrder(value: string) {
+  order.value = value
+  if (lastKeyword.value) runSearch(lastKeyword.value)
 }
 
 function search() {

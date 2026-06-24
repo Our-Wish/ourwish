@@ -33,6 +33,10 @@
             </button>
           </nav>
         </div>
+        <div class="mt-40 text-center">
+          <img :src="heartWish" alt="위시" class="mx-auto w-40" />
+          <p class="mt-4 text-sm text-slate-400 break-keep">오늘의 금융 인사이트를 만나보세요 💡</p>
+        </div>
       </aside>
 
       <div class="w-px bg-slate-200" />
@@ -52,6 +56,7 @@ import { useRoute } from 'vue-router'
 import VideoSection from '@/components/FinanceLounge/VideoSection.vue'
 import GoldSilverSection from '@/components/FinanceLounge/GoldSilverSection.vue'
 import CommunitySection from '@/components/FinanceLounge/CommunitySection.vue'
+import heartWish from '@/assets/img/wishes/heartWish.png'
 
 type Menu = 'video' | 'goldsilver' | 'community'
 const route = useRoute()
