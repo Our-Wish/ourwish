@@ -116,7 +116,7 @@ const features = [
     labelColor: 'text-purple-500',
   },
   {
-    label: 'ANAGE',
+    label: 'MANAGE',
     title: '가입한 상품을 모아봐요',
     shortDesc: '가입한 상품, 찜한 상품, 작성한 글을 <br/>한곳에 모아 관리할 수 있어요.',
     img: wonderWish,
