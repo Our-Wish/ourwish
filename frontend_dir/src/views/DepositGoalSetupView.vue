@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
@@ -244,10 +244,9 @@ const ynAnswers = reactive<Record<string, boolean | null>>({
 
 onMounted(() => marketRates.fetchMarketRates())
 
-onMounted(async () => {
+const fetchSearchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
-    console.log('[deposit prefill]', data)
     savedProfile.value = data
     if (data.save_term) selectedPeriod.value = data.save_term
     if (data.deposit_amount) depositAmount.value = data.deposit_amount / 10000
@@ -256,10 +255,10 @@ onMounted(async () => {
     if (data.online_signup !== undefined) ynAnswers.online_signup = data.online_signup
     if (data.marketing_consent !== undefined) ynAnswers.marketing_consent = data.marketing_consent
     if (data.redeposit !== undefined) ynAnswers.redeposit = data.redeposit
-  } catch (e) {
-    console.error('[deposit prefill error]', e)
-  }
-})
+  } catch {}
+}
+
+watch(() => authStore.isAuthenticated, (isAuth) => { if (isAuth) fetchSearchProfile() }, { immediate: true })
 
 const afterTaxInterest = computed(() => {
   // 평균 금리는 한국은행 정기예금 수신금리(연 %). 예금은 거치식 단리.
