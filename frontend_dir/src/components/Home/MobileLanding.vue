@@ -24,11 +24,10 @@
       </div>
     </section>
 
-    <!-- Intro -->
     <section class="px-7 pt-10 pb-12 text-center">
       <h2 class="text-2xl font-bold leading-snug tracking-[-0.03em] text-slate-900">
         예·적금 찾기부터 관리까지<br />
-        아워위시에서 한 번에
+        OURWISH에서 한 번에
       </h2>
 
       <p class="mt-4 text-sm font-normal leading-7 text-slate-500">
