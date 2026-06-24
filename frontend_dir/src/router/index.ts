@@ -17,7 +17,6 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
   routes: [
     {
-      // 메인(랜딩)만 비로그인 허용
       path: '/',
       name: 'home',
       component: HomeView,
@@ -33,13 +32,11 @@ const router = createRouter({
       path: '/recommendation',
       name: 'recommendation',
       component: RecommendationView,
-      meta: { public: true },
     },
     {
       path: '/savings/:id',
       name: 'savings-detail',
       component: SavingsDetailView,
-      meta: { public: true },
     },
     {
       path: '/mypage',
@@ -64,14 +61,12 @@ const router = createRouter({
       name: 'community-post-detail',
       component: CommunityPostDetailView,
       props: true,
-      meta: { public: true },
     },
     {
       path: '/videos/:videoId',
       name: 'video-detail',
       component: VideoDetailView,
       props: true,
-      meta: { public: true },
     },
     {
       path: '/depositgoalsetup',
@@ -83,18 +78,15 @@ const router = createRouter({
       path: '/depositrecommendation',
       name: 'depositrecommendation',
       component: DepositRecommendationView,
-      meta: { public: true },
     },
     {
       path: '/financelounge',
       name: 'financelounge',
       component: FinanceLoungeView,
-      meta: { public: true },
     },
   ],
 })
 
-// 전역 가드: public이 아닌 페이지는 로그인 필수
 router.beforeEach((to) => {
   const authStore = useAuthStore()
   if (!to.meta.public && !authStore.isAuthenticated) {

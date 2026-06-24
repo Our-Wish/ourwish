@@ -188,6 +188,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
+import { useAuthStore } from '@/stores/auth'
 import api from '@/api/index'
 import { formatWon } from '@/utils/format'
 import hiWish from '@/assets/img/wishes/hiWish.png'
@@ -201,6 +202,7 @@ const isLoading = ref(false)
 const birthDate = ref('')
 const goalStore = useGoalStore()
 const marketRates = useMarketRatesStore()
+const authStore = useAuthStore()
 
 const periodOptions = [
   { value: 3, label: '3개월' },
@@ -274,6 +276,10 @@ const rateCaption = computed(() =>
 )
 
 const onNext = async () => {
+  if (!authStore.isAuthenticated) {
+    authStore.openLoginModal()
+    return
+  }
   if (step.value === 1) {
     step.value++
     window.scrollTo(0, 0)
