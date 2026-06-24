@@ -42,7 +42,7 @@
 
     <div
       :ref="(el) => observe(el, features.length)"
-      class="relative mx-auto flex max-w-6xl items-center justify-center overflow-hidden px-8 pt-28 pb-44 text-center transition-all duration-700 ease-out"
+      class="relative mx-auto flex max-w-6xl items-center justify-center px-8 pt-50 pb-50 text-center transition-all duration-700 ease-out"
       :class="
         visible.has(features.length) ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       "
@@ -50,7 +50,7 @@
       <img
         :src="wishFamily"
         alt="아워위시"
-        class="pointer-events-none absolute bottom-0 left-1/2 w-full max-w-3xl -translate-x-1/2 select-none opacity-20 drop-shadow-2xl"
+        class="pointer-events-none absolute bottom-0 left-1/2 w-full max-w-4xl -translate-x-1/2 select-none opacity-20 drop-shadow-2xl"
       />
 
       <div class="relative z-10">
