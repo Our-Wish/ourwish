@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-linear-to-b from-[#ddecfc] via-[#e4eff9] to-white">
+  <div class="bg-[linear-gradient(to_bottom,#ddecfc_0%,#e4eff9_80%,#f7fbff_100%)]">
     <div class="mx-auto max-w-5xl px-8 pt-32 pb-20 text-center">
       <h2 class="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl">
         예·적금 찾기부터 관리까지<br />
@@ -42,18 +42,26 @@
 
     <div
       :ref="(el) => observe(el, features.length)"
-      class="mx-auto max-w-4xl px-8 pt-16 pb-32 flex flex-col items-center text-center transition-all duration-700 ease-out"
+      class="relative mx-auto flex max-w-6xl items-center justify-center overflow-hidden px-8 pt-28 pb-44 text-center transition-all duration-700 ease-out"
       :class="
-        visible.has(features.length) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        visible.has(features.length) ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       "
     >
-      <img :src="wishFamily" alt="아워위시" class="w-96 drop-shadow-xl" />
-      <p class="mt-12 text-4xl font-extrabold text-slate-900 leading-snug sm:text-5xl">
-        복잡한 금융을 더 쉽고 간편하게<br />
-        여러분의 Wish가 이루어지는 순간까지<br />
-        아워위시가 함께할게요.
-      </p>
+      <img
+        :src="wishFamily"
+        alt="아워위시"
+        class="pointer-events-none absolute bottom-0 left-1/2 w-full max-w-3xl -translate-x-1/2 select-none opacity-20 drop-shadow-2xl"
+      />
+
+      <div class="relative z-10">
+        <p class="text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl">
+          복잡한 금융을 더 쉽고 간편하게<br />
+          여러분의 Wish가 이루어지는 순간까지<br />
+          아워위시가 함께할게요.
+        </p>
+      </div>
     </div>
+    <div class="py-10"></div>
   </div>
 </template>
 
@@ -81,7 +89,7 @@ const features = [
     title: '맞는 상품만 골라줘요',
     description:
       '나이, 가입 금액, 기간, 우대조건까지 고려해\n내 조건에 맞는 상품만 추천해줘요.\n은행별로 직접 찾아보지 않아도 괜찮아요.',
-    img: achieveWish,
+    img: memoWish,
     labelColor: 'text-blue-500',
   },
   {
@@ -105,7 +113,7 @@ const features = [
     title: '가입한 상품을\n한눈에 관리해요',
     description:
       '가입한 예·적금 상품부터 찜한 상품, 작성한 글까지\n마이페이지에서 한 번에 확인할 수 있어요.\n목표 달성률과 금리 비교도 함께 보여줘요.',
-    img: fightingWish,
+    img: achieveWish,
     labelColor: 'text-amber-500',
   },
   {
