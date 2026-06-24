@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.favorites.models import Favorite
+from .ecos import get_market_rates
 from .llm import stream_chat_reply
 from .models import Product
 from .serializers import ProductDetailSerializer, RecommendQuerySerializer
@@ -267,3 +268,27 @@ class ProductChatView(APIView):
         response["X-Accel-Buffering"] = "no"
         response["Cache-Control"] = "no-cache"
         return response
+
+
+class MarketRateView(APIView):
+    """STEP1 예상 수령액의 '평균 금리' 기준값(한국은행 예금은행 수신금리).
+
+    프론트가 직접 ECOS를 부르지 않게(키 노출/CORS 방지) 백엔드가 중계한다.
+    값은 연 % (예: 정기예금 2.87). 조회 실패 시 폴백값이 내려간다(is_fallback=true).
+    """
+
+    @extend_schema(
+        responses=inline_serializer(
+            name="MarketRateResponse",
+            fields={
+                "deposit_avg": serializers.FloatField(),
+                "savings_avg": serializers.FloatField(),
+                "as_of": serializers.CharField(allow_null=True),
+                "source": serializers.CharField(),
+                "is_fallback": serializers.BooleanField(),
+            },
+        ),
+        summary="STEP1 평균 금리 (한국은행 예금은행 수신금리)",
+    )
+    def get(self, request):
+        return Response(get_market_rates())

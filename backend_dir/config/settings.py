@@ -196,3 +196,6 @@ GMS_MODEL = os.environ.get("GMS_MODEL", "gpt-5-mini")
 
 # YouTube Data API v3 — 영상 검색/상세 프록시용. 키는 서버에만 둔다.
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+
+# 한국은행 ECOS — STEP1 평균 금리(예금은행 수신금리) 조회용. 키는 서버에만 둔다.
+ECOS_API_KEY = os.environ.get("ECOS_API_KEY")
