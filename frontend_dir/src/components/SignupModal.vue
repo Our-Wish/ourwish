@@ -39,6 +39,15 @@
 
         <div>
           <input
+            v-model="form.passwordConfirm"
+            type="password"
+            placeholder="비밀번호 확인"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+        </div>
+
+        <div>
+          <input
             v-model="form.nickname"
             type="text"
             placeholder="닉네임"
@@ -50,7 +59,7 @@
 
         <button
           type="submit"
-          class="mt-4 w-full rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-1 w-full rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="loading"
         >
           {{ loading ? '가입 중...' : '가입하기' }}
@@ -82,14 +91,19 @@ const errorMessage = ref('')
 const form = reactive({
   login_id: '',
   password: '',
+  passwordConfirm: '',
   nickname: '',
 })
 
 const authStore = useAuthStore()
 
 const onSubmit = async () => {
-  loading.value = true
   errorMessage.value = ''
+  if (form.password !== form.passwordConfirm) {
+    errorMessage.value = '비밀번호가 일치하지 않습니다.'
+    return
+  }
+  loading.value = true
   try {
     await authStore.signup(form)
     emit('close')

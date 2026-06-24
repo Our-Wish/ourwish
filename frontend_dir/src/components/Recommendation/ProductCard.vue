@@ -41,7 +41,7 @@
     <div class="mt-auto flex items-end justify-between pt-4">
       <div>
         <p class="text-sm text-slate-400">예상 세후 수령액</p>
-        <p class="mt-0.5 text-2xl font-extrabold text-slate-900">{{ formattedAmount }}만원</p>
+        <p class="mt-0.5 text-2xl font-extrabold text-slate-900">{{ formattedAmount }}</p>
       </div>
       <span class="text-sm font-semibold text-slate-400 transition group-hover:text-blue-600">
         자세히 보기 →
@@ -70,9 +70,10 @@ const props = defineProps<{
 
 import { TAG_LABELS } from '@/constants/tagLabels'
 import { trimProductName } from '@/utils/product'
+import { formatWon } from '@/utils/format'
 
 const conditionLabel = (tag: string) => TAG_LABELS[tag] ?? tag
 
 const bankInitial = computed(() => props.bankName.charAt(0))
-const formattedAmount = computed(() => props.amount.toLocaleString())
+const formattedAmount = computed(() => formatWon(props.amount))
 </script>

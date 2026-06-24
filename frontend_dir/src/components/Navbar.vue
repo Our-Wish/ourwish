@@ -31,7 +31,7 @@
         >
           <RouterLink
             to="/financelounge"
-            class="block rounded-2xl px-4 py-2 text-base font-semibold text-slate-700 transition hover:font-semibold hover:text-blue-800"
+            class="block rounded-2xl px-4 py-2 text-base font-normal text-slate-700 transition hover:font-semibold hover:text-blue-800"
           >
             금융라운지
           </RouterLink>

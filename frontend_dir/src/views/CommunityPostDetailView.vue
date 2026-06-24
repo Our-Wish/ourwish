@@ -140,10 +140,7 @@
             </li>
           </ul>
 
-          <p
-            v-else
-            class="rounded-xl bg-slate-50 py-10 text-center text-sm font-medium text-slate-400"
-          >
+          <p v-else class="rounded-xl py-10 text-center text-sm font-medium text-slate-400">
             첫 댓글을 남겨보세요.
           </p>
         </section>
