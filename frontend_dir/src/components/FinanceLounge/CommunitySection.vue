@@ -11,7 +11,7 @@
 
         <button
           v-if="isAuthenticated"
-          class="rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
+          class="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:opacity-50"
           @click="router.push({ name: 'community-write' })"
         >
           글쓰기
