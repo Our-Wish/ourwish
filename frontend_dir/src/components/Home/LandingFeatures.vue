@@ -57,7 +57,7 @@
         <p class="text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl">
           복잡한 금융을 더 쉽고 간편하게<br />
           여러분의 Wish가 이루어지는 순간까지<br />
-          아워위시가 함께할게요.
+          OURWISH가 함께할게요.
         </p>
       </div>
     </div>
@@ -80,7 +80,7 @@ const features = [
     label: 'START',
     title: '몇 가지 조건만 입력해보세요.',
     description:
-      '상품 유형과 기간, 금액을 입력하고\n내게 적용될 수 있는 우대조건을 체크해보세요.\n아워위시가 내 조건에 맞는 예·적금 상품과\n 예상 수령액을 함께 보여드려요.   ',
+      '상품 유형과 기간, 금액을 입력하고\n내게 적용될 수 있는 우대조건을 체크해보세요.\nOURWISH가 내 조건에 맞는 예·적금 상품과\n 예상 수령액을 함께 보여드려요.   ',
     img: hiWish,
     labelColor: 'text-emerald-500',
   },
