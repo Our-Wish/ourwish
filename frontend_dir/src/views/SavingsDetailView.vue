@@ -84,12 +84,14 @@ import ProductBasicInfo from '@/components/SavingsDetail/ProductBasicInfo.vue'
 import KakaoMap from '@/components/SavingsDetail/KakaoMap.vue'
 import { useSavingsStore } from '@/stores/savings'
 import { useFavoritesStore } from '@/stores/favorites'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
 const savingsStore = useSavingsStore()
 const favoritesStore = useFavoritesStore()
+const authStore = useAuthStore()
 
 const productId = computed(() => Number(route.params.id))
 
@@ -168,6 +170,10 @@ const bonusRate = computed(() => {
 })
 
 async function toggleFavorite() {
+  if (!authStore.isAuthenticated) {
+    authStore.openLoginModal()
+    return
+  }
   if (!product.value) return
   try {
     if (isFavorite.value) {
@@ -185,6 +191,10 @@ async function toggleFavorite() {
 }
 
 async function selectProduct() {
+  if (!authStore.isAuthenticated) {
+    authStore.openLoginModal()
+    return
+  }
   if (!product.value) return
   try {
     const { data } = await api.post('/api/v1/enrollments/', { product_id: product.value.id })

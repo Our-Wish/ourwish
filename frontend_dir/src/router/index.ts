@@ -27,16 +27,19 @@ const router = createRouter({
       path: '/GoalSetup',
       name: 'goalsetup',
       component: GoalSetupView,
+      meta: { public: true },
     },
     {
       path: '/recommendation',
       name: 'recommendation',
       component: RecommendationView,
+      meta: { public: true },
     },
     {
       path: '/savings/:id',
       name: 'savings-detail',
       component: SavingsDetailView,
+      meta: { public: true },
     },
     {
       path: '/mypage',
@@ -61,27 +64,32 @@ const router = createRouter({
       name: 'community-post-detail',
       component: CommunityPostDetailView,
       props: true,
+      meta: { public: true },
     },
     {
       path: '/videos/:videoId',
       name: 'video-detail',
       component: VideoDetailView,
       props: true,
+      meta: { public: true },
     },
     {
       path: '/depositgoalsetup',
       name: 'depositgoalsetup',
       component: DepositGoalSetupView,
+      meta: { public: true },
     },
     {
       path: '/depositrecommendation',
       name: 'depositrecommendation',
       component: DepositRecommendationView,
+      meta: { public: true },
     },
     {
       path: '/financelounge',
       name: 'financelounge',
       component: FinanceLoungeView,
+      meta: { public: true },
     },
   ],
 })
