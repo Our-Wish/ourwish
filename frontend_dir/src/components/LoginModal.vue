@@ -16,7 +16,7 @@
         <h1 class="text-4xl font-bold text-slate-950">로그인</h1>
       </div>
 
-      <p class="mt-3 text-base text-slate-500">나의 적금 플랜을 이어서 관리해보세요 ✨</p>
+      <p class="mt-3 text-base text-slate-500">나의 예·적금 플랜을 이어서 관리해보세요 ✨</p>
 
       <form @submit.prevent="onSubmit" class="mt-8 space-y-4">
         <div>
