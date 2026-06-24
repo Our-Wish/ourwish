@@ -8,6 +8,9 @@ export const useMarketRatesStore = defineStore('marketRates', {
     depositAvg: 3.5, // 정기예금 평균(연 %)
     savingsAvg: 4.0, // 정기적금 평균(연 %)
     asOf: '' as string | null, // 기준 월 'YYYY-MM'
+    // 초기/조회실패 시엔 한국은행 값이 아니라 폴백이므로 true에서 시작한다.
+    // (문구에서 '한국은행' 출처를 거짓으로 붙이지 않게 하려는 용도)
+    isFallback: true,
     loaded: false,
   }),
   actions: {
@@ -19,6 +22,7 @@ export const useMarketRatesStore = defineStore('marketRates', {
         this.depositAvg = data.deposit_avg
         this.savingsAvg = data.savings_avg
         this.asOf = data.as_of
+        this.isFallback = data.is_fallback
         this.loaded = true
       } catch {
         // 실패해도 초기 폴백값(3.5/4.0)을 유지해 STEP1 계산이 깨지지 않게 한다.
