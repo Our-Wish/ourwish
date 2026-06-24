@@ -95,7 +95,7 @@ const listEl = ref<HTMLElement | null>(null)
 const quickQuestions = [
   '우대금리를 받으려면 무엇을 해야 하나요?',
   '이 상품의 장점과 단점을 알려주세요.',
-  '만기 후 이자율을 쉽게 설명해주세요',
+  '만기 후 이자율을 쉽게 설명해주세요.',
 ]
 
 function setQuestion(q: string) {
