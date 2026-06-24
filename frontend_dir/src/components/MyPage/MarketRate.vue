@@ -133,17 +133,19 @@ function buildChart() {
       const ctx = chart.ctx
       ctx.save()
       ctx.beginPath()
-      ctx.setLineDash([6, 4])
-      ctx.lineWidth = 2
-      ctx.strokeStyle = 'rgba(244, 63, 94, 0.9)' // rose-500: 파란 막대와 대비
+      ctx.setLineDash([5, 5])
+      ctx.lineWidth = 1.5
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.8)'
       ctx.moveTo(left, y)
       ctx.lineTo(right, y)
       ctx.stroke()
       ctx.setLineDash([])
-      ctx.fillStyle = 'rgba(225, 29, 72, 1)'
-      ctx.font = '600 12px sans-serif'
+
+      ctx.font = '600 11px sans-serif'
       ctx.textAlign = 'right'
-      ctx.fillText(avgLabel, right - 6, y - 6)
+      ctx.textBaseline = 'bottom'
+      ctx.fillStyle = 'rgba(180, 110, 0, 1)'
+      ctx.fillText(avgLabel, right - 6, y - 4)
       ctx.restore()
     },
   }

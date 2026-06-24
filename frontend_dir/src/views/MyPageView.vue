@@ -55,9 +55,9 @@
           </nav>
         </div>
 
-        <div class="mt-40 text-center">
-          <img :src="achieveWish" alt="위시" class="mx-auto w-40" />
-          <p class="mt-3 text-sm text-slate-400 break-keep">오늘도 목표에 한 걸음 더! 🚩</p>
+        <div class="mt-36 text-center">
+          <img :src="achieveWish" alt="위시" class="mx-auto w-44" />
+          <p class="mt-3 text-sm text-slate-400 break-keep">오늘도 목표에 한 걸음 더!</p>
         </div>
       </aside>
 
@@ -96,7 +96,10 @@ const getTabFromQuery = () => {
 const activeMenu = ref<Menu>(getTabFromQuery())
 const productTab = ref<'deposit' | 'savings'>('savings')
 
-watch(() => route.query.tab, () => {
-  activeMenu.value = getTabFromQuery()
-})
+watch(
+  () => route.query.tab,
+  () => {
+    activeMenu.value = getTabFromQuery()
+  },
+)
 </script>

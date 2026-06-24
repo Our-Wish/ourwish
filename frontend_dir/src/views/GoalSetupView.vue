@@ -86,14 +86,14 @@
 
             <div>
               <p class="mb-3 text-base font-semibold text-slate-600">[수령액 간편 계산기]</p>
-              <p class="text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
+              <p class="text-4xl font-extrabold text-blue-600">{{ formatWon(totalAmount) }}</p>
               <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
-                <span>원금 {{ principal }}만원</span>
+                <span>원금 {{ formatWon(principal) }}</span>
                 <span class="text-slate-300">|</span>
                 <span
                   >예상 이자 세후
                   <span class="font-semibold text-blue-500"
-                    >+ {{ afterTaxInterest }}만원</span
+                    >+ {{ formatWon(afterTaxInterest) }}</span
                   ></span
                 >
               </div>
@@ -123,7 +123,7 @@
                     1. 현재 나이가 어떻게 되시나요 ?
                   </p>
                   <p class="mt-1 text-sm text-slate-400">
-                    청년 우대 상품이나 연령 제한 상품을 확인할 수 있어요.
+                    나이에 따라 가입 가능한 상품을 확인할 때 활용해요.
                   </p>
                 </div>
                 <input
@@ -189,6 +189,7 @@ import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
 import api from '@/api/index'
+import { formatWon } from '@/utils/format'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
@@ -218,17 +219,17 @@ const ynQuestions = [
   {
     key: 'auto',
     label: '3. 매달 자동이체로 적금을 납입할 수 있나요 ?',
-    desc: '가장 흔한 우대조건 중 하나에요.',
+    desc: '자동이체 우대조건을 확인할 때 활용해요.',
   },
   {
     key: 'card',
     label: '4. 이 은행 카드로 매달 10만원 이상 쓸 수 있나요 ?',
-    desc: '카드 실적 우대금리 적용 여부를 확인해요.',
+    desc: '카드 사용 실적 우대금리 적용 여부를 확인할 때 활용해요.',
   },
   {
     key: 'housing',
     label: '5. 주택청약종합저축 통장을 가지고 있나요 ?',
-    desc: '청약 보유 고객에게 우대금리를 제공하는 상품이 있어요.',
+    desc: '청약통장 보유 우대금리 적용 여부를 확인할 때 활용해요.',
   },
 ]
 

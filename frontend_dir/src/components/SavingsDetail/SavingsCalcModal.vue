@@ -87,14 +87,14 @@
             예상 수령액 ({{ calcRate }}% 기준)
           </p>
           <p class="text-4xl font-extrabold text-blue-600">
-            {{ totalAmount.toLocaleString() }}만원
+            {{ formatWon(totalAmount) }}
           </p>
           <div class="mt-3 flex items-center gap-2 text-sm text-slate-500">
-            <span>원금 {{ principal.toLocaleString() }}만원</span>
+            <span>원금 {{ formatWon(principal) }}</span>
             <span class="text-slate-300">|</span>
             <span>
               세후 이자
-              <span class="font-semibold text-blue-500">+{{ afterTaxInterest.toLocaleString() }}만원</span>
+              <span class="font-semibold text-blue-500">+{{ formatWon(afterTaxInterest) }}</span>
             </span>
           </div>
         </div>
@@ -108,6 +108,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useGoalStore } from '@/stores/goal'
+import { formatWon } from '@/utils/format'
 
 const props = defineProps<{
   baseRate: number

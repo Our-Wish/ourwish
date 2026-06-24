@@ -85,14 +85,14 @@
 
             <div>
               <p class="mb-3 text-base font-semibold text-slate-600">[만기 수령액 예상]</p>
-              <p class="text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
+              <p class="text-4xl font-extrabold text-blue-600">{{ formatWon(totalAmount) }}</p>
               <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
-                <span>예치금 {{ depositAmount }}만원</span>
+                <span>원금 {{ formatWon(depositAmount) }}</span>
                 <span class="text-slate-300">|</span>
                 <span
                   >예상 이자 세후
                   <span class="font-semibold text-blue-500"
-                    >+ {{ afterTaxInterest }}만원</span
+                    >+ {{ formatWon(afterTaxInterest) }}</span
                   ></span
                 >
               </div>
@@ -122,7 +122,7 @@
                     1. 현재 나이가 어떻게 되시나요 ?
                   </p>
                   <p class="mt-1 text-sm text-slate-400">
-                    연령 우대 상품 가입 가능 여부를 확인해요.
+                    나이에 따라 가입 가능한 상품을 확인할 때 활용해요.
                   </p>
                 </div>
                 <input
@@ -188,6 +188,7 @@ import { useRouter } from 'vue-router'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
+import { formatWon } from '@/utils/format'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
@@ -213,22 +214,22 @@ const ynQuestions = [
   {
     key: 'first_transaction',
     label: '2. 해당 은행과 첫 거래이신가요?',
-    desc: '첫 거래 고객 우대금리를 확인해요.',
+    desc: '첫 거래 고객 우대금리 적용 여부를 확인할 때 활용해요.',
   },
   {
     key: 'online_signup',
     label: '3. 비대면으로 가입하실 수 있나요?',
-    desc: '비대면 가입 전용 상품을 추천해드려요.',
+    desc: '비대면 가입 우대조건을 확인할 때 활용해요.',
   },
   {
     key: 'marketing_consent',
     label: '4. 마케팅 정보 수신에 동의하실 수 있나요?',
-    desc: '마케팅 동의 우대금리 적용 여부를 확인해요.',
+    desc: '마케팅 동의 우대금리 적용 여부를 확인할 때 활용해요.',
   },
   {
     key: 'redeposit',
     label: '5. 만기 후 재예치하실 계획이 있으신가요?',
-    desc: '재예치 우대 혜택이 있는 상품을 확인해요.',
+    desc: '재예치 우대조건을 확인할 때 활용해요.',
   },
 ]
 
@@ -287,6 +288,11 @@ const onNext = async () => {
     isLoading.value = true
     try {
       await api.put('/api/v1/search-profile/', {
+        monthly_amount: savedProfile.value.monthly_amount ?? 500000,
+        salary_transfer: savedProfile.value.salary_transfer ?? false,
+        auto_transfer: savedProfile.value.auto_transfer ?? false,
+        card_usage: savedProfile.value.card_usage ?? false,
+        housing_subscription: savedProfile.value.housing_subscription ?? false,
         ...savedProfile.value,
         save_term: selectedPeriod.value,
         deposit_amount: depositAmount.value * 10000,
