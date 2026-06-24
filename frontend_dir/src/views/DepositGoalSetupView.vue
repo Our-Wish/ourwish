@@ -188,6 +188,7 @@ import { useRouter } from 'vue-router'
 import api from '@/api/index'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
+import { useAuthStore } from '@/stores/auth'
 import { formatWon } from '@/utils/format'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
@@ -195,6 +196,7 @@ import fightingWish from '@/assets/img/wishes/fightingWish.png'
 const router = useRouter()
 const goalStore = useGoalStore()
 const marketRates = useMarketRatesStore()
+const authStore = useAuthStore()
 const step = ref(1)
 const selectedPeriod = ref(12)
 const depositAmount = ref(50)
@@ -275,6 +277,10 @@ const rateCaption = computed(() =>
 )
 
 const onNext = async () => {
+  if (!authStore.isAuthenticated) {
+    authStore.openLoginModal()
+    return
+  }
   if (step.value === 1) {
     step.value++
     window.scrollTo(0, 0)
