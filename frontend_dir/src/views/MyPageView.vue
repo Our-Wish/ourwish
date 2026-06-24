@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import achieveWish from '@/assets/img/wishes/achieveWish.png'
@@ -88,8 +88,15 @@ import MarketRate from '@/components/MyPage/MarketRate.vue'
 type Menu = 'products' | 'wishlist' | 'videos' | 'posts' | 'marketRate'
 const route = useRoute()
 const validTabs: Menu[] = ['products', 'wishlist', 'videos', 'posts', 'marketRate']
-const queryTab = route.query.tab as string
 const authStore = useAuthStore()
-const activeMenu = ref<Menu>(validTabs.includes(queryTab as Menu) ? (queryTab as Menu) : 'products')
+const getTabFromQuery = () => {
+  const q = route.query.tab as string
+  return validTabs.includes(q as Menu) ? (q as Menu) : 'products'
+}
+const activeMenu = ref<Menu>(getTabFromQuery())
 const productTab = ref<'deposit' | 'savings'>('savings')
+
+watch(() => route.query.tab, () => {
+  activeMenu.value = getTabFromQuery()
+})
 </script>

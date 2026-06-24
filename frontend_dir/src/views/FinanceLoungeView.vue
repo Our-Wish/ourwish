@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import VideoSection from '@/components/FinanceLounge/VideoSection.vue'
 import GoldSilverSection from '@/components/FinanceLounge/GoldSilverSection.vue'
@@ -61,6 +61,13 @@ import heartWish from '@/assets/img/wishes/heartWish.png'
 type Menu = 'video' | 'goldsilver' | 'community'
 const route = useRoute()
 const validTabs: Menu[] = ['video', 'goldsilver', 'community']
-const queryTab = route.query.tab as string
-const activeMenu = ref<Menu>(validTabs.includes(queryTab as Menu) ? (queryTab as Menu) : 'video')
+const getTabFromQuery = () => {
+  const q = route.query.tab as string
+  return validTabs.includes(q as Menu) ? (q as Menu) : 'video'
+}
+const activeMenu = ref<Menu>(getTabFromQuery())
+
+watch(() => route.query.tab, () => {
+  activeMenu.value = getTabFromQuery()
+})
 </script>
