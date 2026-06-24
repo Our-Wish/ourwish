@@ -1,17 +1,20 @@
 <template>
   <div>
-    <div class="mb-6">
-      <div class="flex items-end justify-between">
+    <div class="mb-4">
+      <div class="flex items-end justify-between gap-4">
         <div>
-          <h2 class="text-xl font-bold text-slate-900">커뮤니티</h2>
-          <p class="mt-1 text-sm text-slate-400">금융 고민을 함께 나눠요</p>
+          <h1 class="text-4xl font-extrabold text-slate-900">커뮤니티</h1>
+          <p class="my-1 text-base font-light text-slate-400">
+            금융 정보와 궁금한 점을 자유롭게 나눠보세요.
+          </p>
         </div>
+
         <button
           v-if="isAuthenticated"
-          class="rounded-full bg-blue-500 px-5 py-2.5 text-base font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-600 active:scale-95"
+          class="rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
           @click="router.push({ name: 'community-write' })"
         >
-          글쓰기 +
+          글쓰기
         </button>
       </div>
     </div>
