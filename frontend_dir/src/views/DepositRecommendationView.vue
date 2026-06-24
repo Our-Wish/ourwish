@@ -25,7 +25,7 @@
           </div>
 
           <div class="mt-3 border-t border-slate-200 pt-3">
-            <p class="text-xs font-semibold text-slate-400">우대금리 조건</p>
+            <p class="text-xs font-semibold text-slate-400">상품 추천 기준</p>
             <div class="mt-2 flex flex-wrap gap-1.5">
               <span
                 v-for="chip in conditionChips"

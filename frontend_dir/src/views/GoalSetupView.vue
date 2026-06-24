@@ -86,14 +86,14 @@
 
             <div>
               <p class="mb-3 text-base font-semibold text-slate-600">[수령액 간편 계산기]</p>
-              <p class="text-4xl font-extrabold text-blue-600">{{ totalAmount }}만원</p>
+              <p class="text-4xl font-extrabold text-blue-600">{{ formatWon(totalAmount) }}</p>
               <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
-                <span>원금 {{ principal }}만원</span>
+                <span>원금 {{ formatWon(principal) }}</span>
                 <span class="text-slate-300">|</span>
                 <span
                   >예상 이자 세후
                   <span class="font-semibold text-blue-500"
-                    >+ {{ afterTaxInterest }}만원</span
+                    >+ {{ formatWon(afterTaxInterest) }}</span
                   ></span
                 >
               </div>
@@ -189,6 +189,7 @@ import { useRouter } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import { useMarketRatesStore } from '@/stores/marketRates'
 import api from '@/api/index'
+import { formatWon } from '@/utils/format'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
