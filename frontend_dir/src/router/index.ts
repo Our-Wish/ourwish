@@ -28,10 +28,23 @@ const router = createRouter({
       meta: { public: true },
     },
     {
+      path: '/depositgoalsetup',
+      name: 'depositgoalsetup',
+      component: GoalSetupView,
+      props: { type: 'deposit' },
+      meta: { public: true },
+    },
+    {
       path: '/recommendation',
       name: 'recommendation',
       component: RecommendationView,
       props: { type: 'savings' },
+    },
+    {
+      path: '/depositrecommendation',
+      name: 'depositrecommendation',
+      component: RecommendationView,
+      props: { type: 'deposit' },
     },
     {
       path: '/savings/:id',
@@ -67,19 +80,6 @@ const router = createRouter({
       name: 'video-detail',
       component: VideoDetailView,
       props: true,
-    },
-    {
-      path: '/depositgoalsetup',
-      name: 'depositgoalsetup',
-      component: GoalSetupView,
-      props: { type: 'deposit' },
-      meta: { public: true },
-    },
-    {
-      path: '/depositrecommendation',
-      name: 'depositrecommendation',
-      component: RecommendationView,
-      props: { type: 'deposit' },
     },
     {
       path: '/financelounge',
