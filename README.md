@@ -455,8 +455,11 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py loaddata products   # 예·적금 상품 데이터(766건) 적재
 python manage.py runserver
 ```
+
+> `loaddata products`는 `backend_dir/apps/products/fixtures/products.json`(금융감독원 수집 + AI 가공 완료 상품 766건)을 DB에 넣습니다. 이 데이터로 추천·상세·AI 요약 기능을 바로 확인할 수 있습니다.
 
 Windows 환경에서는 아래 명령어로 가상환경을 활성화할 수 있습니다.
 
