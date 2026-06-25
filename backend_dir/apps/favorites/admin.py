@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Favorite, VideoFavorite
 
-# Register your models here.
+admin.site.register(Favorite)
+admin.site.register(VideoFavorite)

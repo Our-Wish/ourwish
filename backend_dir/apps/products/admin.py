@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Bank, Product, ProductOption
 
-# Register your models here.
+admin.site.register(Bank)
+admin.site.register(Product)
+admin.site.register(ProductOption)
