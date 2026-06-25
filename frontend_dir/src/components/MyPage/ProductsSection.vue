@@ -56,7 +56,7 @@
         :key="product.id"
         v-bind="product"
         @delete="deletingId = $event"
-        @updated="savingsStore.updateEnrollment($event)"
+        @updated="enrollmentStore.updateEnrollment($event)"
       />
 
       <div v-if="displayProducts.length === 0" class="py-20 text-center text-base text-slate-300">
@@ -68,16 +68,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSavingsStore } from '@/stores/savings'
+import { useEnrollmentStore } from '@/stores/enrollment'
 import { bankColorMap } from '@/constants/bankColors'
 import EnrolledProductCard from '@/components/MyPage/EnrolledProductCard.vue'
 
-const savingsStore = useSavingsStore()
+const enrollmentStore = useEnrollmentStore()
 const activeTab = ref<'deposit' | 'savings'>('deposit')
 const deletingId = ref<number | null>(null)
 
 const displayProducts = computed(() => {
-  const filtered = savingsStore.enrollments.filter((item) =>
+  const filtered = enrollmentStore.enrollments.filter((item) =>
     activeTab.value === 'deposit'
       ? item.product_type === 'DEPOSIT'
       : item.product_type === 'SAVINGS',
@@ -106,11 +106,11 @@ const displayProducts = computed(() => {
   }))
 })
 
-onMounted(() => savingsStore.fetchEnrollments())
+onMounted(() => enrollmentStore.fetchEnrollments())
 
 function confirmDelete() {
   if (deletingId.value === null) return
-  savingsStore.removeEnrollment(deletingId.value)
+  enrollmentStore.removeEnrollment(deletingId.value)
   deletingId.value = null
 }
 </script>
