@@ -2,23 +2,27 @@ import { defineStore } from 'pinia'
 
 export const useGoalStore = defineStore('goal', {
   state: () => ({
-    period: 12,
-    monthlyAmount: 50,
-    targetAmount: 0,
-    depositPeriod: 12,
-    depositAmount: 50,
+    savings: {
+      period: 12,
+      monthlyAmount: 50,
+      targetAmount: 0,
+    },
+    deposit: {
+      period: 12,
+      amount: 50,
+    },
   }),
   actions: {
-    setGoal(period: number, monthlyAmount: number) {
-      this.period = period
-      this.monthlyAmount = monthlyAmount
+    setSavingsGoal(period: number, monthlyAmount: number) {
+      this.savings.period = period
+      this.savings.monthlyAmount = monthlyAmount
     },
-    setTargetAmount(amount: number) {
-      this.targetAmount = amount
+    setSavingsTargetAmount(amount: number) {
+      this.savings.targetAmount = amount
     },
-    setDepositGoal(period: number, depositAmount: number) {
-      this.depositPeriod = period
-      this.depositAmount = depositAmount
+    setDepositGoal(period: number, amount: number) {
+      this.deposit.period = period
+      this.deposit.amount = amount
     },
   },
 })

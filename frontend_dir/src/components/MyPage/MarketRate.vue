@@ -54,7 +54,7 @@ import {
   type Plugin,
 } from 'chart.js'
 import api from '@/api/index'
-import { useSavingsStore } from '@/stores/savings'
+import { useEnrollmentStore } from '@/stores/enrollment'
 import { useMarketRatesStore } from '@/stores/marketRates'
 import { trimProductName } from '@/utils/product'
 
@@ -68,7 +68,7 @@ interface RateItem {
   productType: 'DEPOSIT' | 'SAVINGS'
 }
 
-const savingsStore = useSavingsStore()
+const enrollmentStore = useEnrollmentStore()
 const marketRates = useMarketRatesStore()
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 const isLoading = ref(true)
@@ -83,10 +83,10 @@ const filteredItems = computed(() =>
 )
 
 async function loadData() {
-  await savingsStore.fetchEnrollments()
+  await enrollmentStore.fetchEnrollments()
 
   const results = await Promise.all(
-    savingsStore.enrollments.map(async (e) => {
+    enrollmentStore.enrollments.map(async (e) => {
       try {
         const { data } = await api.get(`/api/v1/products/${e.product_id}/`)
         const option = data.options?.[0] ?? {}

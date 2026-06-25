@@ -120,8 +120,8 @@ defineEmits<{ close: [] }>()
 
 const goalStore = useGoalStore()
 
-const calcAmount = ref(goalStore.monthlyAmount || 30)
-const calcPeriod = ref(goalStore.period || 12)
+const calcAmount = ref(goalStore.savings.monthlyAmount || 30)
+const calcPeriod = ref(goalStore.savings.period || 12)
 const calcRate = ref(props.maxRate)
 
 const principal = computed(() => calcAmount.value * calcPeriod.value)

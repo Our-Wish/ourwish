@@ -82,14 +82,14 @@ import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/ProductDetail/ProductHeaderCard.vue'
 import ProductBasicInfo from '@/components/ProductDetail/ProductBasicInfo.vue'
 import KakaoMap from '@/components/ProductDetail/KakaoMap.vue'
-import { useSavingsStore } from '@/stores/savings'
+import { useEnrollmentStore } from '@/stores/enrollment'
 import { useFavoritesStore } from '@/stores/favorites'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
 const goalStore = useGoalStore()
-const savingsStore = useSavingsStore()
+const enrollmentStore = useEnrollmentStore()
 const favoritesStore = useFavoritesStore()
 const authStore = useAuthStore()
 
@@ -114,8 +114,10 @@ function formatLimit(value: number): string {
 }
 
 function buildProduct(data: any): ProductDetail {
+  const targetPeriod =
+    data.product_type === 'DEPOSIT' ? goalStore.deposit.period : goalStore.savings.period
   const matchedOption =
-    (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ??
+    (data.options ?? []).find((o: any) => o.save_term === targetPeriod) ??
     data.options?.[0] ??
     {}
 
@@ -198,7 +200,7 @@ async function selectProduct() {
   if (!product.value) return
   try {
     const { data } = await api.post('/api/v1/enrollments/', { product_id: product.value.id })
-    savingsStore.addEnrollment(data)
+    enrollmentStore.addEnrollment(data)
     router.push({ name: 'mypage' })
   } catch (err: any) {
     if (err?.response?.status === 409) {

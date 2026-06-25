@@ -121,7 +121,7 @@ defineEmits<{ close: [] }>()
 const goalStore = useGoalStore()
 
 const calcAmount = ref(1000)
-const calcPeriod = ref(goalStore.period || 12)
+const calcPeriod = ref(goalStore.deposit.period || 12)
 const calcRate = ref(props.maxRate || 3.5)
 
 const afterTaxInterest = computed(() => {

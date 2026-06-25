@@ -16,7 +16,7 @@ export interface Enrollment {
   achievement_gauge: number
 }
 
-export const useSavingsStore = defineStore('savings', {
+export const useEnrollmentStore = defineStore('enrollment', {
   state: () => ({
     enrollments: [] as Enrollment[],
     isFetched: false,

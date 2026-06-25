@@ -16,13 +16,19 @@ export const useFavoritesStore = defineStore('favorites', {
   state: () => ({
     favorites: [] as Favorite[],
     isFetched: false,
+    isLoading: false,
   }),
   actions: {
     async fetchFavorites() {
       if (this.isFetched) return
-      const { data } = await api.get('/api/v1/favorites/')
-      this.favorites = data
-      this.isFetched = true
+      this.isLoading = true
+      try {
+        const { data } = await api.get('/api/v1/favorites/')
+        this.favorites = data
+        this.isFetched = true
+      } finally {
+        this.isLoading = false
+      }
     },
     addFavorite(favorite: Favorite) {
       this.favorites.push(favorite)
