@@ -332,7 +332,7 @@ const onNext = async () => {
           card_usage: ynAnswers.card,
           housing_subscription: ynAnswers.housing,
         })
-        goalStore.setGoal(selectedPeriod.value, amount.value)
+        goalStore.setSavingsGoal(selectedPeriod.value, amount.value)
         router.push({ name: 'recommendation' })
       } else {
         await api.put('/api/v1/search-profile/', {
