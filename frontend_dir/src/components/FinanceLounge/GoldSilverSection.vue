@@ -48,6 +48,27 @@
                 {{ range.label }}
               </button>
             </div>
+
+            <!-- 직접 기간 선택 -->
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <input
+                type="date"
+                :min="dataMinDate"
+                :max="endDate || dataMaxDate"
+                :value="startDate"
+                @change="onDateInput('start', $event)"
+                class="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-600 focus:border-slate-400 focus:outline-none"
+              />
+              <span class="text-sm font-bold text-slate-400">~</span>
+              <input
+                type="date"
+                :min="startDate || dataMinDate"
+                :max="dataMaxDate"
+                :value="endDate"
+                @change="onDateInput('end', $event)"
+                class="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-600 focus:border-slate-400 focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 
@@ -159,7 +180,7 @@ const rangeOptions: { value: RangeKey; label: string }[] = [
 ]
 
 const asset = ref<AssetKey>('gold')
-const selectedRange = ref<RangeKey>('all')
+const selectedRange = ref<RangeKey | 'custom'>('all')
 const startDate = ref('')
 const endDate = ref('')
 const isLoading = ref(true)
@@ -175,6 +196,7 @@ const currentAsset = computed(
 
 const allPoints = computed(() => series.value[asset.value])
 
+const dataMinDate = computed(() => allPoints.value[0]?.date ?? '')
 const dataMaxDate = computed(() => allPoints.value[allPoints.value.length - 1]?.date ?? '')
 
 const filtered = computed(() =>
@@ -253,7 +275,26 @@ const chartOptions: ChartOptions<'line'> = {
 
 function changeAsset(value: AssetKey) {
   asset.value = value
-  selectRange(selectedRange.value)
+  // 직접 선택한 기간은 자산을 바꿔도 유지한다.
+  const range = selectedRange.value
+  if (range !== 'custom') {
+    selectRange(range)
+  }
+}
+
+function onDateInput(which: 'start' | 'end', e: Event) {
+  const value = (e.target as HTMLInputElement).value
+  if (which === 'start') startDate.value = value
+  else endDate.value = value
+
+  // 시작일이 종료일보다 뒤면 두 값을 맞춰 빈 결과를 막는다.
+  if (startDate.value && endDate.value && startDate.value > endDate.value) {
+    if (which === 'start') endDate.value = startDate.value
+    else startDate.value = endDate.value
+  }
+
+  // 프리셋 버튼 선택 해제(직접 선택 상태)
+  selectedRange.value = 'custom'
 }
 
 function selectRange(range: RangeKey) {
