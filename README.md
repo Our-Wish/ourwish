@@ -259,10 +259,12 @@ AI 요약 / 챗봇 / 영업점 검색
 | --------------------- | --------------------------------- |
 | Django                | 백엔드 서버 및 비즈니스 로직 구현 |
 | Django REST Framework | REST API 설계 및 구현             |
-| Simple JWT            | JWT 기반 인증 처리                |
+| Simple JWT            | JWT 기반 인증 처리 (커스텀 MemberJWTAuthentication) |
 | SQLite                | 프로젝트 데이터 저장              |
 | drf-spectacular       | Swagger API 문서 자동화           |
-| requests              | 외부 API 데이터 요청              |
+| requests              | 외부 API 데이터 요청 (FSS·ECOS·YouTube·GMS) |
+| django-cors-headers   | CORS 허용 도메인 처리             |
+| python-dotenv         | 환경변수(.env) 로딩               |
 
 <br />
 
@@ -270,16 +272,26 @@ AI 요약 / 챗봇 / 영업점 검색
 
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white)
-![Claude](https://img.shields.io/badge/Claude_API-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Gunicorn](https://img.shields.io/badge/Gunicorn-499848?style=for-the-badge&logo=gunicorn&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![GMS](https://img.shields.io/badge/GMS_·_gpt--5--mini-412991?style=for-the-badge&logo=openai&logoColor=white)
+![YouTube](https://img.shields.io/badge/YouTube_Data_API-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+![Kakao Map](https://img.shields.io/badge/Kakao_Map-FFCD00?style=for-the-badge&logo=kakao&logoColor=black)
 
-| 기술           | 사용 목적                            |
-| -------------- | ------------------------------------ |
-| Vercel         | 프론트엔드 배포                      |
-| AWS EC2        | 백엔드 서버 배포                     |
-| Claude API     | 상품 설명, 약관 요약, 챗봇 응답 생성 |
-| Kakao Map API  | 은행 영업점 검색                     |
-| 금융감독원 API | 예·적금 상품 데이터 수집             |
-| 한국은행 API   | 평균금리 및 금융 지표 데이터 활용    |
+| 기술                  | 사용 목적                                       |
+| --------------------- | ----------------------------------------------- |
+| Vercel                | 프론트엔드 배포                                  |
+| AWS EC2               | 백엔드 서버 배포                                 |
+| Nginx                 | 리버스 프록시 · HTTPS 종료                       |
+| Gunicorn              | WSGI 애플리케이션 서버                           |
+| GitHub Actions (CI)   | PR·push 시 설정·마이그레이션·테스트 자동 검증    |
+| GitHub Actions (CD)   | self-hosted 러너 배포 — 헬스체크 · 자동 롤백     |
+| GMS · gpt-5-mini      | 우대조건 태그 분류, 쉬운말 요약, 상품 챗봇 응답  |
+| 금융감독원(FSS) API   | 예·적금 상품 데이터 수집                         |
+| 한국은행 ECOS API     | 평균금리 및 금융 지표 데이터 활용                |
+| YouTube Data API v3   | 금융 영상 검색 · 상세                            |
+| Kakao Map API         | 은행 영업점 검색                                 |
 
 <br />
 
@@ -436,8 +448,9 @@ ALLOWED_HOSTS=
 CORS_ALLOWED_ORIGINS=
 
 FSS_API_KEY=
-BANK_OF_KOREA_API_KEY=
-CLAUDE_API_KEY=
+ECOS_API_KEY=
+YOUTUBE_API_KEY=
+GMS_KEY=
 ```
 
 > API Key와 Secret Key는 GitHub에 업로드하지 않습니다.
