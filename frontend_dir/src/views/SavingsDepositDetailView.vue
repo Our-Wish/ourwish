@@ -114,8 +114,10 @@ function formatLimit(value: number): string {
 }
 
 function buildProduct(data: any): ProductDetail {
+  const targetPeriod =
+    data.product_type === 'DEPOSIT' ? goalStore.deposit.period : goalStore.savings.period
   const matchedOption =
-    (data.options ?? []).find((o: any) => o.save_term === goalStore.period) ??
+    (data.options ?? []).find((o: any) => o.save_term === targetPeriod) ??
     data.options?.[0] ??
     {}
 
