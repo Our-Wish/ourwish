@@ -11,17 +11,64 @@ OurWish는 기간과 월 납입 금액을 입력하면 예상 수령액을 계�
 
 ## ✨ 주요 기능
 
-| 1. 목표를 입력하면 맞춤 적금을 추천해드려요 | 2. 은행·금리 조건으로 상품을 필터링할 수 있어요 |
-|:--:|:--:|
-| ![feature1](docs/screenshots/feature_recommendation.png) | ![feature2](docs/screenshots/feature_filter.png) |
+<br />
 
-| 3. AI가 복잡한 약관과 금리 조건을 쉽게 설명해줘요 | 4. 가입 현황과 진행률을 한눈에 확인할 수 있어요 |
-|:--:|:--:|
-| ![feature3](docs/screenshots/feature_chat.png) | ![feature4](docs/screenshots/feature_mypage.png) |
+### 🏠 랜딩 페이지
+목표만 입력하면 맞춤 금융상품을 바로 추천받을 수 있어요.
 
-| 5. 금·은 시세와 금융 콘텐츠를 한곳에서 | 6. 커뮤니티에서 재테크 정보를 나눠요 |
+| |
+|:--:|
+| ![랜딩 페이지](docs/screenshots/landingPage.gif) |
+
+<br />
+
+### 💰 예/적금 상품 추천
+기간·금액과 우대조건을 입력하면 세후 수령액 순으로 맞춤 상품을 추천해드려요.<br />
+한국은행 평균금리 기준 예상 수령액을 즉시 계산하고, 적금 / 예금 트랙별로 질문이 달라요.
+
+| 목표 설정 STEP 1 | 목표 설정 STEP 2 |
 |:--:|:--:|
-| ![feature5](docs/screenshots/feature_finance_lounge.png) | ![feature6](docs/screenshots/feature_community.png) |
+| ![goalSetUp](docs/screenshots/goalSetUp.png) | ![goalSetUp2](docs/screenshots/goalSetUp2.png) |
+
+| 상품 추천 결과 |
+|:--:|
+| ![recommendation](docs/screenshots/recommendation.png) |
+
+<br />
+
+### 🔍 상품 상세
+FSS 원문 정보, AI 쉬운말 소개, 세후 수익 계산, 카카오맵 영업점 검색, AI 챗봇까지 한 페이지에서 확인할 수 있어요.
+
+| |
+|:--:|
+| ![productDetail1](docs/screenshots/productDetail1.png) |
+
+| | | |
+|:--:|:--:|:--:|
+| ![productDetail2](docs/screenshots/productDetail2.png) | ![productDetail3](docs/screenshots/productDetail3.png) | ![productDetail4](docs/screenshots/productDetail4.png) |
+
+<br />
+
+### 👤 마이페이지
+가입 상품의 달성 게이지, 금리 비교 차트(내 금리 vs 기본 vs 최고 vs 한국은행 평균), 찜 목록, 작성 글을 한곳에서 관리할 수 있어요.
+
+| | |
+|:--:|:--:|
+| ![myPage](docs/screenshots/myPage.png) | ![myPage2](docs/screenshots/myPage2.png) |
+| ![myPage3](docs/screenshots/myPage3.png) | ![myPage4](docs/screenshots/myPage4.png) |
+
+<br />
+
+### 📺 금융 라운지
+커뮤니티 피드, 금융 유튜브 영상, 금·은 시세 차트를 한 화면에서 한눈에 볼 수 있어요.
+
+| 금융 영상 | 금·은 시세 |
+|:--:|:--:|
+| ![financeTV](docs/screenshots/financeTV.png) | ![goldSilver](docs/screenshots/goldSilver.png) |
+
+| 커뮤니티 |
+|:--:|
+| ![community](docs/screenshots/community.png) |
 
 <br />
 
