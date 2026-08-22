@@ -102,6 +102,7 @@ import { ref } from 'vue'
 import { trimProductName } from '@/utils/product'
 import { useRouter } from 'vue-router'
 import type { EnrolledProductCardProps } from '@/types/product'
+import type { Enrollment } from '@/stores/enrollment'
 import EnrollmentModal from '@/components/MyPage/EnrollmentModal.vue'
 
 const router = useRouter()
@@ -110,12 +111,12 @@ defineProps<EnrolledProductCardProps>()
 
 const emit = defineEmits<{
   delete: [id: number]
-  updated: [data: any]
+  updated: [data: Enrollment]
 }>()
 
 const showModal = ref(false)
 
-function onUpdated(data: any) {
+function onUpdated(data: Enrollment) {
   emit('updated', data)
 }
 </script>

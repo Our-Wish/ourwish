@@ -9,7 +9,6 @@ sync_deposit_products)가 이 모듈의 FSSProductSync를 product_type/has_rsrv_
 import requests
 from django.db import transaction
 
-from apps.products.llm import generate_ai_summary, generate_tags
 from apps.products.models import Bank, Product, ProductOption
 
 # 020000=시중은행(1금융권), 030300=저축은행 — 적금/예금 공통.
@@ -19,24 +18,10 @@ GRP_TO_BANK_TYPE = {
     "030300": Bank.BankType.SAVINGS,
 }
 
-# LLM이 채우는 태그·연령 필드(ai_summary는 루프에서 별도로 처리).
-TAG_FIELDS = [
-    "tag_salary_transfer",
-    "tag_auto_transfer",
-    "tag_card_usage",
-    "tag_housing_subscription",
-    "tag_first_transaction",
-    "tag_online_signup",
-    "tag_marketing_consent",
-    "tag_redeposit",
-    "age_min",
-    "age_max",
-    "min_limit",
-]
 
 
 class FSSProductSync:
-    """FSS API 호출 → Bank/Product/ProductOption 적재 + (옵션) LLM 보강.
+    """FSS API 호출 → Bank/Product/ProductOption 적재.
 
     base_url: FSS 검색 API URL(적금/예금 각각 다름).
     product_type: Product.ProductType.SAVINGS 또는 DEPOSIT.
@@ -128,48 +113,3 @@ class FSSProductSync:
                     page_no += 1
 
         return total_products, total_options
-
-    def enrich_with_llm(self, stdout, limit=0, only=None):
-        """아직 LLM 처리 안 된(ai_summary가 NULL인) 이 product_type 상품을 GMS로 채운다.
-
-        only=None이면 태그+요약 둘 다, "tags"면 태그·연령만, "summary"면 AI요약만.
-        """
-        do_tags = only in (None, "tags")
-        do_summary = only in (None, "summary")
-
-        products = Product.objects.filter(
-            product_type=self.product_type, ai_summary__isnull=True
-        )
-        if limit:
-            products = products[:limit]
-
-        done = 0
-        for product in products:
-            update_fields = []
-            if do_tags:
-                tags = generate_tags(product)
-                if tags:
-                    product.tag_salary_transfer = tags["salary_transfer"]
-                    product.tag_auto_transfer = tags["auto_transfer"]
-                    product.tag_card_usage = tags["card_usage"]
-                    product.tag_housing_subscription = tags["housing_subscription"]
-                    product.tag_first_transaction = tags["first_transaction"]
-                    product.tag_online_signup = tags["online_signup"]
-                    product.tag_marketing_consent = tags["marketing_consent"]
-                    product.tag_redeposit = tags["redeposit"]
-                    product.age_min = tags["age_min"]
-                    product.age_max = tags["age_max"]
-                    product.min_limit = tags["min_limit"]
-                    update_fields += TAG_FIELDS
-            if do_summary:
-                summary = generate_ai_summary(product)
-                if summary is not None:
-                    product.ai_summary = summary
-                    update_fields.append("ai_summary")
-
-            if update_fields:
-                product.save(update_fields=update_fields)
-                done += 1
-
-        stdout.write(f"LLM 보강: 상품 {done}개 갱신")
-        return done

@@ -50,19 +50,6 @@
             <p class="mb-4 ml-1 text-xl font-semibold text-slate-00">주변 영업점 찾기</p>
             <KakaoMap :bank-name="product.bankName" />
           </div>
-
-          <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
-            <div class="flex items-center gap-2.5 bg-blue-300 px-4 py-3">
-              <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/40">
-                <img src="@/assets/img/wishes/hiWish.png" class="h-6 w-6 object-contain" />
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-white">OURWISH 챗봇</p>
-                <p class="text-xs text-blue-50">금융 상품 AI 도우미, 위시입니다 :)</p>
-              </div>
-            </div>
-            <Chat :productId="product.id" />
-          </div>
         </div>
       </div>
     </div>
@@ -74,11 +61,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGoalStore } from '@/stores/goal'
 import api from '@/api/index'
+import { isAxiosError } from 'axios'
 import { bankColorMap } from '@/constants/bankColors'
 import { TAG_LABELS } from '@/constants/tagLabels'
-import type { ProductDetail } from '@/types/product'
+import type { ProductDetail, ProductDetailApi } from '@/types/product'
 import { BANK_URL_MAP } from '@/constants/bankUrls'
-import Chat from '@/components/Chat.vue'
 import ProductHeaderCard from '@/components/ProductDetail/ProductHeaderCard.vue'
 import ProductBasicInfo from '@/components/ProductDetail/ProductBasicInfo.vue'
 import KakaoMap from '@/components/ProductDetail/KakaoMap.vue'
@@ -108,28 +95,26 @@ function cleanText(text: string): string {
     .join('\n')
 }
 
-function formatLimit(value: number): string {
+function formatLimit(value: number | null): string {
   if (!value || value > 9e15) return '제한 없음'
   return `${Math.round(value / 10000).toLocaleString()}만원`
 }
 
-function buildProduct(data: any): ProductDetail {
+function buildProduct(data: ProductDetailApi): ProductDetail {
   const targetPeriod =
     data.product_type === 'DEPOSIT' ? goalStore.deposit.period : goalStore.savings.period
   const matchedOption =
-    (data.options ?? []).find((o: any) => o.save_term === targetPeriod) ??
-    data.options?.[0] ??
-    {}
+    (data.options ?? []).find((o) => o.save_term === targetPeriod) ?? data.options?.[0]
 
   return {
     id: data.product_id,
     bankName: data.bank_name,
     bankColor: bankColorMap[data.bank_name] ?? '#6366f1',
     productName: data.product_name,
-    baseRate: matchedOption.base_rate ?? data.base_rate ?? 0,
-    maxRate: matchedOption.max_rate ?? data.max_rate ?? 0,
-    intr_rate_type: matchedOption.intr_rate_type ?? 'S',
-    rsrv_type: matchedOption.rsrv_type ?? 'S',
+    baseRate: matchedOption?.base_rate ?? data.base_rate ?? 0,
+    maxRate: matchedOption?.max_rate ?? data.max_rate ?? 0,
+    intr_rate_type: matchedOption?.intr_rate_type ?? 'S',
+    rsrv_type: matchedOption?.rsrv_type ?? 'S',
     productType: data.product_type === 'DEPOSIT' ? 'deposit' : 'savings',
     conditions: [
       { label: '가입 대상', value: data.join_member ? cleanText(data.join_member) : '-' },
@@ -202,8 +187,8 @@ async function selectProduct() {
     const { data } = await api.post('/api/v1/enrollments/', { product_id: product.value.id })
     enrollmentStore.addEnrollment(data)
     router.push({ name: 'mypage' })
-  } catch (err: any) {
-    if (err?.response?.status === 409) {
+  } catch (err) {
+    if (isAxiosError(err) && err.response?.status === 409) {
       alert('이미 등록된 상품이에요.')
       router.push({ name: 'mypage' })
     } else {

@@ -43,7 +43,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { Post } from '@/types/community'
+import type { Post, PostApi } from '@/types/community'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -63,7 +63,7 @@ async function fetchPosts() {
   try {
     const { data } = await api.get('/api/v1/community/posts/')
     // 백엔드는 평탄한 snake_case → camelCase로 정리 (CommunityView와 동일)
-    posts.value = data.map((p: any) => ({
+    posts.value = data.map((p: PostApi) => ({
       id: p.id,
       title: p.title,
       authorId: p.author_id,

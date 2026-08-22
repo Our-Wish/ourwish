@@ -1,7 +1,7 @@
-"""적금 도메인 계산 로직 (세후 수령액 등).
+"""예·적금 도메인 계산 로직 (세후 수령액, 대표 옵션 선정).
 
 뷰(View)에서 직접 계산하지 않고 이 모듈로 분리해 두면,
-추천 API(#7)와 가입 API(#9)가 같은 산식을 재사용할 수 있다.
+추천 API(#7)와 찜 목록 API가 같은 산식을 재사용할 수 있다.
 """
 from decimal import Decimal
 
@@ -60,3 +60,33 @@ def calculate_deposit_after_tax_payout(principal, term_months, annual_rate, intr
 
     after_tax_interest = pre_tax_interest * (1 - TAX_RATE)     # 이자에만 과세
     return int(principal + after_tax_interest)                # 원 미만 절사
+
+
+def calculate_payout(amount, term_months, annual_rate, intr_rate_type, is_deposit):
+    """상품군에 맞는 산식으로 세후 수령액 계산 (적금=적립식, 예금=거치식)."""
+    if is_deposit:
+        return calculate_deposit_after_tax_payout(
+            amount, term_months, annual_rate, intr_rate_type
+        )
+    return calculate_after_tax_payout(amount, term_months, annual_rate, intr_rate_type)
+
+
+def best_option_by_payout(options, amount, use_max, is_deposit):
+    """옵션 중 세후 수령액이 가장 큰 것을 (option, payout)으로 반환. 옵션이 없으면 None.
+
+    use_max=True면 최고금리(없으면 기본금리로 폴백), False면 기본금리로 계산한다.
+    추천 목록(#7)과 찜 목록이 '대표 옵션'을 같은 기준으로 고르도록 공용화했다.
+    """
+    best = None
+    for option in options:
+        rate = (
+            option.max_rate
+            if use_max and option.max_rate is not None
+            else option.base_rate
+        )
+        payout = calculate_payout(
+            amount, option.save_term, rate, option.intr_rate_type, is_deposit
+        )
+        if best is None or payout > best[1]:
+            best = (option, payout)
+    return best

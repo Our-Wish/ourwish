@@ -20,7 +20,6 @@
 
       <form @submit.prevent="onSubmit" class="mt-8 space-y-4">
         <div>
-          <!-- TODO: 백엔드 연동 시 type="email" required 로 복구 -->
           <input
             v-model="login_id"
             type="text"

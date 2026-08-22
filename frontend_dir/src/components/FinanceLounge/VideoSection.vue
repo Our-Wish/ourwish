@@ -94,6 +94,15 @@ import api from '@/api'
 import VideoCard from '@/components/Video/VideoCard.vue'
 import { decodeHtmlEntities } from '@/utils/decodeHtml'
 
+// 백엔드 원본 응답(snake_case) 한 건 (GET /videos/search/)
+interface VideoItemApi {
+  video_id: string
+  title: string
+  channel_name: string
+  thumbnail_url: string
+  published_at: string
+}
+
 interface VideoItem {
   videoId: string
   title: string
@@ -125,7 +134,7 @@ async function runSearch(keyword: string) {
     const { data } = await api.get('/api/v1/videos/search/', {
       params: { q, max_results: 9, order: order.value },
     })
-    results.value = data.map((item: any) => ({
+    results.value = data.map((item: VideoItemApi) => ({
       videoId: item.video_id,
       title: decodeHtmlEntities(item.title),
       channelName: decodeHtmlEntities(item.channel_name),

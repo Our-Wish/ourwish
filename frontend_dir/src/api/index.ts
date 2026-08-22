@@ -51,6 +51,10 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// 진행 중인 refresh 요청. 여러 API가 동시에 401을 맞아도 refresh는 1번만 부르고,
+// 나머지 요청들은 같은 Promise를 기다렸다가 새 토큰을 나눠 쓴다.
+let refreshPromise: Promise<string> | null = null
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -63,16 +67,24 @@ api.interceptors.response.use(
 
       const refreshToken = sessionStorage.getItem('refresh_token')
       if (refreshToken) {
+        // 내가 refresh를 새로 시작하는 쪽인지 기억해 둔다(실패 알림을 1번만 띄우기 위해)
+        const isRefreshOwner = refreshPromise === null
         try {
-          const { data } = await api.post('/api/v1/accounts/token/refresh/', {
-            refresh: refreshToken,
-          })
-          setAuthToken(data.access)
-          originalRequest.headers['Authorization'] = `Bearer ${data.access}`
+          if (!refreshPromise) {
+            refreshPromise = api
+              .post('/api/v1/accounts/token/refresh/', { refresh: refreshToken })
+              .then(({ data }) => data.access as string)
+              .finally(() => {
+                refreshPromise = null // 성공/실패와 무관하게 다음 refresh를 위해 초기화
+              })
+          }
+          const access = await refreshPromise
+          setAuthToken(access)
+          originalRequest.headers['Authorization'] = `Bearer ${access}`
           return api(originalRequest)
         } catch {
-          // refresh 실패 → 낡은 토큰 정리 후 메인으로
-          alert('다시 로그인이 필요합니다.')
+          // refresh 실패 → 낡은 토큰 정리 후 메인으로 (알림은 시작한 요청만 1번)
+          if (isRefreshOwner) alert('다시 로그인이 필요합니다.')
           forceLogout()
         }
       } else {

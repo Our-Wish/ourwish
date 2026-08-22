@@ -73,7 +73,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { Post } from '@/types/community'
+import type { Post, PostApi } from '@/types/community'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -86,7 +86,7 @@ async function fetchPosts() {
   isLoading.value = true
   try {
     const { data } = await api.get('/api/v1/community/posts/')
-    posts.value = data.map((p: any) => ({
+    posts.value = data.map((p: PostApi) => ({
       id: p.id,
       title: p.title,
       authorId: p.author_id,

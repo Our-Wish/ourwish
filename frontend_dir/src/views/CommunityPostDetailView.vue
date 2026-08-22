@@ -153,9 +153,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { isAxiosError } from 'axios'
 import CommentBody from '@/components/Community/CommentBody.vue'
 import { useAuthStore } from '@/stores/auth'
-import type { Comment, PostDetail } from '@/types/community'
+import type { Comment, CommentApi, PostDetail } from '@/types/community'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -188,7 +189,7 @@ function formatDate(iso: string) {
   return `${y}.${m}.${day} ${hh}:${mm}`
 }
 
-function mapComment(c: any): Comment {
+function mapComment(c: CommentApi): Comment {
   return {
     id: c.id,
     authorId: c.author_id,
@@ -211,8 +212,8 @@ async function fetchPost() {
       comments: (data.comments ?? []).map(mapComment),
       createdAt: data.created_at,
     }
-  } catch (e: any) {
-    if (e?.response?.status === 404) notFound.value = true
+  } catch (e) {
+    if (isAxiosError(e) && e.response?.status === 404) notFound.value = true
     else alert('게시글을 불러오는 데 실패했어요.')
   } finally {
     isLoading.value = false

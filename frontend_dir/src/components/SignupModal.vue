@@ -83,6 +83,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { isAxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{ close: []; openLogin: [] }>()
@@ -109,8 +110,9 @@ const onSubmit = async () => {
   try {
     await authStore.signup(form)
     emit('close')
-  } catch (err: any) {
-    const data = err?.response?.data
+  } catch (err) {
+    // axios 에러일 때만 응답 본문을 보고, 백엔드 필드 에러(login_id)를 확인한다
+    const data = isAxiosError<{ login_id?: string[] }>(err) ? err.response?.data : undefined
     if (data?.login_id) {
       errorMessage.value = '이미 사용 중인 아이디입니다.'
     } else {

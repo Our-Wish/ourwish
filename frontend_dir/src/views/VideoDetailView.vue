@@ -114,6 +114,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import { isAxiosError } from 'axios'
 import { decodeHtmlEntities } from '@/utils/decodeHtml'
 import { useVideoFavoritesStore } from '@/stores/videoFavorites'
 
@@ -199,8 +200,8 @@ onMounted(async () => {
       publishedAt: data.published_at,
       description: decodeHtmlEntities(data.description ?? ''),
     }
-  } catch (e: any) {
-    if (e?.response?.status === 404) {
+  } catch (e) {
+    if (isAxiosError(e) && e.response?.status === 404) {
       notFound.value = true
     } else {
       alert('영상을 불러오는 데 실패했어요.')

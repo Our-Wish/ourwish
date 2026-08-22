@@ -50,23 +50,18 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import BranchMapModal from '@/components/ProductDetail/BranchMapModal.vue'
+import type { KakaoLatLng, KakaoMap, KakaoPlace } from '@/types/kakao'
 
 const props = defineProps<{ bankName: string }>()
 
 const mapRef = ref<HTMLDivElement | null>(null)
 const isLocating = ref(true)
-const places = ref<any[]>([])
+const places = ref<KakaoPlace[]>([])
 const showModal = ref(false)
-const mapInstance = ref<any>(null)
-const userCenter = ref<any>(null)
+const mapInstance = ref<KakaoMap | null>(null)
+const userCenter = ref<KakaoLatLng | null>(null)
 
 const visiblePlaces = computed(() => places.value.slice(0, 3))
-
-declare global {
-  interface Window {
-    kakao: any
-  }
-}
 
 function recenter() {
   if (mapInstance.value && userCenter.value) {
@@ -150,7 +145,7 @@ onMounted(async () => {
     const ps = new window.kakao.maps.services.Places()
     ps.keywordSearch(
       props.bankName,
-      (data: any[], status: string) => {
+      (data: KakaoPlace[], status: string) => {
         if (status !== window.kakao.maps.services.Status.OK) return
         places.value = data.slice(0, 5)
 

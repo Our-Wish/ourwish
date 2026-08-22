@@ -143,6 +143,7 @@ import { useAuthStore } from '@/stores/auth'
 import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import BankFilterDropdown from '@/components/Recommendation/BankFilterDropdown.vue'
 import { bankColorMap } from '@/constants/bankColors'
+import type { RecommendItemApi } from '@/types/product'
 import { FIRST_TIER_BANKS } from '@/constants/banks'
 import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
 import happyWish from '@/assets/img/wishes/happyWish.png'
@@ -152,7 +153,7 @@ const isSavings = computed(() => props.type === 'savings')
 
 const goalStore = useGoalStore()
 const authStore = useAuthStore()
-const rawProducts = ref<any[]>([])
+const rawProducts = ref<RecommendItemApi[]>([])
 const isLoading = ref(false)
 const showSortDropdown = ref(false)
 const selectedBanks = ref<string[]>([])
@@ -218,14 +219,14 @@ const config = computed(() =>
 )
 
 const products = computed(() =>
-  rawProducts.value.map((item: any) => ({
+  rawProducts.value.map((item) => ({
     id: item.product_id,
     bankName: item.bank_name,
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
     productType: config.value.productTypeLabel,
     baseRate: item.base_rate,
-    maxRate: item.max_rate,
+    maxRate: item.max_rate ?? item.base_rate,
     amount: Math.round(item.expected_payout / 10000),
     condition: item.matched_tags ?? [],
   })),

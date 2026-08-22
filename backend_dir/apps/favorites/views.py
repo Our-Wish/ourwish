@@ -6,10 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.products.models import Product
-from apps.products.services import (
-    calculate_after_tax_payout,
-    calculate_deposit_after_tax_payout,
-)
+from apps.products.services import best_option_by_payout
 from .models import Favorite, VideoFavorite
 from .serializers import FavoriteCreateSerializer, VideoFavoriteSerializer
 
@@ -44,31 +41,6 @@ def _best_by_rate(product):
     if not options:
         return None
     return max(options, key=lambda o: o.max_rate or o.base_rate)
-
-
-def _best_by_payout(product, amount, use_max, is_deposit):
-    """선택 금리 기준 세후수령액이 가장 큰 옵션 → (option, payout).
-
-    적금=적립식·월납입(amount=월저축액), 예금=거치식·목돈 일시(amount=예치금액).
-    """
-    best = None
-    for option in product.options.all():
-        rate = (
-            option.max_rate
-            if use_max and option.max_rate is not None
-            else option.base_rate
-        )
-        if is_deposit:
-            payout = calculate_deposit_after_tax_payout(
-                amount, option.save_term, rate, option.intr_rate_type
-            )
-        else:
-            payout = calculate_after_tax_payout(
-                amount, option.save_term, rate, option.intr_rate_type
-            )
-        if best is None or payout > best[1]:
-            best = (option, payout)
-    return best
 
 
 class FavoriteListCreateView(APIView):
@@ -116,7 +88,9 @@ class FavoriteListCreateView(APIView):
                     profile.deposit_amount if is_deposit else profile.monthly_amount
                 )
                 if amount is not None:
-                    best = _best_by_payout(product, amount, use_max, is_deposit)
+                    best = best_option_by_payout(
+                        product.options.all(), amount, use_max, is_deposit
+                    )
                     if best is not None:
                         expected_payout = best[1]
             items.append(

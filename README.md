@@ -491,7 +491,6 @@ CORS_ALLOWED_ORIGINS=
 FSS_API_KEY=
 ECOS_API_KEY=
 YOUTUBE_API_KEY=
-GMS_KEY=
 ```
 
 > API Key와 Secret Key는 GitHub에 업로드하지 않습니다.
@@ -565,6 +564,8 @@ OurWish의 상품 추천 로직은 다음과 같습니다.
 <br />
 
 ## 🤖 생성형 AI 활용 내용
+
+> 📌 **발표(2026-06-26) 당시 기준 기록입니다.** SSAFY GMS 프록시 제공 종료로 현재 버전에서는 AI 챗봇과 LLM 배치 코드를 제거했으며, 우대조건 태그와 AI 요약은 당시 생성해 둔 데이터로 계속 제공됩니다.
 
 OurWish는 **GMS(SSAFY OpenAI 호환 프록시)의 `gpt-5-mini`** 모델을 Django에서 직접 호출해 세 가지에 활용합니다.
 태그·요약은 배치로 미리 가공하고, 챗봇만 사용자 요청 시 실시간으로 호출합니다.

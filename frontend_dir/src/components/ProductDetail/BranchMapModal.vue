@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { KOREA_REGIONS } from '@/constants/koreaRegions'
+import type { KakaoMap, KakaoMarker, KakaoPlace } from '@/types/kakao'
 
 const props = defineProps<{ bankName: string }>()
 defineEmits<{ close: [] }>()
@@ -69,20 +70,14 @@ defineEmits<{ close: [] }>()
 const modalMapRef = ref<HTMLDivElement | null>(null)
 const selectedCity = ref('')
 const selectedDistrict = ref('')
-const results = ref<any[]>([])
-const modalMap = ref<any>(null)
-const markers = ref<any[]>([])
+const results = ref<KakaoPlace[]>([])
+const modalMap = ref<KakaoMap | null>(null)
+const markers = ref<KakaoMarker[]>([])
 
 const cities = Object.keys(KOREA_REGIONS)
 const currentDistricts = computed(() =>
   selectedCity.value ? KOREA_REGIONS[selectedCity.value] : [],
 )
-
-declare global {
-  interface Window {
-    kakao: any
-  }
-}
 
 function clearMarkers() {
   markers.value.forEach((m) => m.setMap(null))
@@ -94,7 +89,7 @@ function search() {
   const keyword = `${selectedDistrict.value || selectedCity.value} ${props.bankName}`
 
   const ps = new window.kakao.maps.services.Places()
-  ps.keywordSearch(keyword, (data: any[], status: string) => {
+  ps.keywordSearch(keyword, (data: KakaoPlace[], status: string) => {
     clearMarkers()
 
     if (status !== window.kakao.maps.services.Status.OK) {
@@ -104,15 +99,18 @@ function search() {
 
     results.value = data
 
-    if (data.length) {
-      const first = data[0]
+    // 콜백은 나중에 실행되므로, 함수 첫머리의 modalMap 체크가 여기까진 안 통한다.
+    // 지역 변수로 다시 잡아 null 아님을 확정한 뒤 사용한다.
+    const map = modalMap.value
+    const first = data[0]
+    if (map && first) {
       const center = new window.kakao.maps.LatLng(Number(first.y), Number(first.x))
-      modalMap.value.setCenter(center)
-      modalMap.value.setLevel(6)
+      map.setCenter(center)
+      map.setLevel(6)
 
       data.slice(0, 15).forEach((place) => {
         const pos = new window.kakao.maps.LatLng(Number(place.y), Number(place.x))
-        const marker = new window.kakao.maps.Marker({ position: pos, map: modalMap.value })
+        const marker = new window.kakao.maps.Marker({ position: pos, map })
         markers.value.push(marker)
       })
     }

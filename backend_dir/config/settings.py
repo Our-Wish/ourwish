@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     # apps
     "apps.accounts",
     "apps.products",
-    "apps.goals",
     "apps.enrollments",
     "apps.favorites",
     "apps.community",
@@ -186,13 +185,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 # 외부 서비스
 FSS_API_KEY = os.environ.get("FSS_API_KEY")
-
-# GMS LLM (OpenAI 호환 프록시) — Django가 직접 호출
-GMS_API_KEY = os.environ.get("GMS_KEY")
-GMS_API_URL = os.environ.get(
-    "GMS_API_URL", "https://gms.ssafy.io/gmsapi/api.openai.com/v1/chat/completions"
-)
-GMS_MODEL = os.environ.get("GMS_MODEL", "gpt-5-mini")
 
 # YouTube Data API v3 — 영상 검색/상세 프록시용. 키는 서버에만 둔다.
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")

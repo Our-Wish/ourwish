@@ -84,6 +84,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import api from '@/api/index'
+import type { Enrollment } from '@/stores/enrollment'
 
 const props = defineProps<{
   enrollmentId: number
@@ -100,7 +101,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
-  updated: [data: any]
+  updated: [data: Enrollment]
 }>()
 
 const isLoading = ref(false)
@@ -117,8 +118,9 @@ async function submit() {
   isLoading.value = true
   try {
     const payload = {
-      monthly_amount: props.productType === 'SAVINGS' ? form.monthly_amount : 999,
-      deposit_amount: props.productType === 'DEPOSIT' ? form.deposit_amount : 999,
+      // 상품군에 맞는 금액만 보낸다. 반대쪽은 null로(백엔드도 반대쪽을 null로 비운다).
+      monthly_amount: props.productType === 'SAVINGS' ? form.monthly_amount : null,
+      deposit_amount: props.productType === 'DEPOSIT' ? form.deposit_amount : null,
       rate: form.rate,
       start_date: form.start_date,
       maturity_date: form.maturity_date,

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900">
-    <Navbar />
+    <TheNavbar />
     <main class="pt-16">
       <RouterView />
     </main>
@@ -9,6 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import Navbar from '@/components/Navbar.vue'
+import TheNavbar from '@/components/TheNavbar.vue'
 import GlobalModals from '@/components/GlobalModals.vue'
 </script>
