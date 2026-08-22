@@ -2,7 +2,7 @@
   <div class="relative">
     <button
       @click="isOpen = !isOpen"
-      class="flex items-center gap-2 rounded-xl border px-5 py-2.5 text-base font-medium transition"
+      class="flex items-center gap-2 whitespace-nowrap rounded-xl border px-5 py-2.5 text-base font-medium transition"
       :class="
         modelValue.length > 0
           ? 'border-indigo-400 bg-indigo-50 text-indigo-700'

@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7]">
-    <div class="flex px-32 pb-12 pt-8">
-      <aside class="w-1/4 mt-12 pr-8">
-        <img :src="happyWish" alt="위시" class="mx-auto w-44" />
-        <p class="mt-6 text-center text-base font-bold text-slate-700">
+    <div class="flex flex-col px-5 pb-12 pt-6 lg:flex-row lg:px-32 lg:pt-8">
+      <aside class="mt-2 lg:mt-12 lg:w-1/4 lg:pr-8">
+        <img :src="happyWish" alt="위시" class="mx-auto hidden w-44 lg:block" />
+        <p class="mt-2 text-center text-base font-bold text-slate-700 lg:mt-6">
           {{ authStore.user?.nickname ?? '사용자' }} 님 조건에 맞는 상품을 골라봤어요 !
         </p>
 
@@ -40,12 +40,12 @@
         </p>
       </aside>
 
-      <div class="w-px bg-slate-200" />
+      <div class="hidden w-px bg-slate-200 lg:block" />
 
-      <main class="flex-1 px-14 pt-2">
-        <div class="flex items-start justify-between">
+      <main class="mt-8 flex-1 lg:mt-0 lg:px-14 lg:pt-2">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 class="text-4xl font-extrabold text-slate-900">추천 상품 목록</h1>
+            <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">추천 상품 목록</h1>
             <p class="mt-3 text-base font-light text-slate-400">
               예상 세후 수령액은 달라질 수 있으며, 수령액이 높은 순으로 정렬됩니다.
               <br />
@@ -54,11 +54,11 @@
             </p>
           </div>
 
-          <div class="flex flex-col items-end gap-2 mt-1">
+          <div class="mt-1 flex flex-wrap items-center gap-2 md:flex-col md:items-end">
             <div class="relative">
               <button
                 @click="showSortDropdown = !showSortDropdown"
-                class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-medium text-slate-700 transition hover:border-slate-300"
+                class="flex items-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-medium text-slate-700 transition hover:border-slate-300"
               >
                 {{ currentSortLabel }}
                 <span class="text-slate-400">▼</span>
@@ -105,7 +105,7 @@
             해당 조건을 모두 만족하는 상품이 없습니다.
           </div>
 
-          <div v-else class="mt-6 grid grid-cols-2 gap-4">
+          <div v-else class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             <ProductCard
               v-for="product in visibleProducts"
               :key="product.id"

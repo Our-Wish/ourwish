@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center">
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
     <div class="absolute inset-0 bg-slate-950/40" @click="emit('close')" />
     <div class="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-3xl bg-white p-10">
       <button

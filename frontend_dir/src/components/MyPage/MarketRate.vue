@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-4xl font-extrabold text-slate-900">가입 상품 금리 비교</h1>
+    <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">가입 상품 금리 비교</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       가입한 상품의 금리를 한눈에 비교해보세요.<br />
       기본·최고·내 가입금리를 한국은행 평균 금리(점선)와 함께 확인할 수 있어요.
@@ -35,7 +35,7 @@
       등록된 상품이 없어요.
     </div>
 
-    <div v-else class="mt-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-100">
+    <div v-else class="mt-6 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 md:p-8">
       <canvas ref="chartCanvas" />
     </div>
   </div>

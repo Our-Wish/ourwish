@@ -4,7 +4,7 @@
       불러오는 중...
     </div>
 
-    <div v-else-if="product" class="mx-auto max-w-6xl px-8 pb-16 pt-6">
+    <div v-else-if="product" class="mx-auto max-w-6xl px-5 pb-16 pt-6 md:px-8">
       <ProductHeaderCard
         :product="product"
         :is-favorite="isFavorite"
@@ -14,8 +14,8 @@
         @select-product="selectProduct"
       />
 
-      <div class="flex items-start gap-5">
-        <div class="w-3/5 space-y-4">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
+        <div class="w-full space-y-4 lg:w-3/5">
           <div class="rounded-[28px] border border-blue-100 bg-white p-7">
             <div class="mb-4 flex items-center gap-3">
               <p class="text-lg font-semibold text-slate-800">✨ AI 상품 요약</p>
@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <div class="w-2/5 space-y-4">
+        <div class="w-full space-y-4 lg:w-2/5">
           <div class="rounded-2xl bg-white p-5 shadow-sm">
             <p class="mb-4 ml-1 text-xl font-semibold text-slate-00">주변 영업점 찾기</p>
             <KakaoMap :bank-name="product.bankName" />

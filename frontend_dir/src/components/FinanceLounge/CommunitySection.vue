@@ -3,7 +3,7 @@
     <div class="mb-4">
       <div class="flex items-end justify-between gap-4">
         <div>
-          <h1 class="text-4xl font-extrabold text-slate-900">커뮤니티</h1>
+          <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">커뮤니티</h1>
           <p class="my-1 text-base font-light text-slate-400">
             금융 정보와 궁금한 점을 자유롭게 나눠보세요.
           </p>
@@ -11,7 +11,7 @@
 
         <button
           v-if="isAuthenticated"
-          class="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:opacity-50"
+          class="shrink-0 whitespace-nowrap rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:opacity-50"
           @click="router.push({ name: 'community-write' })"
         >
           글쓰기
@@ -23,10 +23,10 @@
       <table class="w-full table-fixed">
         <thead>
           <tr class="border-b border-slate-100 bg-slate-50/60 text-sm font-semibold text-slate-400">
-            <th class="w-16 py-3.5 pl-6 pr-3 text-left">번호</th>
-            <th class="py-3.5 pr-3 text-left">제목</th>
+            <th class="hidden w-16 py-3.5 pl-6 pr-3 text-left sm:table-cell">번호</th>
+            <th class="py-3.5 pl-5 pr-3 text-left sm:pl-0">제목</th>
             <th class="w-24 py-3.5 pr-3 text-left">작성자</th>
-            <th class="w-32 py-3.5 pr-6 text-left">날짜</th>
+            <th class="hidden w-32 py-3.5 pr-6 text-left sm:table-cell">날짜</th>
           </tr>
         </thead>
         <tbody v-if="!isLoading">
@@ -36,8 +36,8 @@
             class="group cursor-pointer border-b border-slate-100 transition last:border-0 hover:bg-blue-50/40"
             @click="router.push(`/community/${post.id}`)"
           >
-            <td class="py-4 pl-6 pr-3 text-base text-slate-300">{{ post.id }}</td>
-            <td class="py-4 pr-3">
+            <td class="hidden py-4 pl-6 pr-3 text-base text-slate-300 sm:table-cell">{{ post.id }}</td>
+            <td class="py-4 pl-5 pr-3 sm:pl-0">
               <div class="flex items-center gap-1 overflow-hidden">
                 <span
                   class="min-w-0 truncate text-base font-semibold text-slate-800 group-hover:text-blue-600"
@@ -53,7 +53,7 @@
               </div>
             </td>
             <td class="truncate py-4 pr-3 text-base text-slate-500">{{ post.authorNickname }}</td>
-            <td class="py-4 pr-6 text-sm text-slate-400">{{ post.createdAt }}</td>
+            <td class="hidden py-4 pr-6 text-sm text-slate-400 sm:table-cell">{{ post.createdAt }}</td>
           </tr>
         </tbody>
       </table>

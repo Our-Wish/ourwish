@@ -39,7 +39,7 @@
         <!-- 영상 상단 정보 -->
         <div class="mb-6 flex items-start justify-between gap-6">
           <div class="min-w-0">
-            <h1 class="text-3xl font-extrabold leading-snug text-slate-950">
+            <h1 class="text-xl font-extrabold leading-snug text-slate-950 md:text-3xl">
               {{ video.title }}
             </h1>
 

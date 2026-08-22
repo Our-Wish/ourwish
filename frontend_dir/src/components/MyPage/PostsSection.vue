@@ -1,7 +1,7 @@
 <template>
   <!-- 본문이 너무 넓으면 제목이 안 잘리므로, 커뮤니티처럼 읽기 좋은 폭으로 제한한다 -->
   <div class="max-w-4xl">
-    <h1 class="text-4xl font-extrabold text-slate-900">작성한 글</h1>
+    <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">작성한 글</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       커뮤니티에 남긴 내 글을 한곳에서 모아보세요.
     </p>

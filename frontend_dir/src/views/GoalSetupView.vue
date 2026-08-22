@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-8">
-    <div class="flex px-32">
-      <div class="flex w-1/3 flex-col pl-8 justify-between">
+    <div class="flex flex-col px-5 pb-12 lg:flex-row lg:px-32 lg:pb-0">
+      <div class="flex flex-col justify-between lg:w-1/3 lg:pl-8">
         <button
           @click="step--"
           :class="step === 1 ? 'invisible' : ''"
@@ -13,11 +13,11 @@
           <p class="text-xl font-semibold text-blue-600">
             {{ step === 1 ? 'STEP 01' : 'STEP 02' }}
           </p>
-          <h1 class="mt-3 text-5xl font-extrabold leading-tight text-slate-900">
+          <h1 class="mt-3 text-3xl font-extrabold leading-tight text-slate-900 md:text-5xl">
             <template v-if="step === 1">{{ config.step1Title[0] }}<br />{{ config.step1Title[1] }}</template>
             <template v-else>{{ config.step2Title[0] }}<br />{{ config.step2Title[1] }}</template>
           </h1>
-          <p class="mt-5 text-lg leading-relaxed text-slate-500">
+          <p class="mt-4 text-base leading-relaxed text-slate-500 md:mt-5 md:text-lg">
             <template v-if="step === 1">
               {{ config.step1Desc[0] }}<br />{{ config.step1Desc[1] }}
             </template>
@@ -26,21 +26,21 @@
             </template>
           </p>
         </div>
-        <img :src="step === 1 ? hiWish : fightingWish" class="mt-10 w-60 self-start" />
+        <img :src="step === 1 ? hiWish : fightingWish" class="mt-10 hidden w-60 self-start lg:block" />
       </div>
-      <div class="w-px bg-slate-200" />
+      <div class="hidden w-px bg-slate-200 lg:block" />
 
-      <div class="flex flex-1 flex-col justify-between px-16 pt-10">
+      <div class="flex flex-1 flex-col justify-between pt-8 lg:px-16 lg:pt-10">
         <template v-if="step === 1">
           <div class="flex flex-col gap-8">
             <div>
               <p class="mb-4 text-lg font-medium text-slate-700">{{ config.periodLabel }}</p>
-              <div class="flex gap-3">
+              <div class="grid grid-cols-3 gap-2 md:flex md:gap-3">
                 <button
                   v-for="option in periodOptions"
                   :key="option.value"
                   @click="selectedPeriod = option.value"
-                  class="flex-1 rounded-2xl border-2 py-3 text-base font-semibold transition"
+                  class="flex-1 rounded-2xl border-2 py-3 text-sm font-semibold transition md:text-base"
                   :class="
                     selectedPeriod === option.value
                       ? 'border-slate-900 bg-slate-900 text-white'
@@ -84,8 +84,8 @@
 
             <div>
               <p class="mb-3 text-base font-semibold text-slate-600">{{ config.calcTitle }}</p>
-              <p class="text-4xl font-extrabold text-blue-600">{{ formatWon(totalAmount) }}</p>
-              <div class="mt-3 flex items-center gap-2 text-base text-slate-500">
+              <p class="text-3xl font-extrabold text-blue-600 md:text-4xl">{{ formatWon(totalAmount) }}</p>
+              <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500 md:text-base">
                 <span>원금 {{ formatWon(isSavings ? principal : amount) }}</span>
                 <span class="text-slate-300">|</span>
                 <span

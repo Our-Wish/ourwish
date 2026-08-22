@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-4xl font-extrabold text-slate-900">찜한 영상</h1>
+    <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">찜한 영상</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       관심 있게 저장한 금융 영상을 한곳에서 확인해보세요.
     </p>

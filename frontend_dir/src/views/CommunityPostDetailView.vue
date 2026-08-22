@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7] pt-24 pb-24">
-    <main class="mx-auto max-w-4xl px-8">
+    <main class="mx-auto max-w-4xl px-5 md:px-8">
       <div class="mb-8 flex justify-end">
         <button
           class="text-sm font-bold cursor-pointer text-slate-500 transition hover:text-slate-900"
@@ -21,7 +21,7 @@
 
       <template v-else-if="post">
         <article>
-          <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">
+          <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
             {{ post.title }}
           </h1>
 

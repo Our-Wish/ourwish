@@ -13,14 +13,19 @@
 
       <img :src="wonderWish" alt="아워위시 캐릭터" class="mt-12 w-40 drop-shadow-xl" />
 
-      <div class="mt-9">
-        <h2 class="text-2xl font-bold leading-snug tracking-[-0.03em] text-slate-900">
-          모바일 버전은 준비 중이에요
-        </h2>
-
-        <p class="mt-2 text-base font-light leading-6 text-slate-500">
-          PC에서 더 편하게 이용해 주세요 !
-        </p>
+      <div class="mt-10 flex w-full max-w-xs flex-col gap-3">
+        <RouterLink
+          to="/depositgoalsetup"
+          class="rounded-2xl bg-slate-900 px-10 py-4 text-center text-base font-semibold text-white opacity-75 shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-95"
+        >
+          예금 추천받기
+        </RouterLink>
+        <RouterLink
+          to="/goalsetup"
+          class="rounded-2xl bg-slate-900 px-10 py-4 text-center text-base font-semibold text-white opacity-75 shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-95"
+        >
+          적금 추천받기
+        </RouterLink>
       </div>
     </section>
 

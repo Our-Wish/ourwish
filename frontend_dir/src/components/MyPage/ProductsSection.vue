@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <h1 class="text-4xl font-extrabold text-slate-900">나의 상품 관리</h1>
+    <h1 class="text-2xl font-extrabold text-slate-900 md:text-4xl">나의 상품 관리</h1>
     <p class="mt-3 text-base font-light text-slate-400">
       가입한 예·적금 상품을 한눈에 관리해보세요.
     </p>

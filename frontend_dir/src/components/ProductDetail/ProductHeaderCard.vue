@@ -2,10 +2,10 @@
   <div
     class="mb-6 overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-r from-white via-white to-blue-50 shadow-[0_12px_40px_rgba(37,99,235,0.12)]"
   >
-    <div class="flex w-full items-stretch px-9 py-8">
-      <div class="flex w-1/2 items-center gap-6">
+    <div class="flex w-full flex-col items-stretch gap-6 px-5 py-6 lg:flex-row lg:gap-0 lg:px-9 lg:py-8">
+      <div class="flex items-center gap-4 lg:w-1/2 lg:gap-6">
         <div
-          class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl text-3xl font-black text-white shadow-lg"
+          class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl font-black text-white shadow-lg md:h-20 md:w-20 md:rounded-3xl md:text-3xl"
           :style="{
             background: `linear-gradient(145deg, ${product.bankColor}dd, ${product.bankColor})`,
             boxShadow: `0 10px 24px ${product.bankColor}38`,
@@ -21,7 +21,7 @@
             </span>
           </div>
 
-          <p class="text-4xl font-black tracking-tight text-[#0F172A]">
+          <p class="text-2xl font-black tracking-tight text-[#0F172A] md:text-4xl">
             {{ product.productName }}
           </p>
 
@@ -44,9 +44,9 @@
         </div>
       </div>
 
-      <div class="mx-7 w-px shrink-0 self-stretch bg-blue-100"></div>
+      <div class="mx-7 hidden w-px shrink-0 self-stretch bg-blue-100 lg:block"></div>
 
-      <div class="flex w-2/5 flex-col justify-center">
+      <div class="flex flex-col justify-center lg:w-2/5">
         <div class="flex items-center justify-between">
           <p class="text-sm font-bold tracking-widest text-[#64748B]">최고 금리</p>
           <button
@@ -57,7 +57,7 @@
           </button>
         </div>
 
-        <p class="mt-2 text-6xl font-black leading-none tracking-tight text-[#2563EB]">
+        <p class="mt-2 text-5xl font-black leading-none tracking-tight text-[#2563EB] md:text-6xl">
           {{ product.maxRate }}<span class="text-3xl">%</span>
         </p>
 
@@ -71,9 +71,9 @@
         </div>
       </div>
 
-      <div class="mx-7 w-px shrink-0 self-stretch bg-blue-100"></div>
+      <div class="mx-7 hidden w-px shrink-0 self-stretch bg-blue-100 lg:block"></div>
 
-      <div class="flex w-1/5 flex-col justify-center gap-2.5">
+      <div class="flex flex-col justify-center gap-2.5 lg:w-1/5">
         <a
           :href="bankUrl"
           target="_blank"

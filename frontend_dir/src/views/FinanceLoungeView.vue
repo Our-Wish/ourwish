@@ -1,12 +1,12 @@
 <template>
   <div class="min-h-screen bg-linear-to-b from-[#F7F9FB] to-[#DFEAF7]">
-    <div class="flex px-32 pb-12 pt-8">
-      <aside class="flex w-1/5 flex-col pr-8">
+    <div class="flex flex-col px-5 pb-12 pt-6 lg:flex-row lg:px-32 lg:pt-8">
+      <aside class="flex flex-col lg:w-1/5 lg:pr-8">
         <div>
-          <nav class="pl-8 mt-3 space-y-1">
+          <nav class="mt-1 flex gap-1 overflow-x-auto pb-1 lg:mt-3 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0 lg:pl-8">
             <button
               @click="activeMenu = 'video'"
-              class="w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-base font-semibold transition"
+              class="shrink-0 whitespace-nowrap cursor-pointer rounded-xl px-3 py-2.5 text-left text-sm md:text-base lg:w-full font-semibold transition"
               :class="
                 activeMenu === 'video' ? 'text-blue-600' : 'text-slate-700 hover:bg-slate-100'
               "
@@ -15,7 +15,7 @@
             </button>
             <button
               @click="activeMenu = 'goldsilver'"
-              class="w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-base font-semibold transition"
+              class="shrink-0 whitespace-nowrap cursor-pointer rounded-xl px-3 py-2.5 text-left text-sm md:text-base lg:w-full font-semibold transition"
               :class="
                 activeMenu === 'goldsilver' ? 'text-blue-600' : 'text-slate-700 hover:bg-slate-100'
               "
@@ -24,7 +24,7 @@
             </button>
             <button
               @click="activeMenu = 'community'"
-              class="w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-base font-semibold transition"
+              class="shrink-0 whitespace-nowrap cursor-pointer rounded-xl px-3 py-2.5 text-left text-sm md:text-base lg:w-full font-semibold transition"
               :class="
                 activeMenu === 'community' ? 'text-blue-600' : 'text-slate-700 hover:bg-slate-100'
               "
@@ -33,15 +33,15 @@
             </button>
           </nav>
         </div>
-        <div class="mt-40 text-center">
+        <div class="mt-40 hidden text-center lg:block">
           <img :src="heartWish" alt="위시" class="mx-auto w-40" />
           <p class="mt-4 text-sm text-slate-400 break-keep">오늘의 금융 인사이트를 만나보세요 💡</p>
         </div>
       </aside>
 
-      <div class="w-px bg-slate-200" />
+      <div class="hidden w-px bg-slate-200 lg:block" />
 
-      <main class="flex-1 px-14 pt-2">
+      <main class="mt-5 flex-1 lg:mt-0 lg:px-14 lg:pt-2">
         <VideoSection v-if="activeMenu === 'video'" />
         <GoldSilverSection v-if="activeMenu === 'goldsilver'" />
         <CommunitySection v-if="activeMenu === 'community'" />

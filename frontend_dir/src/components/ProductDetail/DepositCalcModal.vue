@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       @click.self="$emit('close')"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-sm"
     >
       <div class="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
         <div class="mb-6 flex items-center justify-between">
