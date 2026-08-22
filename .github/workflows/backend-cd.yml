@@ -1,9 +1,14 @@
-name: Backend CD (manual)
+name: Backend CD
 
-# 수동 배포 워크플로우. GitHub Actions 탭에서 "Run workflow" 버튼을 눌러야만 실행된다.
-# (자동 트리거 아님 — 발표 주에 예상치 못한 자동배포로 운영이 흔들리는 걸 막기 위함.
-#  발표 후 안정화되면 아래 on: 을 push: branches: [develop] 로 바꿔 풀자동으로 승급)
+# develop에 백엔드 관련 변경이 push되면 자동 배포한다.
+# (발표 주에는 수동 트리거였으나, 안정화 후 자동으로 승급 — 수동 실행 버튼도 유지)
 on:
+  push:
+    branches: [develop]
+    # 백엔드와 무관한 push(프론트·문서만 변경)에는 배포를 돌리지 않는다
+    paths:
+      - "backend_dir/**"
+      - ".github/workflows/backend-cd.yml"
   workflow_dispatch:
 
 # 동시에 두 번 배포되지 않도록 잠금(버튼 연타·중복 실행 방지)
