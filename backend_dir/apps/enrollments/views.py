@@ -25,6 +25,7 @@ class EnrollmentListCreateView(APIView):
         enrollments = (
             Enrollment.objects.filter(member=request.user)
             .select_related("product", "product__bank")
+            .prefetch_related("product__options")  # best_option()이 추가 쿼리 없이 돌도록
             .order_by("-created_at")
         )
         return Response(EnrollmentListSerializer(enrollments, many=True).data)
@@ -39,8 +40,10 @@ class EnrollmentListCreateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            product = Product.objects.select_related("bank").get(
-                id=serializer.validated_data["product_id"]
+            product = (
+                Product.objects.select_related("bank")
+                .prefetch_related("options")
+                .get(id=serializer.validated_data["product_id"])
             )
         except Product.DoesNotExist:
             raise NotFound("해당 상품을 찾을 수 없습니다.")
@@ -64,9 +67,11 @@ class EnrollmentDetailView(APIView):
     def _get_owned(self, request, enrollment_id):
         # id로 먼저 찾고(없으면 404), 소유자 확인(아니면 403).
         try:
-            enrollment = Enrollment.objects.select_related(
-                "product", "product__bank"
-            ).get(id=enrollment_id)
+            enrollment = (
+                Enrollment.objects.select_related("product", "product__bank")
+                .prefetch_related("product__options")
+                .get(id=enrollment_id)
+            )
         except Enrollment.DoesNotExist:
             raise NotFound("해당 가입 내역을 찾을 수 없습니다.")
         if enrollment.member_id != request.user.id:

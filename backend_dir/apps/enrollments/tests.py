@@ -42,3 +42,53 @@ class AchievementGaugeTest(SimpleTestCase):
             date(2025, 1, 1), date(2026, 1, 1), today=date(2024, 12, 1)
         )
         self.assertEqual(gauge, 0.0)
+
+
+from django.test import TestCase
+
+from apps.common.testing import auth_client, make_member, make_product
+from apps.enrollments.models import Enrollment
+
+
+class EnrollmentApiTest(TestCase):
+    def setUp(self):
+        self.member = make_member()
+        self.client = auth_client(self.member)
+        self.product = make_product()
+
+    def test_register_then_fill_then_delete(self):
+        reg = self.client.post("/api/v1/enrollments/", {"product_id": self.product.id}, format="json")
+        self.assertEqual(reg.status_code, 201)
+        self.assertFalse(reg.data["is_filled"])
+        self.assertEqual(reg.data["max_rate"], 4.0)  # 목록/등록 응답에 대표 금리 포함
+        eid = reg.data["enrollment_id"]
+
+        dup = self.client.post("/api/v1/enrollments/", {"product_id": self.product.id}, format="json")
+        self.assertEqual(dup.status_code, 409)
+
+        fill = self.client.patch(
+            f"/api/v1/enrollments/{eid}/",
+            {"monthly_amount": 500_000, "rate": "3.5", "start_date": "2026-01-01",
+             "maturity_date": "2027-01-01"},
+            format="json",
+        )
+        self.assertEqual(fill.status_code, 200)
+        self.assertTrue(fill.data["is_filled"])
+        self.assertIsNone(fill.data["deposit_amount"])  # 적금이면 예치금액은 비워진다
+
+        self.assertEqual(self.client.delete(f"/api/v1/enrollments/{eid}/").status_code, 204)
+        self.assertFalse(Enrollment.objects.filter(id=eid).exists())
+
+    def test_cannot_touch_others_enrollment(self):
+        other = make_member(login_id="other")
+        e = Enrollment.objects.create(member=other, product=self.product)
+        self.assertEqual(self.client.delete(f"/api/v1/enrollments/{e.id}/").status_code, 403)
+
+    def test_maturity_must_be_after_start(self):
+        e = Enrollment.objects.create(member=self.member, product=self.product)
+        res = self.client.patch(
+            f"/api/v1/enrollments/{e.id}/",
+            {"monthly_amount": 1, "rate": "1", "start_date": "2026-01-01", "maturity_date": "2026-01-01"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 400)

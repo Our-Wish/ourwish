@@ -43,3 +43,62 @@ class HasConditionsTest(SimpleTestCase):
 
     def test_real_conditions(self):
         self.assertTrue(_has_conditions("급여이체: 연 0.3%p"))
+
+
+from django.test import TestCase
+
+from apps.common.testing import auth_client, make_member, make_product, make_profile
+from apps.products.models import Product
+
+
+class RecommendApiTest(TestCase):
+    """추천 API — 비로그인(쿼리 조건)·로그인(프로필) 두 경로."""
+
+    def setUp(self):
+        # 12개월 옵션이 있는 적금 2개(급여이체 태그 유무), 예금 1개
+        self.salary = make_product("급여적금", tag_salary_transfer=True,
+                                   special_condition_raw="급여이체 시 우대")
+        self.plain = make_product("무조건적금", special_condition_raw="")
+        self.deposit = make_product("테스트예금", product_type=Product.ProductType.DEPOSIT, terms=(24,))
+
+    def test_anonymous_with_criteria(self):
+        res = auth_client().get(
+            "/api/v1/products/recommend/",
+            {"save_term": 12, "amount": 300_000, "salary_transfer": "true", "page_size": 50},
+        )
+        self.assertEqual(res.status_code, 200)
+        names = [r["product_name"] for r in res.data["results"]]
+        self.assertIn("급여적금", names)
+        self.assertIn("무조건적금", names)  # 우대조건 없는 상품은 OR 매칭에서 통과
+        self.assertNotIn("테스트예금", names)
+
+    def test_anonymous_without_criteria_is_400(self):
+        self.assertEqual(auth_client().get("/api/v1/products/recommend/").status_code, 400)
+
+    def test_term_and_amount_pair_required(self):
+        res = auth_client().get("/api/v1/products/recommend/", {"save_term": 12})
+        self.assertEqual(res.status_code, 400)
+
+    def test_logged_in_uses_profile_per_product_type(self):
+        member = make_member()
+        make_profile(member)  # 적금 12개월 / 예금 24개월
+        client = auth_client(member)
+        savings = client.get("/api/v1/products/recommend/", {"product_type": "SAVINGS"})
+        deposit = client.get("/api/v1/products/recommend/", {"product_type": "DEPOSIT"})
+        self.assertEqual(savings.status_code, 200)
+        self.assertEqual([r["save_term"] for r in savings.data["results"]], [12, 12])
+        self.assertEqual([r["product_name"] for r in deposit.data["results"]], ["테스트예금"])
+        self.assertEqual(deposit.data["results"][0]["save_term"], 24)
+
+    def test_sort_all_requires_every_tag(self):
+        res = auth_client().get(
+            "/api/v1/products/recommend/",
+            {"save_term": 12, "amount": 300_000, "salary_transfer": "true", "sort": "all"},
+        )
+        self.assertEqual([r["product_name"] for r in res.data["results"]], ["급여적금"])
+
+    def test_detail_is_public_and_not_favorited(self):
+        res = auth_client().get(f"/api/v1/products/{self.salary.id}/")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.data["is_favorited"])
+        self.assertEqual(res.data["max_rate"], 4.0)
