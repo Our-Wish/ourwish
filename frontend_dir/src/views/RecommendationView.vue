@@ -245,16 +245,44 @@ const filteredProducts = computed(() => {
 
 const visibleProducts = computed(() => filteredProducts.value.slice(0, visibleCount.value))
 
+// 조건 칩 — 프로필(로그인) 또는 스토어 답변(비로그인)에서 T인 항목만 라벨로
+const buildChips = (source: Record<string, unknown>) => {
+  const chips: string[] = []
+  for (const key of config.value.conditionKeys) {
+    if (source[key]) chips.push(CONDITION_LABELS[key]!)
+  }
+  conditionChips.value = chips
+}
+
+// 비로그인: 이 탭에 저장된 STEP1·2 입력값을 추천 API 쿼리로 바꾼다 (금액은 만원 → 원)
+const anonymousCriteria = () => {
+  const birth = goalStore.birthDate ? { birth_date: goalStore.birthDate } : {}
+  return isSavings.value
+    ? {
+        save_term: goalStore.savings.period,
+        amount: goalStore.savings.monthlyAmount * 10000,
+        ...birth,
+        ...(goalStore.savings.answers ?? {}),
+      }
+    : {
+        save_term: goalStore.deposit.period,
+        amount: goalStore.deposit.amount * 10000,
+        ...birth,
+        ...(goalStore.deposit.answers ?? {}),
+      }
+}
+
 const fetchProfile = async () => {
+  if (!authStore.isAuthenticated) {
+    const answers = (isSavings.value ? goalStore.savings.answers : goalStore.deposit.answers) ?? {}
+    buildChips({ birth_date: goalStore.birthDate, ...answers })
+    return
+  }
   try {
     const { data } = await api.get('/api/v1/search-profile/')
     // 새로고침·새 탭에서도 플랜 카드와 상세의 기간 매칭이 서버 값과 맞도록 동기화
     goalStore.syncFromProfile(data)
-    const chips: string[] = []
-    for (const key of config.value.conditionKeys) {
-      if (data[key]) chips.push(CONDITION_LABELS[key]!)
-    }
-    conditionChips.value = chips
+    buildChips(data)
   } catch {}
 }
 
@@ -262,8 +290,14 @@ const fetchProducts = async () => {
   isLoading.value = true
   try {
     const { data } = await api.get('/api/v1/products/recommend/', {
-      // 백엔드는 기본 20개/페이지 — 전체를 한 번에 받아 '더 보기'·은행 필터를 클라이언트에서 처리
-      params: { sort: currentSort.value, product_type: config.value.productType, page_size: 500 },
+      params: {
+        sort: currentSort.value,
+        product_type: config.value.productType,
+        // 백엔드는 기본 20개/페이지 — 전체를 한 번에 받아 '더 보기'·은행 필터를 클라이언트에서 처리
+        page_size: 500,
+        // 로그인 상태면 서버 프로필을 쓰므로 조건을 보내지 않는다
+        ...(authStore.isAuthenticated ? {} : anonymousCriteria()),
+      },
     })
     rawProducts.value = data.results
   } catch {
