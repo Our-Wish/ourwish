@@ -30,10 +30,15 @@ export const useFavoritesStore = defineStore('favorites', {
         this.isLoading = false
       }
     },
-    addFavorite(favorite: Favorite) {
-      this.favorites.push(favorite)
+    // 찜 추가. 목록 한 줄에 들어갈 금리·예상 수령액은 서버만 계산할 수 있으므로
+    // 여기서 직접 push하지 않고, 다음에 목록을 열 때 다시 받아오게 표시만 해둔다.
+    async addFavorite(productId: number) {
+      await api.post('/api/v1/favorites/', { product_id: productId })
+      this.isFetched = false
     },
-    removeFavorite(productId: number) {
+    // 서버에서 먼저 지운 뒤(성공해야) 로컬 목록에서도 제거한다.
+    async removeFavorite(productId: number) {
+      await api.delete(`/api/v1/favorites/${productId}/`)
       this.favorites = this.favorites.filter((f) => f.product_id !== productId)
     },
   },

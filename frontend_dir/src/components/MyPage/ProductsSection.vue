@@ -108,9 +108,14 @@ const displayProducts = computed(() => {
 
 onMounted(() => enrollmentStore.fetchEnrollments())
 
-function confirmDelete() {
+async function confirmDelete() {
   if (deletingId.value === null) return
-  enrollmentStore.removeEnrollment(deletingId.value)
-  deletingId.value = null
+  try {
+    await enrollmentStore.removeEnrollment(deletingId.value)
+  } catch {
+    alert('상품 삭제에 실패했어요. 다시 시도해주세요.')
+  } finally {
+    deletingId.value = null
+  }
 }
 </script>

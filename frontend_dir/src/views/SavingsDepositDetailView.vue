@@ -163,12 +163,11 @@ async function toggleFavorite() {
   }
   if (!product.value) return
   try {
+    // 서버 호출과 스토어 갱신은 스토어 액션이 한 번에 처리한다
     if (isFavorite.value) {
-      await api.delete(`/api/v1/favorites/${product.value.id}/`)
-      favoritesStore.removeFavorite(product.value.id)
+      await favoritesStore.removeFavorite(product.value.id)
     } else {
-      const { data } = await api.post('/api/v1/favorites/', { product_id: product.value.id })
-      favoritesStore.addFavorite(data)
+      await favoritesStore.addFavorite(product.value.id)
     }
     isFavorite.value = !isFavorite.value
     alert(isFavorite.value ? '관심 상품에 추가했어요.' : '관심 상품에서 제거됐어요.')
