@@ -21,7 +21,7 @@ const router = createRouter({
       meta: { public: true },
     },
     {
-      path: '/GoalSetup',
+      path: '/goalsetup',
       name: 'goalsetup',
       component: GoalSetupView,
       props: { type: 'savings' },

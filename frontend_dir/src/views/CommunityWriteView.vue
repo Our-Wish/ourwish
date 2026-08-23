@@ -111,7 +111,7 @@ onMounted(async () => {
     content.value = data.content
   } catch {
     alert('글을 불러오는 데 실패했어요.')
-    router.replace({ name: 'community' })
+    router.replace('/financelounge?tab=community')
   } finally {
     isLoading.value = false
   }

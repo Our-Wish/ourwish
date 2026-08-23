@@ -69,15 +69,16 @@ export const useGoalStore = defineStore('goal', {
     },
     // 서버에 저장된 조회 프로필(원 단위)로 플랜을 맞춘다 — 새 탭/기기에서도 숫자가 맞도록.
     syncFromProfile(profile: {
-      save_term?: number
+      save_term?: number | null
       monthly_amount?: number | null
+      deposit_term?: number | null
       deposit_amount?: number | null
     }) {
-      if (profile.save_term) {
-        this.savings.period = profile.save_term
-        this.deposit.period = profile.save_term
-      }
+      if (profile.save_term) this.savings.period = profile.save_term
       if (profile.monthly_amount) this.savings.monthlyAmount = profile.monthly_amount / 10000
+      // 예금 기간은 따로 저장된다(없으면 분리 전 프로필이라 save_term 사용)
+      const depositTerm = profile.deposit_term ?? profile.save_term
+      if (depositTerm) this.deposit.period = depositTerm
       if (profile.deposit_amount) this.deposit.amount = profile.deposit_amount / 10000
       this.persist()
     },

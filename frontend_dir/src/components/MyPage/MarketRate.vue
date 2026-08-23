@@ -53,7 +53,6 @@ import {
   Legend,
   type Plugin,
 } from 'chart.js'
-import api from '@/api/index'
 import { useEnrollmentStore } from '@/stores/enrollment'
 import { useMarketRatesStore } from '@/stores/marketRates'
 import { trimProductName } from '@/utils/product'
@@ -85,25 +84,17 @@ const filteredItems = computed(() =>
 async function loadData() {
   await enrollmentStore.fetchEnrollments()
 
-  const results = await Promise.all(
-    enrollmentStore.enrollments.map(async (e) => {
-      try {
-        const { data } = await api.get(`/api/v1/products/${e.product_id}/`)
-        const option = data.options?.[0] ?? {}
-        return {
-          label: `${e.bank_name} · ${trimProductName(e.product_name)}`,
-          baseRate: +(option.base_rate ?? data.base_rate ?? 0),
-          maxRate: +(option.max_rate ?? data.max_rate ?? 0),
-          myRate: +e.rate,
-          productType: e.product_type,
-        } as RateItem
-      } catch {
-        return null
-      }
-    }),
-  )
-
-  items.value = results.filter((r): r is RateItem => r !== null)
+  // 가입 목록 응답에 대표 금리(base/max)가 들어 있으므로 상품 상세를 따로 부르지 않는다.
+  // 금리를 아직 입력하지 않은(정보 미입력) 상품은 비교 대상이 아니므로 제외.
+  items.value = enrollmentStore.enrollments
+    .filter((e) => e.is_filled && e.rate !== null)
+    .map((e) => ({
+      label: `${e.bank_name} · ${trimProductName(e.product_name)}`,
+      baseRate: e.base_rate ?? 0,
+      maxRate: e.max_rate ?? e.base_rate ?? 0,
+      myRate: Number(e.rate),
+      productType: e.product_type,
+    }))
   isLoading.value = false
 }
 

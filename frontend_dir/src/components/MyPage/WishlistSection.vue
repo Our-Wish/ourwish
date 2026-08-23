@@ -78,7 +78,6 @@
             >
               {{ product.productName }}
             </button>
-            <p class="text-lg font-bold text-slate-900"></p>
             <p class="mt-1 text-sm text-slate-400">
               기본 금리 {{ product.baseRate }}% | 최고 금리 {{ product.maxRate }}%
             </p>
@@ -120,7 +119,6 @@ const displayProducts = computed(() => {
     bankType: item.bank_type,
     baseRate: item.base_rate,
     maxRate: item.max_rate,
-    expectedPayout: item.expected_payout,
   }))
 })
 
