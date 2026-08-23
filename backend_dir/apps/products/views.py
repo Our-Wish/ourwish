@@ -52,6 +52,18 @@ RecommendItemSerializer = inline_serializer(
 )
 
 
+class RecommendPagination(PageNumberPagination):
+    """추천 목록 전용 페이지네이션 — ?page_size=로 한 번에 받을 개수를 조절할 수 있다.
+
+    추천 뷰는 어차피 전체 상품을 메모리에서 계산한 뒤 자르므로, 프론트가 page_size를
+    크게 주면 한 번의 요청으로 전체 목록을 받아 '더 보기'·은행 필터를 클라이언트에서 처리한다.
+    """
+
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 500
+
+
 def _calc_age(birth_date):
     """생년월일 → 만 나이."""
     today = date.today()
@@ -185,7 +197,7 @@ class ProductRecommendView(APIView):
         # 세후 수령액 내림차순, 동률이면 product_id 오름차순
         results.sort(key=lambda item: (-item["expected_payout"], item["product_id"]))
 
-        paginator = PageNumberPagination()
+        paginator = RecommendPagination()
         page = paginator.paginate_queryset(results, request)
         return paginator.get_paginated_response(page)
 
