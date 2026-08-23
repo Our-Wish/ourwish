@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
       useEnrollmentStore().$reset()
       useFavoritesStore().$reset()
       useVideoFavoritesStore().$reset()
-      useGoalStore().$reset()
+      useGoalStore().clear()
     },
     async login(login_id: string, password: string) {
       const { data } = await api.post('/api/v1/accounts/login/', { login_id, password })

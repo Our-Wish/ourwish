@@ -248,6 +248,8 @@ const visibleProducts = computed(() => filteredProducts.value.slice(0, visibleCo
 const fetchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
+    // 새로고침·새 탭에서도 플랜 카드와 상세의 기간 매칭이 서버 값과 맞도록 동기화
+    goalStore.syncFromProfile(data)
     const chips: string[] = []
     for (const key of config.value.conditionKeys) {
       if (data[key]) chips.push(CONDITION_LABELS[key]!)
@@ -260,7 +262,8 @@ const fetchProducts = async () => {
   isLoading.value = true
   try {
     const { data } = await api.get('/api/v1/products/recommend/', {
-      params: { sort: currentSort.value, product_type: config.value.productType },
+      // 백엔드는 기본 20개/페이지 — 전체를 한 번에 받아 '더 보기'·은행 필터를 클라이언트에서 처리
+      params: { sort: currentSort.value, product_type: config.value.productType, page_size: 500 },
     })
     rawProducts.value = data.results
   } catch {
