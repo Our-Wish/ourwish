@@ -35,14 +35,6 @@ FavoriteCreatedSerializer = inline_serializer(
 )
 
 
-def _best_by_rate(product):
-    """금리(최고>기본) 가장 높은 옵션. 프로필 없을 때 base/max 표시용."""
-    options = list(product.options.all())
-    if not options:
-        return None
-    return max(options, key=lambda o: o.max_rate or o.base_rate)
-
-
 class FavoriteListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -74,7 +66,7 @@ class FavoriteListCreateView(APIView):
             product = fav.product
             is_deposit = product.product_type == Product.ProductType.DEPOSIT
             # 금리(base/max)는 항상 상품의 대표(최고금리) 옵션에서 — 카드 헤드라인용.
-            headline = _best_by_rate(product)
+            headline = product.best_option()
             base_rate = float(headline.base_rate) if headline else None
             max_rate = (
                 float(headline.max_rate)

@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from .models import Member, SearchProfile
@@ -11,6 +13,14 @@ class SignupSerializer(serializers.Serializer):
     def validate_login_id(self, value):
         if Member.objects.filter(login_id=value).exists():
             raise serializers.ValidationError("이미 사용 중인 아이디입니다.")
+        return value
+
+    def validate_password(self, value):
+        # 최소 규칙: 8자 이상 + 영문·숫자 각 1개 이상 (공백만/너무 짧은 비밀번호 차단)
+        if len(value) < 8 or not re.search(r"[A-Za-z]", value) or not re.search(r"\d", value):
+            raise serializers.ValidationError(
+                "비밀번호는 영문과 숫자를 포함해 8자 이상이어야 합니다."
+            )
         return value
 
     def create(self, validated_data):
@@ -60,6 +70,7 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         fields = [
             "save_term",
             "monthly_amount",
+            "deposit_term",
             "deposit_amount",
             "birth_date",
             "salary_transfer",
@@ -73,11 +84,25 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         ]
 
     def validate_monthly_amount(self, value):
-        if not (50_000 <= value <= 3_000_000):
+        if value is not None and not (50_000 <= value <= 3_000_000):
             raise serializers.ValidationError(
                 "월 저축액은 5만원 이상 300만원 이하여야 합니다."
             )
         return value
+
+    def validate(self, attrs):
+        # 적금(save_term+monthly_amount)·예금(deposit_term+deposit_amount)은 쌍으로만 받는다.
+        # 요청에 들어온 쪽만 검사한다(update_or_create가 보낸 필드만 갱신하므로 반대쪽은 유지됨).
+        for term_key, amount_key, label in (
+            ("save_term", "monthly_amount", "적금"),
+            ("deposit_term", "deposit_amount", "예금"),
+        ):
+            sent = [k for k in (term_key, amount_key) if k in attrs]
+            if sent and any(attrs.get(k) is None for k in (term_key, amount_key)):
+                raise serializers.ValidationError(
+                    {sent[0]: f"{label} 기간과 금액은 함께 보내야 합니다."}
+                )
+        return attrs
 
     def validate_deposit_amount(self, value):
         # 예금은 거치식이라 한 번에 넣는 예치금액. 적금(5만~300만)보다 상한이 큼.

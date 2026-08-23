@@ -60,6 +60,17 @@ class Product(models.Model):
         db_table = "product"
         unique_together = [("bank", "fin_prdt_cd")]
 
+    def best_option(self):
+        """카드 헤드라인용 대표 옵션 — 최고금리(없으면 기본금리)가 가장 높은 옵션. 없으면 None.
+
+        상세·찜 목록·가입 목록이 같은 기준으로 금리를 보여주도록 여기서 한 번만 정의한다.
+        (options가 prefetch돼 있으면 추가 쿼리 없이 메모리에서 고른다)
+        """
+        options = list(self.options.all())
+        if not options:
+            return None
+        return max(options, key=lambda o: o.max_rate if o.max_rate is not None else o.base_rate)
+
 
 class ProductOption(models.Model):
     class IntrRateType(models.TextChoices):

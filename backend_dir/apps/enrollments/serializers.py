@@ -83,6 +83,9 @@ class EnrollmentListSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.product_name", read_only=True)
     bank_name = serializers.CharField(source="product.bank.bank_name", read_only=True)
     rate = serializers.FloatField(allow_null=True)
+    # 상품의 대표(최고금리) 옵션 기준 기본/최고금리 — 금리 비교 차트가 상품 상세를 N번 부르지 않도록
+    base_rate = serializers.SerializerMethodField()
+    max_rate = serializers.SerializerMethodField()
     is_filled = serializers.SerializerMethodField()
     achievement_gauge = serializers.SerializerMethodField()
 
@@ -98,10 +101,24 @@ class EnrollmentListSerializer(serializers.ModelSerializer):
             "monthly_amount",
             "deposit_amount",
             "rate",
+            "base_rate",
+            "max_rate",
             "start_date",
             "maturity_date",
             "achievement_gauge",
         ]
+
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_base_rate(self, obj):
+        best = obj.product.best_option()
+        return float(best.base_rate) if best else None
+
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_max_rate(self, obj):
+        best = obj.product.best_option()
+        if best and best.max_rate is not None:
+            return float(best.max_rate)
+        return None
 
     def _is_filled(self, obj):
         # 적금=월납입, 예금=예치금액 기준으로 '금액이 채워졌나'를 본다.

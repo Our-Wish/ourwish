@@ -33,17 +33,19 @@ class SearchProfile(models.Model):
     member = models.OneToOneField(
         Member, on_delete=models.CASCADE, related_name="search_profile"
     )
-    # STEP 01
-    save_term = models.IntegerField(choices=SaveTerm.choices)  # 저축/예치 기간(개월)
-    monthly_amount = models.IntegerField()  # 월 저축액(원, 적금용), 5만~300만
-    # 예금(거치식) 추천용 예치금액(원). 적금만 쓰던 시절엔 없던 값이라 nullable.
-    deposit_amount = models.IntegerField(null=True, blank=True)
+    # STEP 01 — 적금(적립식)과 예금(거치식)은 기간·금액을 따로 가진다.
+    # 한쪽만 쓰는 회원도 있으므로 모두 nullable. (serializer가 '기간+금액 쌍'을 강제)
+    save_term = models.IntegerField(choices=SaveTerm.choices, null=True, blank=True)  # 적금 기간(개월)
+    monthly_amount = models.IntegerField(null=True, blank=True)  # 월 저축액(원, 적금), 5만~300만
+    deposit_term = models.IntegerField(choices=SaveTerm.choices, null=True, blank=True)  # 예금 예치 기간(개월)
+    deposit_amount = models.IntegerField(null=True, blank=True)  # 예치금액(원, 예금), 5만~5000만
     # STEP 02
     birth_date = models.DateField()  # 생년월일 → 만 나이/연령대 매칭에 사용
-    salary_transfer = models.BooleanField()  # 급여이체 가능 여부
-    auto_transfer = models.BooleanField()  # 자동이체 가능 여부 (적금)
-    card_usage = models.BooleanField()  # 카드실적 가능 여부
-    housing_subscription = models.BooleanField()  # 주택청약 보유 여부 (적금)
+    # 적금 전용 STEP02 답변. 예금만 쓰는 회원도 있으므로 기본값 False.
+    salary_transfer = models.BooleanField(default=False)  # 급여이체 가능 여부
+    auto_transfer = models.BooleanField(default=False)  # 자동이체 가능 여부
+    card_usage = models.BooleanField(default=False)  # 카드실적 가능 여부
+    housing_subscription = models.BooleanField(default=False)  # 주택청약 보유 여부
     # 예금 전용 STEP02 답변. 적금만 쓰던 기존 프로필엔 없던 값이라 기본값 False.
     first_transaction = models.BooleanField(default=False)  # 이 은행 첫거래(신규) 여부
     online_signup = models.BooleanField(default=False)  # 비대면(인터넷·모바일) 가입 의향

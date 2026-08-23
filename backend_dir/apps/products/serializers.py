@@ -77,18 +77,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "options",
         ]
 
-    def _best_option(self, obj):
-        options = obj.options.all()
-        if not options:
-            return None
-        return max(options, key=lambda o: o.max_rate or o.base_rate)
-
-    def get_base_rate(self, obj) -> float:
-        best = self._best_option(obj)
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_base_rate(self, obj):
+        best = obj.best_option()
         return float(best.base_rate) if best else None
 
-    def get_max_rate(self, obj) -> float:
-        best = self._best_option(obj)
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_max_rate(self, obj):
+        best = obj.best_option()
         if best and best.max_rate is not None:
             return float(best.max_rate)
         return None

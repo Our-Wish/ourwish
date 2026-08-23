@@ -141,17 +141,18 @@ class ProductRecommendView(APIView):
                     {"detail": "조회 프로필을 먼저 입력하거나 조건(save_term·amount)을 보내주세요."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            term = profile.save_term
-            # 적금=월 납입액으로, 예금=한 번에 넣는 예치금액으로 추천 계산을 한다.
+            # 적금=저축기간+월 납입액, 예금=예치기간+예치금액 (프로필에 각각 따로 저장됨)
             if is_deposit:
+                term = profile.deposit_term or profile.save_term  # 분리 전 프로필 호환
                 amount = profile.deposit_amount
-                if amount is None:
-                    return Response(
-                        {"detail": "예치금액을 먼저 입력해주세요."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
             else:
+                term = profile.save_term
                 amount = profile.monthly_amount
+            if term is None or amount is None:
+                return Response(
+                    {"detail": f"{'예금' if is_deposit else '적금'} 기간과 금액을 먼저 입력해주세요."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             birth_date = profile.birth_date
             # 상품군에 맞는 태그 집합에서, 유저가 T로 답한 것만 추린다.
             wanted = [tag for tag in tag_fields if getattr(profile, tag)]
