@@ -39,17 +39,20 @@ const router = createRouter({
       name: 'recommendation',
       component: RecommendationView,
       props: { type: 'savings' },
+      meta: { public: true },
     },
     {
       path: '/depositrecommendation',
       name: 'depositrecommendation',
       component: RecommendationView,
       props: { type: 'deposit' },
+      meta: { public: true },
     },
     {
       path: '/products/:id',
       name: 'product-detail',
       component: SavingsDepositDetailView,
+      meta: { public: true },
     },
     {
       path: '/mypage',

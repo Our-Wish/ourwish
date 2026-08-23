@@ -284,7 +284,32 @@ const fetchSearchProfile = async () => {
   } catch {}
 }
 
-watch(() => authStore.isAuthenticated, (isAuth) => { if (isAuth) fetchSearchProfile() }, { immediate: true })
+// 비로그인: 이 탭에서 이전에 입력했던 값(sessionStorage)으로 prefill
+const prefillFromStore = () => {
+  if (goalStore.birthDate) birthDate.value = goalStore.birthDate
+  if (isSavings.value) {
+    selectedPeriod.value = goalStore.savings.period
+    amount.value = goalStore.savings.monthlyAmount
+    const a = goalStore.savings.answers
+    if (a) {
+      ynAnswers.salary = a.salary_transfer
+      ynAnswers.auto = a.auto_transfer
+      ynAnswers.card = a.card_usage
+      ynAnswers.housing = a.housing_subscription
+    }
+  } else {
+    selectedPeriod.value = goalStore.deposit.period
+    amount.value = goalStore.deposit.amount
+    const a = goalStore.deposit.answers
+    if (a) Object.assign(ynAnswers, a)
+  }
+}
+
+watch(
+  () => authStore.isAuthenticated,
+  (isAuth) => (isAuth ? fetchSearchProfile() : prefillFromStore()),
+  { immediate: true },
+)
 
 const rateAvg = computed(() => isSavings.value ? marketRates.savingsAvg : marketRates.depositAvg)
 const principal = computed(() => amount.value * selectedPeriod.value)
@@ -307,10 +332,6 @@ const rateCaption = computed(() => {
 })
 
 const onNext = async () => {
-  if (!authStore.isAuthenticated) {
-    authStore.openLoginModal()
-    return
-  }
   if (step.value === 1) {
     step.value++
     window.scrollTo(0, 0)
@@ -320,6 +341,29 @@ const onNext = async () => {
       alert('모든 항목에 답변해주세요.')
       return
     }
+    // 비로그인: 서버 프로필 대신 브라우저(sessionStorage)에 조건을 두고 추천으로 이동
+    if (!authStore.isAuthenticated) {
+      goalStore.setBirthDate(birthDate.value)
+      if (isSavings.value) {
+        goalStore.setSavingsGoal(selectedPeriod.value, amount.value, {
+          salary_transfer: ynAnswers.salary === true,
+          auto_transfer: ynAnswers.auto === true,
+          card_usage: ynAnswers.card === true,
+          housing_subscription: ynAnswers.housing === true,
+        })
+        router.push({ name: 'recommendation' })
+      } else {
+        goalStore.setDepositGoal(selectedPeriod.value, amount.value, {
+          first_transaction: ynAnswers.first_transaction === true,
+          online_signup: ynAnswers.online_signup === true,
+          marketing_consent: ynAnswers.marketing_consent === true,
+          redeposit: ynAnswers.redeposit === true,
+        })
+        router.push({ name: 'depositrecommendation' })
+      }
+      return
+    }
+
     isLoading.value = true
     try {
       if (isSavings.value) {
