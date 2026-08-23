@@ -100,21 +100,37 @@ const form = reactive({
 
 const authStore = useAuthStore()
 
+// 백엔드와 같은 규칙: 영문·숫자 포함 8자 이상
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
+
 const onSubmit = async () => {
   errorMessage.value = ''
+  if (!PASSWORD_RULE.test(form.password)) {
+    errorMessage.value = '비밀번호는 영문과 숫자를 포함해 8자 이상이어야 합니다.'
+    return
+  }
   if (form.password !== form.passwordConfirm) {
     errorMessage.value = '비밀번호가 일치하지 않습니다.'
     return
   }
   loading.value = true
   try {
-    await authStore.signup(form)
+    // 확인용 비밀번호는 서버에 보낼 필요가 없다
+    await authStore.signup({
+      login_id: form.login_id,
+      password: form.password,
+      nickname: form.nickname,
+    })
     emit('close')
   } catch (err) {
-    // axios 에러일 때만 응답 본문을 보고, 백엔드 필드 에러(login_id)를 확인한다
-    const data = isAxiosError<{ login_id?: string[] }>(err) ? err.response?.data : undefined
+    // axios 에러일 때만 응답 본문을 보고, 백엔드 필드 에러를 확인한다
+    const data = isAxiosError<{ login_id?: string[]; password?: string[] }>(err)
+      ? err.response?.data
+      : undefined
     if (data?.login_id) {
       errorMessage.value = '이미 사용 중인 아이디입니다.'
+    } else if (data?.password?.[0]) {
+      errorMessage.value = data.password[0]
     } else {
       errorMessage.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
     }

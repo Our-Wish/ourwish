@@ -118,9 +118,9 @@ async function submit() {
   isLoading.value = true
   try {
     const payload = {
-      // 상품군에 맞는 금액만 보낸다. 반대쪽은 null로(백엔드도 반대쪽을 null로 비운다).
-      monthly_amount: props.productType === 'SAVINGS' ? form.monthly_amount : null,
-      deposit_amount: props.productType === 'DEPOSIT' ? form.deposit_amount : null,
+      // 입력은 만원 단위, 서버는 원 단위. 상품군에 맞는 금액만 보내고 반대쪽은 null로.
+      monthly_amount: props.productType === 'SAVINGS' ? form.monthly_amount * 10000 : null,
+      deposit_amount: props.productType === 'DEPOSIT' ? form.deposit_amount * 10000 : null,
       rate: form.rate,
       start_date: form.start_date,
       maturity_date: form.maturity_date,

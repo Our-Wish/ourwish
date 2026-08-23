@@ -144,7 +144,6 @@ import ProductCard from '@/components/Recommendation/ProductCard.vue'
 import BankFilterDropdown from '@/components/Recommendation/BankFilterDropdown.vue'
 import { bankColorMap } from '@/constants/bankColors'
 import type { RecommendItemApi } from '@/types/product'
-import { FIRST_TIER_BANKS } from '@/constants/banks'
 import { TAG_LABELS as CONDITION_LABELS } from '@/constants/tagLabels'
 import happyWish from '@/assets/img/wishes/happyWish.png'
 
@@ -222,6 +221,7 @@ const products = computed(() =>
   rawProducts.value.map((item) => ({
     id: item.product_id,
     bankName: item.bank_name,
+    bankType: item.bank_type, // 'FIRST_TIER' | 'SAVINGS' — 은행 분류는 서버 값으로
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
     productType: config.value.productTypeLabel,
@@ -236,8 +236,8 @@ const filteredProducts = computed(() => {
   if (selectedBanks.value.length === 0) return products.value
   return products.value.filter((p) =>
     selectedBanks.value.some((key) => {
-      if (key === 'first_tier') return FIRST_TIER_BANKS.has(p.bankName)
-      if (key === 'savings') return p.bankName.includes('저축은행')
+      if (key === 'first_tier') return p.bankType === 'FIRST_TIER'
+      if (key === 'savings') return p.bankType === 'SAVINGS'
       return p.bankName === key
     }),
   )

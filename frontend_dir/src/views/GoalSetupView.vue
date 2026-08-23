@@ -203,7 +203,6 @@ const selectedPeriod = ref(12)
 const amount = ref(50)
 const isLoading = ref(false)
 const birthDate = ref('')
-const savedProfile = ref<Record<string, unknown>>({})
 
 const periodOptions = [
   { value: 3, label: '3개월' },
@@ -265,16 +264,17 @@ onMounted(() => marketRates.fetchMarketRates())
 const fetchSearchProfile = async () => {
   try {
     const { data } = await api.get('/api/v1/search-profile/')
-    savedProfile.value = data
-    if (data.save_term) selectedPeriod.value = data.save_term
     if (data.birth_date) birthDate.value = data.birth_date
     if (isSavings.value) {
+      if (data.save_term) selectedPeriod.value = data.save_term
       if (data.monthly_amount) amount.value = data.monthly_amount / 10000
       if (data.salary_transfer !== undefined) ynAnswers.salary = data.salary_transfer
       if (data.auto_transfer !== undefined) ynAnswers.auto = data.auto_transfer
       if (data.card_usage !== undefined) ynAnswers.card = data.card_usage
       if (data.housing_subscription !== undefined) ynAnswers.housing = data.housing_subscription
     } else {
+      // 예금 기간은 따로 저장된다(없으면 분리 전 프로필이라 save_term 사용)
+      if (data.deposit_term ?? data.save_term) selectedPeriod.value = data.deposit_term ?? data.save_term
       if (data.deposit_amount) amount.value = data.deposit_amount / 10000
       if (data.first_transaction !== undefined) ynAnswers.first_transaction = data.first_transaction
       if (data.online_signup !== undefined) ynAnswers.online_signup = data.online_signup
@@ -379,14 +379,9 @@ const onNext = async () => {
         goalStore.setSavingsGoal(selectedPeriod.value, amount.value)
         router.push({ name: 'recommendation' })
       } else {
+        // 예금 쪽 값만 보낸다 — 적금 기간·금액·답변은 서버가 그대로 유지한다
         await api.put('/api/v1/search-profile/', {
-          monthly_amount: savedProfile.value.monthly_amount ?? 500000,
-          salary_transfer: savedProfile.value.salary_transfer ?? false,
-          auto_transfer: savedProfile.value.auto_transfer ?? false,
-          card_usage: savedProfile.value.card_usage ?? false,
-          housing_subscription: savedProfile.value.housing_subscription ?? false,
-          ...savedProfile.value,
-          save_term: selectedPeriod.value,
+          deposit_term: selectedPeriod.value,
           deposit_amount: amount.value * 10000,
           birth_date: birthDate.value,
           first_transaction: ynAnswers.first_transaction,

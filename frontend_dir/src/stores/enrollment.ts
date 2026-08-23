@@ -10,10 +10,12 @@ export interface Enrollment {
   is_filled: boolean
   monthly_amount: number
   deposit_amount: number
-  rate: number
-  start_date: string
-  maturity_date: string
-  achievement_gauge: number
+  rate: number | null
+  base_rate: number | null // 상품 대표(최고금리) 옵션의 기본금리
+  max_rate: number | null
+  start_date: string | null
+  maturity_date: string | null
+  achievement_gauge: number | null // 정보 입력 전엔 null
 }
 
 export const useEnrollmentStore = defineStore('enrollment', {

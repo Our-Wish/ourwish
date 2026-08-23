@@ -90,19 +90,14 @@ const displayProducts = computed(() => {
     bankColor: bankColorMap[item.bank_name] ?? '#6366f1',
     productName: item.product_name,
     isFilled: item.is_filled,
-    monthlyAmount: item.monthly_amount,
-    depositAmount: item.deposit_amount,
-    rate: item.rate,
-    startDate: item.start_date,
-    maturityDate: item.maturity_date,
-    progress: (() => {
-      if (!item.start_date || !item.maturity_date) return 0
-      const today = Date.now()
-      const start = new Date(item.start_date).getTime()
-      const end = new Date(item.maturity_date).getTime()
-      if (end <= start) return 0
-      return Math.min(100, Math.max(0, Math.round(((today - start) / (end - start)) * 100)))
-    })(),
+    // 서버는 원 단위 → 화면·입력 모달은 만원 단위
+    monthlyAmount: item.monthly_amount != null ? Math.round(item.monthly_amount / 10000) : 0,
+    depositAmount: item.deposit_amount != null ? Math.round(item.deposit_amount / 10000) : 0,
+    rate: item.rate ?? 0,
+    startDate: item.start_date ?? '',
+    maturityDate: item.maturity_date ?? '',
+    // 달성률은 서버(achievement_gauge, 월 단위)가 계산한 값을 그대로 쓴다
+    progress: Math.round(item.achievement_gauge ?? 0),
   }))
 })
 
