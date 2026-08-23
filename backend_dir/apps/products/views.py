@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers, status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -84,7 +84,7 @@ def _age_ok(age, age_min, age_max):
 
 
 class ProductDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # 상세는 비로그인도 볼 수 있다(찜 여부만 로그인 시 계산)
 
     @extend_schema(
         responses={200: ProductDetailSerializer},
@@ -95,9 +95,10 @@ class ProductDetailView(APIView):
             Product.objects.select_related("bank").prefetch_related("options"),
             id=product_id,
         )
-        is_favorited = Favorite.objects.filter(
-            member=request.user, product=product
-        ).exists()
+        is_favorited = (
+            request.user.is_authenticated
+            and Favorite.objects.filter(member=request.user, product=product).exists()
+        )
         serializer = ProductDetailSerializer(
             product, context={"is_favorited": is_favorited}
         )
@@ -105,43 +106,58 @@ class ProductDetailView(APIView):
 
 
 class ProductRecommendView(APIView):
-    permission_classes = [IsAuthenticated]
+    # 비로그인도 추천을 받을 수 있다. 조건은 (1) 쿼리로 직접 주거나 (2) 로그인 프로필에서 읽는다.
+    permission_classes = [AllowAny]
 
     @extend_schema(
         parameters=[RecommendQuerySerializer],
         responses={200: RecommendItemSerializer},
-        summary="추천 상품 목록 (#7) — 저장된 조회 프로필 기반, 세후 수령액 내림차순",
+        summary="추천 상품 목록 (#7) — 쿼리 조건 또는 저장된 조회 프로필 기반, 세후 수령액 내림차순",
     )
     def get(self, request):
         query = RecommendQuerySerializer(data=request.query_params)
         query.is_valid(raise_exception=True)
-        sort = query.validated_data["sort"]
-        product_type = query.validated_data["product_type"]
+        q = query.validated_data
+        sort = q["sort"]
+        product_type = q["product_type"]
         is_deposit = product_type == Product.ProductType.DEPOSIT
+        tag_fields = _DEPOSIT_TAG_FIELDS if is_deposit else _SAVINGS_TAG_FIELDS
 
-        # 저장된 조회 프로필을 읽어 필터 재료로 쓴다. 없으면 추천 불가.
-        profile = getattr(request.user, "search_profile", None)
-        if profile is None:
-            return Response(
-                {"detail": "조회 프로필을 먼저 입력해주세요."},
-                status=status.HTTP_400_BAD_REQUEST,
+        if "save_term" in q:
+            # (1) 쿼리 조건 — 비로그인(또는 프로필 없이 바로 조회)
+            term = q["save_term"]
+            amount = q["amount"]
+            birth_date = q.get("birth_date")
+            wanted = [tag for tag in tag_fields if q.get(tag)]
+        else:
+            # (2) 로그인 프로필 — 없으면 추천 불가
+            profile = (
+                getattr(request.user, "search_profile", None)
+                if request.user.is_authenticated
+                else None
             )
-
-        term = profile.save_term
-        # 적금=월 납입액으로, 예금=한 번에 넣는 예치금액으로 추천 계산을 한다.
-        if is_deposit:
-            amount = profile.deposit_amount
-            if amount is None:
+            if profile is None:
                 return Response(
-                    {"detail": "예치금액을 먼저 입력해주세요."},
+                    {"detail": "조회 프로필을 먼저 입력하거나 조건(save_term·amount)을 보내주세요."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        else:
-            amount = profile.monthly_amount
-        age = _calc_age(profile.birth_date)
-        # 상품군에 맞는 태그 집합에서, 유저가 T로 답한 것만 추린다.
-        tag_fields = _DEPOSIT_TAG_FIELDS if is_deposit else _SAVINGS_TAG_FIELDS
-        wanted = [tag for tag in tag_fields if getattr(profile, tag)]
+            term = profile.save_term
+            # 적금=월 납입액으로, 예금=한 번에 넣는 예치금액으로 추천 계산을 한다.
+            if is_deposit:
+                amount = profile.deposit_amount
+                if amount is None:
+                    return Response(
+                        {"detail": "예치금액을 먼저 입력해주세요."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            else:
+                amount = profile.monthly_amount
+            birth_date = profile.birth_date
+            # 상품군에 맞는 태그 집합에서, 유저가 T로 답한 것만 추린다.
+            wanted = [tag for tag in tag_fields if getattr(profile, tag)]
+
+        # 생년월일이 없으면(비로그인에서 생략) 연령 필터는 건너뛴다.
+        age = _calc_age(birth_date) if birth_date else None
         use_max = sort in ("max", "all")  # base만 기본금리, 나머지는 최고금리
 
         today = date.today().strftime("%Y%m%d")
@@ -168,8 +184,8 @@ class ProductRecommendView(APIView):
             # 2-1) 최소금액 필터 — 내 금액이 상품 최소가입금액에 못 미치면 제외
             if product.min_limit is not None and amount < product.min_limit:
                 continue
-            # 3) 연령 필터
-            if not _age_ok(age, product.age_min, product.age_max):
+            # 3) 연령 필터 (나이를 모르면 생략)
+            if age is not None and not _age_ok(age, product.age_min, product.age_max):
                 continue
             # 4) 우대조건 태그 매칭 (T로 답한 게 있을 때만)
             matched = [t for t in wanted if getattr(product, f"tag_{t}")]
@@ -221,9 +237,13 @@ class ProductRecommendView(APIView):
 class MarketRateView(APIView):
     """STEP1 예상 수령액의 '평균 금리' 기준값(한국은행 예금은행 수신금리).
 
+    STEP1은 비로그인도 쓰는 화면이라 공개 엔드포인트로 둔다.
+
     프론트가 직접 ECOS를 부르지 않게(키 노출/CORS 방지) 백엔드가 중계한다.
     값은 연 % (예: 정기예금 2.87). 조회 실패 시 폴백값이 내려간다(is_fallback=true).
     """
+
+    permission_classes = [AllowAny]
 
     @extend_schema(
         responses=inline_serializer(

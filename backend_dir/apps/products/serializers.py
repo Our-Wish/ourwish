@@ -117,3 +117,26 @@ class RecommendQuerySerializer(serializers.Serializer):
     product_type = serializers.ChoiceField(
         choices=["SAVINGS", "DEPOSIT"], default="SAVINGS"
     )
+
+    # ── 비로그인 추천용 조건 (로그인 상태에선 생략 → 저장된 조회 프로필 사용) ──
+    # save_term + amount가 함께 오면 프로필 대신 이 값으로 추천한다.
+    save_term = serializers.ChoiceField(choices=[3, 6, 12, 24, 36], required=False)
+    amount = serializers.IntegerField(min_value=1, required=False)  # 원 단위
+    birth_date = serializers.DateField(required=False)  # 없으면 연령 필터 생략
+    # 우대조건 답변(T만 의미 있음). 적금 4개 + 예금 4개.
+    salary_transfer = serializers.BooleanField(required=False, default=False)
+    auto_transfer = serializers.BooleanField(required=False, default=False)
+    card_usage = serializers.BooleanField(required=False, default=False)
+    housing_subscription = serializers.BooleanField(required=False, default=False)
+    first_transaction = serializers.BooleanField(required=False, default=False)
+    online_signup = serializers.BooleanField(required=False, default=False)
+    marketing_consent = serializers.BooleanField(required=False, default=False)
+    redeposit = serializers.BooleanField(required=False, default=False)
+
+    def validate(self, attrs):
+        # 둘 중 하나만 오면 애매하므로 함께 오도록 강제한다.
+        if ("save_term" in attrs) != ("amount" in attrs):
+            raise serializers.ValidationError(
+                "save_term과 amount는 함께 보내야 합니다."
+            )
+        return attrs
