@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia'
 import api, { setAuthToken } from '@/api'
+import { useEnrollmentStore } from '@/stores/enrollment'
+import { useFavoritesStore } from '@/stores/favorites'
+import { useVideoFavoritesStore } from '@/stores/videoFavorites'
+import { useGoalStore } from '@/stores/goal'
 
 const ACCESS_KEY = 'auth_token'
 const REFRESH_KEY = 'refresh_token'
@@ -60,6 +64,12 @@ export const useAuthStore = defineStore('auth', {
       this.setToken(null, null)
       this.user = null
       sessionStorage.removeItem('auth_user')
+      // 같은 탭에서 다른 계정으로 로그인해도 이전 계정의 상품·찜·플랜이 남지 않도록
+      // 개인 데이터 스토어를 초기 상태로 되돌린다. ($reset = 옵션 스토어의 state() 초기값으로 복원)
+      useEnrollmentStore().$reset()
+      useFavoritesStore().$reset()
+      useVideoFavoritesStore().$reset()
+      useGoalStore().$reset()
     },
     async login(login_id: string, password: string) {
       const { data } = await api.post('/api/v1/accounts/login/', { login_id, password })

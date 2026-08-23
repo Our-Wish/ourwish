@@ -35,7 +35,9 @@ export const useEnrollmentStore = defineStore('enrollment', {
       const idx = this.enrollments.findIndex((e) => e.enrollment_id === updated.enrollment_id)
       if (idx !== -1) this.enrollments[idx] = updated
     },
-    removeEnrollment(enrollmentId: number) {
+    // 서버에서 먼저 지운 뒤(성공해야) 로컬 목록에서도 제거한다.
+    async removeEnrollment(enrollmentId: number) {
+      await api.delete(`/api/v1/enrollments/${enrollmentId}/`)
       this.enrollments = this.enrollments.filter((e) => e.enrollment_id !== enrollmentId)
     },
   },
