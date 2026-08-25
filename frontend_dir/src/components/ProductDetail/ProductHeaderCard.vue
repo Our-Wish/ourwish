@@ -109,6 +109,7 @@
     :base-rate="product.baseRate"
     :max-rate="product.maxRate"
     :bonus-rate="bonusRate"
+    :intr-rate-type="intrRateType"
     @close="showCalc = false"
   />
   <SavingsCalcModal
@@ -116,25 +117,39 @@
     :base-rate="product.baseRate"
     :max-rate="product.maxRate"
     :bonus-rate="bonusRate"
+    :intr-rate-type="intrRateType"
     @close="showCalc = false"
   />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ProductDetail } from '@/types/product'
+import type { IntrRateType } from '@/utils/payout'
 import DepositCalcModal from './DepositCalcModal.vue'
 import SavingsCalcModal from './SavingsCalcModal.vue'
 
-defineProps<{
+const props = defineProps<{
   product: Pick<
     ProductDetail,
-    'bankName' | 'bankColor' | 'productName' | 'baseRate' | 'maxRate' | 'tags' | 'productType'
+    | 'bankName'
+    | 'bankColor'
+    | 'productName'
+    | 'baseRate'
+    | 'maxRate'
+    | 'tags'
+    | 'productType'
+    | 'intr_rate_type'
   >
   isFavorite: boolean
   bonusRate: number
   bankUrl: string
 }>()
+
+// 계산기가 단리/복리를 구분하도록 넘긴다. 'M'이 아니면 단리로 본다.
+const intrRateType = computed<IntrRateType>(() =>
+  props.product.intr_rate_type === 'M' ? 'M' : 'S',
+)
 
 defineEmits<{
   'toggle-favorite': []
