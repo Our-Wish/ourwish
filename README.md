@@ -9,10 +9,10 @@
 
 ## 🔗 서비스 링크
 
-| 구분        | 링크                   |
-| ----------- | ---------------------- |
+| 구분        | 링크 |
+| ----------- | ---- |
 | 배포 사이트 | https://our-wish.site/ |
-
+| 발표자료 | [발표자료 다운로드](https://github.com/Our-Wish/ourwish/blob/develop/docs/OURWISH.pdf?raw=1) |
 <br />
 
 ## 📌 목차
