@@ -187,6 +187,7 @@ import { useMarketRatesStore } from '@/stores/marketRates'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/index'
 import { formatWon } from '@/utils/format'
+import { calculatePayout, toManwon, toWon } from '@/utils/payout'
 import hiWish from '@/assets/img/wishes/hiWish.png'
 import fightingWish from '@/assets/img/wishes/fightingWish.png'
 
@@ -312,17 +313,21 @@ watch(
 )
 
 const rateAvg = computed(() => isSavings.value ? marketRates.savingsAvg : marketRates.depositAvg)
-const principal = computed(() => amount.value * selectedPeriod.value)
 
-const afterTaxInterest = computed(() => {
-  const annualRate = rateAvg.value / 100
-  const interest = isSavings.value
-    ? ((amount.value * selectedPeriod.value * (selectedPeriod.value + 1)) / 2) * (annualRate / 12)
-    : amount.value * annualRate * (selectedPeriod.value / 12)
-  return Math.round(interest * (1 - 0.154))
-})
-
-const totalAmount = computed(() => (isSavings.value ? principal.value : amount.value) + afterTaxInterest.value)
+// 특정 상품이 아니라 시장 평균 금리 기준 추정치라 단리('S')로 계산한다.
+// 입력은 만원 단위, 산식은 백엔드와 같은 원 단위로 계산한 뒤 다시 만원으로 표시한다.
+const payout = computed(() =>
+  calculatePayout({
+    amount: toWon(amount.value),
+    termMonths: selectedPeriod.value,
+    annualRate: rateAvg.value,
+    intrRateType: 'S',
+    isDeposit: !isSavings.value,
+  }),
+)
+const principal = computed(() => toManwon(payout.value.principal))
+const afterTaxInterest = computed(() => toManwon(payout.value.afterTaxInterest))
+const totalAmount = computed(() => toManwon(payout.value.total))
 
 const rateCaption = computed(() => {
   const label = isSavings.value ? '정기적금' : '정기예금'

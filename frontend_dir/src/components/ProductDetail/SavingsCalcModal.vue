@@ -99,7 +99,10 @@
           </div>
         </div>
 
-        <p class="mt-3 text-xs text-slate-400">* 세금과 단리 기준으로 계산한 예상 금액이에요.</p>
+        <p class="mt-3 text-xs text-slate-400">
+          * 세금(15.4%)과 {{ intrRateType === 'M' ? '월복리' : '단리' }} 기준으로 계산한 예상
+          금액이에요.
+        </p>
       </div>
     </div>
   </Teleport>
@@ -109,11 +112,13 @@
 import { ref, computed } from 'vue'
 import { useGoalStore } from '@/stores/goal'
 import { formatWon } from '@/utils/format'
+import { calculateSavingsPayout, toManwon, toWon, type IntrRateType } from '@/utils/payout'
 
 const props = defineProps<{
   baseRate: number
   maxRate: number
   bonusRate: number
+  intrRateType: IntrRateType
 }>()
 
 defineEmits<{ close: [] }>()
@@ -124,12 +129,16 @@ const calcAmount = ref(goalStore.savings.monthlyAmount || 30)
 const calcPeriod = ref(goalStore.savings.period || 12)
 const calcRate = ref(props.maxRate)
 
-const principal = computed(() => calcAmount.value * calcPeriod.value)
-const afterTaxInterest = computed(() => {
-  const interest =
-    ((calcAmount.value * calcPeriod.value * (calcPeriod.value + 1)) / 2) *
-    (calcRate.value / 100 / 12)
-  return Math.round(interest * (1 - 0.154))
-})
-const totalAmount = computed(() => principal.value + afterTaxInterest.value)
+// 입력은 만원 단위, 산식은 백엔드와 같은 원 단위로 계산한 뒤 다시 만원으로 표시한다.
+const payout = computed(() =>
+  calculateSavingsPayout(
+    toWon(calcAmount.value),
+    calcPeriod.value,
+    calcRate.value,
+    props.intrRateType,
+  ),
+)
+const principal = computed(() => toManwon(payout.value.principal))
+const afterTaxInterest = computed(() => toManwon(payout.value.afterTaxInterest))
+const totalAmount = computed(() => toManwon(payout.value.total))
 </script>
