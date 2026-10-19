@@ -19,11 +19,22 @@ class AfterTaxPayoutTest(SimpleTestCase):
         self.assertEqual(result, 1_216_497)
 
     def test_compound_interest(self):
-        # 복리(월복리) 3.0% → 1,214,075원
+        # 복리(월복리) 3.0% → 1,216,649원
         result = calculate_after_tax_payout(
             self.MONTHLY, self.TERM, 3.0, ProductOption.IntrRateType.COMPOUND
         )
-        self.assertEqual(result, 1_214_075)
+        self.assertEqual(result, 1_216_649)
+
+    def test_compound_not_less_than_simple(self):
+        # 단리·복리가 같은 납입 시점(매월 초)이면 복리는 항상 단리 이상이어야 한다.
+        for term in (3, 6, 12, 24, 36):
+            simple = calculate_after_tax_payout(
+                self.MONTHLY, term, 3.0, ProductOption.IntrRateType.SIMPLE
+            )
+            compound = calculate_after_tax_payout(
+                self.MONTHLY, term, 3.0, ProductOption.IntrRateType.COMPOUND
+            )
+            self.assertGreaterEqual(compound, simple, f"{term}개월")
 
     def test_zero_rate_returns_principal(self):
         # 이율 0% → 이자 없이 원금(120만)만 (0 나눗셈 방어 동작 확인)

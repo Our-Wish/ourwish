@@ -47,9 +47,11 @@ export function calculateSavingsPayout(
     return toResult(principal, monthlyAmount * (rate / 12) * monthsSum)
   }
 
-  // 복리(M) — 월복리. 적립식 연금의 미래가치(FV of annuity).
+  // 복리(M) — 월복리. 매월 초 납입이라 기초 연금(annuity due)의 미래가치.
+  // 첫 회차 n개월 ~ 마지막 회차 1개월로, 단리 monthsSum과 같은 기준이다.
   const monthlyRate = rate / 12
-  const balance = (monthlyAmount * ((1 + monthlyRate) ** termMonths - 1)) / monthlyRate
+  const balance =
+    ((monthlyAmount * ((1 + monthlyRate) ** termMonths - 1)) / monthlyRate) * (1 + monthlyRate)
   return toResult(principal, balance - principal)
 }
 

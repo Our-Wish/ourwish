@@ -83,13 +83,17 @@ months_sum = n × (n+1) / 2
 
 ### 4-2. 복리 (`intr_rate_type == 'M'`) — 월복리
 
-적립식 연금의 미래가치(FV of annuity) 공식을 쓴다.
+매월 **초**에 납입하는 기초 연금(annuity due)의 미래가치 공식을 쓴다.
+첫 회차는 n개월, 마지막 회차는 1개월 이자를 받으므로 단리의 `1+2+...+n`과 같은 기준이다.
 
 ```
 월이율 r = 연이율 / 12
-만기잔액 = 월납입액 × ((1 + r)^n - 1) / r
+만기잔액 = 월납입액 × ((1 + r)^n - 1) / r × (1 + r)
 세전이자 = 만기잔액 - 원금
 ```
+
+`× (1 + r)`이 없는 기말 연금 공식은 마지막 회차가 0개월치 이자를 받는다(월말 납입 가정).
+이전 버전이 이 공식이라 단리와 납입 시점이 어긋났다 — 9절 참고.
 
 ### 4-3. 코드
 
@@ -113,7 +117,10 @@ def calculate_after_tax_payout(monthly_amount, term_months, annual_rate, intr_ra
         pre_tax_interest = monthly_amount * (rate / 12) * months_sum
     else:                                                      # 복리(M) — 월복리
         monthly_rate = rate / 12
-        balance = monthly_amount * (((1 + monthly_rate) ** term_months) - 1) / monthly_rate
+        # 매월 초 납입(기초 연금): 첫 회차 n개월 ~ 마지막 회차 1개월 — 단리 months_sum과 같은 기준
+        balance = (
+            monthly_amount * (((1 + monthly_rate) ** term_months) - 1) / monthly_rate
+        ) * (1 + monthly_rate)
         pre_tax_interest = balance - principal
 
     after_tax_interest = pre_tax_interest * (1 - TAX_RATE)     # 이자에만 과세
@@ -270,15 +277,17 @@ results.sort(key=lambda item: (-item["expected_payout"], item["product_id"]))
 | 조건 | 원금 | 세후이자 | 수령액 |
 |---|---|---|---|
 | 단리 3.0% | 1,200,000 | 16,497 | **1,216,497** |
-| 복리(월복리) 3.0% | 1,200,000 | 14,075 | **1,214,075** |
+| 복리(월복리) 3.0% | 1,200,000 | 16,649 | **1,216,649** |
 | 이율 0% | 1,200,000 | 0 | **1,200,000** |
 
-### 복리가 단리보다 적은 이유
+### 단리·복리 납입 시점 통일 (수정 이력)
 
-버그가 아니다. 이 코드의 단리 공식은 "매 납입분에 만기까지 단리를 붙이는"
-실제 적금 방식(`months_sum` 누적)이라 기본 이자량 자체가 크다.
-반면 월복리 연금 공식은 초기 납입분의 복리 효과가 12개월이라는 짧은 기간에는
-그 차이를 따라잡지 못한다. 기간이 길어질수록 격차는 줄어든다.
+이전 버전의 적금 복리는 기말 연금 공식(`× (1 + r)` 없음)이라 12개월 3%에서
+세후이자 14,075원으로 단리(16,497원)보다 적게 나왔다.
+단리는 매월 초 납입(첫 회차 12개월 ~ 마지막 1개월, 합 78)인데
+복리는 매월 말 납입(첫 회차 11개월 ~ 마지막 0개월, 합 66)으로 계산해 납입 시점이 달랐기 때문이다.
+같은 시점이면 복리는 항상 단리 이상이므로, 복리에 `× (1 + r)`을 곱해 매월 초 납입으로 맞췄다.
+`test_compound_not_less_than_simple`이 3~36개월에서 이 관계를 확인한다.
 
 ### 0% 방어가 필요한 이유
 

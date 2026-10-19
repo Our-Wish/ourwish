@@ -30,7 +30,10 @@ def calculate_after_tax_payout(monthly_amount, term_months, annual_rate, intr_ra
         pre_tax_interest = monthly_amount * (rate / 12) * months_sum
     else:                                                      # 복리(M) — 월복리
         monthly_rate = rate / 12
-        balance = monthly_amount * (((1 + monthly_rate) ** term_months) - 1) / monthly_rate
+        # 매월 초 납입(기초 연금): 첫 회차 n개월 ~ 마지막 회차 1개월 — 단리 months_sum과 같은 기준
+        balance = (
+            monthly_amount * (((1 + monthly_rate) ** term_months) - 1) / monthly_rate
+        ) * (1 + monthly_rate)
         pre_tax_interest = balance - principal
 
     after_tax_interest = pre_tax_interest * (1 - TAX_RATE)     # 이자에만 과세
